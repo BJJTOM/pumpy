@@ -66,15 +66,17 @@ export default function AttendancePage() {
     }
   }
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('정말 삭제하시겠습니까?')) return
 
-    axios.delete(`${API_BASE}/attendance/${id}/`)
-      .then(() => {
-        alert('삭제되었습니다')
-        loadData()
-      })
-      .catch(err => alert('삭제 실패'))
+    try {
+      const apiBase = getApiUrl()
+      await axios.delete(`${apiBase}/attendance/${id}/`)
+      alert('삭제되었습니다')
+      loadData()
+    } catch (err) {
+      alert('삭제 실패')
+    }
   }
 
   if (loading) {
