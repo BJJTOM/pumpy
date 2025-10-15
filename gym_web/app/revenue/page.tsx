@@ -14,7 +14,7 @@ export default function RevenuePage() {
     amount: '',
     date: new Date().toISOString().split('T')[0],
     memo: '',
-    source: '회원권'
+    source: '?�원�?
   })
 
   useEffect(() => {
@@ -32,9 +32,9 @@ export default function RevenuePage() {
       setRevenue(revenueRes.data)
       setStats(statsRes.data)
       setMembers(membersRes.data)
-      console.log('✅ 매출 데이터 로드 성공')
+      console.log('??매출 ?�이??로드 ?�공')
     } catch (err) {
-      console.error('❌ 매출 데이터 로드 실패:', err)
+      console.error('??매출 ?�이??로드 ?�패:', err)
       setRevenue([])
       setStats(null)
       setMembers([])
@@ -46,29 +46,29 @@ export default function RevenuePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    axios.post(`${API_BASE}/revenue/`, {
+    axios.post(`${getApiUrl()}/revenue/`, {
       ...newRecord,
       member: newRecord.member || null
     })
       .then(() => {
-        alert('매출이 추가되었습니다')
+        alert('매출??추�??�었?�니??)
         setNewRecord({
           member: '',
           amount: '',
           date: new Date().toISOString().split('T')[0],
           memo: '',
-          source: '회원권'
+          source: '?�원�?
         })
         loadData()
       })
       .catch(err => {
         console.error(err)
-        alert('추가 실패')
+        alert('추�? ?�패')
       })
   }
 
   if (loading || !stats) {
-    return <div style={{ textAlign: 'center', padding: 60 }}>로딩 중...</div>
+    return <div style={{ textAlign: 'center', padding: 60 }}>로딩 �?..</div>
   }
 
   const goalProgress = (stats.month_revenue / monthlyGoal) * 100
@@ -78,18 +78,18 @@ export default function RevenuePage() {
   const expectedProgress = (currentDay / daysInMonth) * 100
   const isOnTrack = goalProgress >= expectedProgress
 
-  // 일별 매출 예측 (선형 회귀)
+  // ?�별 매출 ?�측 (?�형 ?��?)
   const avgDailyRevenue = stats.month_revenue / currentDay
   const forecastRevenue = avgDailyRevenue * daysInMonth
 
-  // 최근 30일 매출 추이
+  // 최근 30??매출 추이
   const recentRevenue = stats.daily_revenue || []
   const last7Days = recentRevenue.slice(-7)
   const avgLast7Days = last7Days.reduce((sum: number, d: any) => sum + d.amount, 0) / 7
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>
-      <h2 style={{ margin: 0, fontSize: '24px' }}>매출 관리</h2>
+      <h2 style={{ margin: 0, fontSize: '24px' }}>매출 관�?/h2>
 
       {/* 매출 KPI */}
       <div style={{ 
@@ -98,54 +98,49 @@ export default function RevenuePage() {
         gap: 12 
       }}>
         <div className="card" style={{ padding: 16 }}>
-          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>이번 달 매출</div>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>?�번 ??매출</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>
-            ₩ {(stats.month_revenue / 10000).toFixed(0)}만
-          </div>
+            ??{(stats.month_revenue / 10000).toFixed(0)}�?          </div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">
             목표: {(monthlyGoal / 10000).toFixed(0)}만원
           </div>
         </div>
 
         <div className="card" style={{ padding: 16 }}>
-          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>목표 달성률</div>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>목표 ?�성�?/div>
           <div style={{ fontSize: '24px', fontWeight: 800, color: isOnTrack ? 'var(--ok)' : 'var(--warn)' }}>
             {goalProgress.toFixed(1)}%
           </div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">
-            {isOnTrack ? '✅ 순조로움' : '⚠️ 노력 필요'}
+            {isOnTrack ? '???�조로�?' : '?�️ ?�력 ?�요'}
           </div>
         </div>
 
         <div className="card" style={{ padding: 16 }}>
-          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>예상 매출</div>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>?�상 매출</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>
-            ₩ {(forecastRevenue / 10000).toFixed(0)}만
-          </div>
+            ??{(forecastRevenue / 10000).toFixed(0)}�?          </div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">
-            현재 추세 기준
+            ?�재 추세 기�?
           </div>
         </div>
 
         <div className="card" style={{ padding: 16 }}>
-          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>오늘 매출</div>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>?�늘 매출</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>
-            ₩ {(stats.today_revenue / 10000).toFixed(0)}만
-          </div>
+            ??{(stats.today_revenue / 10000).toFixed(0)}�?          </div>
         </div>
 
         <div className="card" style={{ padding: 16 }}>
-          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>최근 7일 평균</div>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>최근 7???�균</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>
-            ₩ {(avgLast7Days / 10000).toFixed(0)}만
-          </div>
+            ??{(avgLast7Days / 10000).toFixed(0)}�?          </div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">
-            일평균
-          </div>
+            ?�평�?          </div>
         </div>
       </div>
 
-      {/* 목표 달성 프로그레스 */}
+      {/* 목표 ?�성 ?�로그레??*/}
       <div className="card">
         <div style={{ 
           padding: '12px 16px', 
@@ -156,7 +151,7 @@ export default function RevenuePage() {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <span>이번 달 목표 달성 현황</span>
+          <span>?�번 ??목표 ?�성 ?�황</span>
           <input 
             type="number"
             value={monthlyGoal}
@@ -174,8 +169,8 @@ export default function RevenuePage() {
           <div style={{ display: 'grid', gap: 12 }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-                <span>실제 매출</span>
-                <span style={{ fontWeight: 700 }}>₩ {stats.month_revenue.toLocaleString()}</span>
+                <span>?�제 매출</span>
+                <span style={{ fontWeight: 700 }}>??{stats.month_revenue.toLocaleString()}</span>
               </div>
               <div style={{ 
                 width: '100%', 
@@ -208,15 +203,15 @@ export default function RevenuePage() {
             </div>
 
             <div style={{ fontSize: 13 }} className="muted">
-              💡 {currentDay}일 경과 ({daysInMonth}일 중) · 
-              예상 달성률: {expectedProgress.toFixed(1)}% · 
-              남은 금액: ₩ {Math.max(monthlyGoal - stats.month_revenue, 0).toLocaleString()}
+              ?�� {currentDay}??경과 ({daysInMonth}??�? · 
+              ?�상 ?�성�? {expectedProgress.toFixed(1)}% · 
+              ?��? 금액: ??{Math.max(monthlyGoal - stats.month_revenue, 0).toLocaleString()}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 최근 30일 매출 추이 */}
+      {/* 최근 30??매출 추이 */}
       <div className="card">
         <div style={{ 
           padding: '12px 16px', 
@@ -224,7 +219,7 @@ export default function RevenuePage() {
           fontWeight: 600,
           fontSize: '14px'
         }}>
-          최근 30일 매출 추이
+          최근 30??매출 추이
         </div>
         <div style={{ padding: 16, overflowX: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, minWidth: 800, height: 200 }}>
@@ -257,26 +252,26 @@ export default function RevenuePage() {
             })}
           </div>
           <div style={{ marginTop: 12, fontSize: 12 }} className="muted">
-            💡 평균 일매출: ₩ {avgDailyRevenue.toLocaleString()} | 
-            예상 월매출: ₩ {forecastRevenue.toLocaleString()}
+            ?�� ?�균 ?�매�? ??{avgDailyRevenue.toLocaleString()} | 
+            ?�상 ?�매�? ??{forecastRevenue.toLocaleString()}
           </div>
         </div>
       </div>
 
-      {/* 매출 기록 추가 폼 */}
+      {/* 매출 기록 추�? ??*/}
       <div className="card">
         <div style={{ 
           padding: '12px 16px', 
           borderBottom: '1px solid var(--line)',
           fontWeight: 600 
         }}>
-          매출 기록 추가
+          매출 기록 추�?
         </div>
         <form onSubmit={handleSubmit} style={{ padding: 16 }}>
           <div style={{ display: 'grid', gap: 12 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>금액 (원)</label>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>금액 (??</label>
                 <input 
                   type="number"
                   value={newRecord.amount}
@@ -287,7 +282,7 @@ export default function RevenuePage() {
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>날짜</label>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>?�짜</label>
                 <input 
                   type="date"
                   value={newRecord.date}
@@ -302,21 +297,21 @@ export default function RevenuePage() {
                   value={newRecord.source}
                   onChange={(e) => setNewRecord({ ...newRecord, source: e.target.value })}
                 >
-                  <option value="회원권">회원권</option>
+                  <option value="?�원�?>?�원�?/option>
                   <option value="PT">PT</option>
-                  <option value="락커">락커</option>
-                  <option value="용품">용품</option>
-                  <option value="기타">기타</option>
+                  <option value="?�커">?�커</option>
+                  <option value="?�품">?�품</option>
+                  <option value="기�?">기�?</option>
                 </select>
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>회원 (선택)</label>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>?�원 (?�택)</label>
                 <select 
                   value={newRecord.member}
                   onChange={(e) => setNewRecord({ ...newRecord, member: e.target.value })}
                 >
-                  <option value="">선택 안 함</option>
+                  <option value="">?�택 ????/option>
                   {members.map(m => (
                     <option key={m.id} value={m.id}>
                       {m.first_name} {m.last_name}
@@ -332,11 +327,11 @@ export default function RevenuePage() {
                 type="text"
                 value={newRecord.memo}
                 onChange={(e) => setNewRecord({ ...newRecord, memo: e.target.value })}
-                placeholder="선택 사항"
+                placeholder="?�택 ?�항"
               />
             </div>
             
-            <button type="submit">추가</button>
+            <button type="submit">추�?</button>
           </div>
         </form>
       </div>
@@ -348,16 +343,16 @@ export default function RevenuePage() {
           borderBottom: '1px solid var(--line)',
           fontWeight: 600 
         }}>
-          매출 기록 (최근 50개)
+          매출 기록 (최근 50�?
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table>
             <thead>
               <tr>
-                <th>날짜</th>
+                <th>?�짜</th>
                 <th>금액</th>
                 <th>구분</th>
-                <th>회원</th>
+                <th>?�원</th>
                 <th>메모</th>
               </tr>
             </thead>
@@ -365,7 +360,7 @@ export default function RevenuePage() {
               {revenue.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="muted" style={{ textAlign: 'center', padding: 40 }}>
-                    매출 기록이 없습니다
+                    매출 기록???�습?�다
                   </td>
                 </tr>
               ) : (
@@ -375,7 +370,7 @@ export default function RevenuePage() {
                   return (
                     <tr key={i}>
                       <td className="muted">{record.date}</td>
-                      <td style={{ fontWeight: 600 }}>₩ {Number(record.amount).toLocaleString()}</td>
+                      <td style={{ fontWeight: 600 }}>??{Number(record.amount).toLocaleString()}</td>
                       <td>
                         <span className="pill">
                           {record.source || '-'}

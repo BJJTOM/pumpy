@@ -11,10 +11,14 @@ export default function CoachesPage() {
     loadData()
   }, [])
 
-  const loadData = () => {
-    axios.get(`${API_BASE}/coaches/`)
-      .then(res => setCoaches(res.data))
-      .catch(err => console.error(err))
+  const loadData = async () => {
+    try {
+      const apiBase = getApiUrl()
+      const res = await axios.get(`${apiBase}/coaches/`, { timeout: 30000 })
+      setCoaches(res.data)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const createCoach = async () => {
@@ -25,7 +29,8 @@ export default function CoachesPage() {
     const amount = prompt('급여 금액을 입력하세요 (원)') || '0'
 
     try {
-      await axios.post(`${API_BASE}/coaches/`, {
+      const apiBase = getApiUrl()
+      await axios.post(`${apiBase}/coaches/`, {
         name,
         phone,
         role: '코치',
