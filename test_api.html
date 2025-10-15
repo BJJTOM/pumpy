@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>펌피 API 테스트</h1>
+    
+    <h2>1. 대시보드 통계 API</h2>
+    <div id="dashboard-status" class="status loading">테스트 중...</div>
+    <pre id="dashboard-result">로딩 중...</pre>
+
+    <h2>2. 출석 통계 API</h2>
+    <div id="attendance-status" class="status loading">테스트 중...</div>
+    <pre id="attendance-result">로딩 중...</pre>
+
+    <h2>3. 수익 통계 API</h2>
+    <div id="revenue-status" class="status loading">테스트 중...</div>
+    <pre id="revenue-result">로딩 중...</pre>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        async function testAPI(url, statusId, resultId) {
+            const statusEl = document.getElementById(statusId);
+            const resultEl = document.getElementById(resultId);
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = `✅ 성공! (${response.status})`;
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = `❌ 실패! (${response.status})`;
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ 연결 실패: ${error.message}`;
+                resultEl.textContent = error.toString();
+            }
+        }
+
+        // 백엔드 시작을 위해 3초 대기
+        setTimeout(() => {
+            testAPI(`${API_BASE}/members/dashboard_stats/`, 'dashboard-status', 'dashboard-result');
+            testAPI(`${API_BASE}/attendance/weekly_stats/`, 'attendance-status', 'attendance-result');
+            testAPI(`${API_BASE}/revenue/stats/`, 'revenue-status', 'revenue-result');
+        }, 3000);
+    </script>
+</body>
+</html>
+
+

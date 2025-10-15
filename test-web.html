@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>펌피 웹 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #667eea;
+            color: white;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏋️ 펌피 웹 API 테스트</h1>
+    
+    <div class="test-section">
+        <h3>1. 백엔드 연결 테스트</h3>
+        <button onclick="testBackend()">백엔드 연결 확인 (8000)</button>
+        <div id="backend-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 프론트엔드 연결 테스트</h3>
+        <button onclick="testFrontend()">프론트엔드 열기 (3000)</button>
+        <div id="frontend-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 대시보드 데이터 테스트</h3>
+        <button onclick="testDashboard()">대시보드 API 호출</button>
+        <div id="dashboard-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 회원 목록 테스트</h3>
+        <button onclick="testMembers()">회원 목록 API 호출</button>
+        <div id="members-result" class="result"></div>
+    </div>
+
+    <script>
+        async function testBackend() {
+            const result = document.getElementById('backend-result');
+            result.textContent = '테스트 중...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/members/');
+                if (response.ok) {
+                    const data = await response.json();
+                    result.textContent = `✅ 성공!\n회원 수: ${data.length}명`;
+                    result.style.background = '#d4edda';
+                } else {
+                    result.textContent = `❌ 실패: ${response.status}`;
+                    result.style.background = '#f8d7da';
+                }
+            } catch (error) {
+                result.textContent = `❌ 오류: ${error.message}\n\n백엔드 서버가 실행 중인지 확인하세요.`;
+                result.style.background = '#f8d7da';
+            }
+        }
+
+        function testFrontend() {
+            window.open('http://localhost:3000', '_blank');
+            document.getElementById('frontend-result').textContent = '새 창에서 프론트엔드를 열었습니다.';
+        }
+
+        async function testDashboard() {
+            const result = document.getElementById('dashboard-result');
+            result.textContent = '테스트 중...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/members/dashboard_stats/');
+                if (response.ok) {
+                    const data = await response.json();
+                    result.textContent = `✅ 성공!\n${JSON.stringify(data, null, 2)}`;
+                    result.style.background = '#d4edda';
+                } else {
+                    result.textContent = `❌ 실패: ${response.status}`;
+                    result.style.background = '#f8d7da';
+                }
+            } catch (error) {
+                result.textContent = `❌ 오류: ${error.message}`;
+                result.style.background = '#f8d7da';
+            }
+        }
+
+        async function testMembers() {
+            const result = document.getElementById('members-result');
+            result.textContent = '테스트 중...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/members/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const first5 = data.slice(0, 5).map(m => `${m.first_name} ${m.last_name} (${m.phone})`).join('\n');
+                    result.textContent = `✅ 성공!\n총 ${data.length}명\n\n첫 5명:\n${first5}`;
+                    result.style.background = '#d4edda';
+                } else {
+                    result.textContent = `❌ 실패: ${response.status}`;
+                    result.style.background = '#f8d7da';
+                }
+            } catch (error) {
+                result.textContent = `❌ 오류: ${error.message}`;
+                result.style.background = '#f8d7da';
+            }
+        }
+
+        // 페이지 로드시 자동 테스트
+        window.onload = function() {
+            console.log('펌피 웹 테스트 페이지 로드됨');
+            setTimeout(testBackend, 1000);
+        };
+    </script>
+</body>
+</html>
+

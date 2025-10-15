@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+gym_web/node_modules/
+pumpy-mobile/node_modules/
+
+# Next.js
+gym_web/.next/
+gym_web/out/
+gym_web/.vercel/
+
+# Django
+gym_api/.venv/
+gym_api/__pycache__/
+gym_api/**/migrations/__pycache__/
+gym_api/**/__pycache__/
+gym_api/db.sqlite3
+gym_api/*.pyc
+gym_api/*.pyo
+gym_api/*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Build outputs
+gym_web/android/build/
+gym_web/android/app/build/
+gym_web/android/.gradle/
+*.apk
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.cursor/
+*.txt
+!requirements.txt
+

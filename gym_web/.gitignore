@@ -1,0 +1,12 @@
+.env.local
+.next/
+node_modules/
+out/
+npm-debug.log*
+package-lock.json
+android/
+ios/
+
+
+
+

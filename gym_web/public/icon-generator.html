@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>펌피 아이콘 생성기</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .sizes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .size-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .size-card strong {
+            display: block;
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💪 펌피 아이콘 생성기</h1>
+        <p>간단한 플레이스홀더 아이콘을 생성합니다. 실제 앱 배포 시에는 전문 디자이너가 만든 아이콘을 권장합니다.</p>
+
+        <div class="instructions">
+            <h3>📝 사용 방법</h3>
+            <ol>
+                <li>아래 버튼을 클릭하여 각 크기별 아이콘을 다운로드</li>
+                <li>다운로드된 파일들을 <code>gym_web/public/icons/</code> 폴더에 저장</li>
+                <li>앱 빌드 및 배포</li>
+            </ol>
+        </div>
+
+        <canvas id="iconCanvas" width="512" height="512"></canvas>
+
+        <div class="sizes">
+            <div class="size-card">
+                <strong>512×512</strong>
+                <small>메인 아이콘</small>
+            </div>
+            <div class="size-card">
+                <strong>192×192</strong>
+                <small>홈 화면</small>
+            </div>
+            <div class="size-card">
+                <strong>144×144</strong>
+                <small>태블릿</small>
+            </div>
+            <div class="size-card">
+                <strong>72×72</strong>
+                <small>작은 아이콘</small>
+            </div>
+        </div>
+
+        <button onclick="downloadIcon(512)">512×512 다운로드</button>
+        <button onclick="downloadIcon(384)">384×384 다운로드</button>
+        <button onclick="downloadIcon(192)">192×192 다운로드</button>
+        <button onclick="downloadIcon(152)">152×152 다운로드</button>
+        <button onclick="downloadIcon(144)">144×144 다운로드</button>
+        <button onclick="downloadIcon(128)">128×128 다운로드</button>
+        <button onclick="downloadIcon(96)">96×96 다운로드</button>
+        <button onclick="downloadIcon(72)">72×72 다운로드</button>
+
+        <div class="instructions" style="margin-top: 30px; background: #fff3cd;">
+            <h3>🎨 더 나은 아이콘 만들기</h3>
+            <p>전문적인 아이콘이 필요하다면:</p>
+            <ul style="list-style: none; padding: 0;">
+                <li>✨ <a href="https://realfavicongenerator.net/" class="link" target="_blank">RealFaviconGenerator</a> - 자동 생성</li>
+                <li>✨ <a href="https://icon.kitchen/" class="link" target="_blank">Icon Kitchen</a> - 간단한 디자인</li>
+                <li>✨ <a href="https://www.canva.com/" class="link" target="_blank">Canva</a> - 디자인 도구</li>
+                <li>✨ <a href="https://www.figma.com/" class="link" target="_blank">Figma</a> - 프로페셔널</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function drawIcon(size) {
+            const canvas = document.getElementById('iconCanvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // 그라데이션 배경
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // 둥근 모서리 효과
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.15);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // 이모지
+            ctx.font = `bold ${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText('💪', size / 2, size / 2);
+
+            // 텍스트 (작은 아이콘에서는 생략)
+            if (size >= 192) {
+                ctx.font = `bold ${size * 0.12}px Arial`;
+                ctx.fillStyle = 'white';
+                ctx.fillText('펌피', size / 2, size * 0.8);
+            }
+        }
+
+        function downloadIcon(size) {
+            drawIcon(size);
+            const canvas = document.getElementById('iconCanvas');
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 초기 512x512 아이콘 표시
+        drawIcon(512);
+
+        // Canvas roundRect polyfill
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>
+
