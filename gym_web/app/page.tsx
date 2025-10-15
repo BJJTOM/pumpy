@@ -454,6 +454,21 @@ export default function Dashboard() {
             🚀 빠른 액션
           </div>
           <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+            <a href="/checkin" style={{ 
+              padding: '12px 14px', 
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              color: 'white',
+              borderRadius: 8, 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              fontWeight: 700,
+              textAlign: 'center'
+            }}>
+              ✅ 출석 체크 (터치)
+            </a>
             <a href="/app" style={{ 
               padding: '12px 14px', 
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

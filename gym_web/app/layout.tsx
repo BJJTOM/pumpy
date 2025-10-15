@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname()
 
   // 공개 페이지 및 회원 앱 페이지는 사이드바 숨김
-  const isPublicPage = pathname === '/signup' || pathname === '/login' || pathname?.startsWith('/app')
+  const isPublicPage = pathname === '/signup' || pathname === '/login' || pathname === '/checkin' || pathname === '/landing' || pathname?.startsWith('/app')
 
   useEffect(() => {
     const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
@@ -64,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   const menuItems = [
     { href: '/', icon: '📊', label: '대시보드' },
+    { href: '/checkin', icon: '✅', label: '출석 체크' },
     { href: '/members', icon: '👥', label: '회원 관리' },
     { href: '/pending', icon: '⏰', label: '승인 대기' },
     { href: '/schedule', icon: '📅', label: '수업 일정' },

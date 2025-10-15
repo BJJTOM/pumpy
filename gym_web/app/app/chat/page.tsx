@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
+import AppHeader from '../components/AppHeader'
 
 export default function Chat() {
   const router = useRouter()

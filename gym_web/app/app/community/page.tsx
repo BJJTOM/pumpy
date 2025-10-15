@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
+import AppHeader from '../components/AppHeader'
 
 export default function Community() {
   const router = useRouter()
@@ -58,35 +60,27 @@ export default function Community() {
       background: '#f5f5f5',
       paddingBottom: '100px'
     }}>
-      {/* Header */}
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        backgroundColor: 'white',
-        padding: '20px',
-        borderBottom: '1px solid #eee',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>커뮤니티</h1>
-        <button
-          onClick={() => setShowNewPost(true)}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '20px',
-            border: 'none',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
-            fontSize: '14px',
-            fontWeight: 700,
-            cursor: 'pointer'
-          }}
-        >
-          + 글쓰기
-        </button>
-      </div>
+      {/* Header - 공통 컴포넌트 사용 */}
+      <AppHeader 
+        title="커뮤니티"
+        rightButton={
+          <button
+            onClick={() => setShowNewPost(true)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '20px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            + 글쓰기
+          </button>
+        }
+      />
 
       {/* Stories */}
       <div style={{
@@ -339,39 +333,9 @@ export default function Community() {
         </>
       )}
 
-      {/* Bottom Nav */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'white',
-        borderRadius: '30px 30px 0 0',
-        padding: '15px 20px 20px',
-        boxShadow: '0 -5px 20px rgba(0,0,0,0.1)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center'
-      }}>
-        <div onClick={() => router.push('/app')} style={{ textAlign: 'center', cursor: 'pointer' }}>
-          <div style={{ fontSize: '24px', marginBottom: '5px' }}>🏠</div>
-          <div style={{ fontSize: '11px', color: '#999' }}>홈</div>
-        </div>
-        <div onClick={() => router.push('/app/community')} style={{ textAlign: 'center', cursor: 'pointer' }}>
-          <div style={{ fontSize: '24px', marginBottom: '5px' }}>👥</div>
-          <div style={{ fontSize: '11px', fontWeight: 600, color: '#667eea' }}>커뮤니티</div>
-        </div>
-        <div onClick={() => router.push('/app/chat')} style={{ textAlign: 'center', cursor: 'pointer' }}>
-          <div style={{ fontSize: '24px', marginBottom: '5px' }}>💬</div>
-          <div style={{ fontSize: '11px', color: '#999' }}>채팅</div>
-        </div>
-        <div onClick={() => router.push('/app/profile')} style={{ textAlign: 'center', cursor: 'pointer' }}>
-          <div style={{ fontSize: '24px', marginBottom: '5px' }}>👤</div>
-          <div style={{ fontSize: '11px', color: '#999' }}>내 정보</div>
-        </div>
-      </div>
+      {/* Bottom Nav - 공통 컴포넌트 사용 */}
+      <BottomNav />
     </div>
   )
 }
-
 

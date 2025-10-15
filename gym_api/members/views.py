@@ -26,6 +26,87 @@ class MemberViewSet(viewsets.ModelViewSet):
         return MemberSerializer
     
     @action(detail=False, methods=['get'])
+    def search_by_phone(self, request):
+        """휴대폰 번호 뒤 4자리로 회원 검색 (출석용) - 동일 번호 모두 반환"""
+        last4 = request.query_params.get('last4', '')
+        
+        if len(last4) != 4:
+            return Response({
+                'error': '휴대폰 번호 뒤 4자리를 입력해주세요'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 휴대폰 번호 뒤 4자리로 검색 (모든 회원)
+        members = Member.objects.filter(phone__endswith=last4).order_by('-status', '-join_date')
+        
+        if not members.exists():
+            return Response({
+                'error': '회원 정보를 찾을 수 없습니다'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        today = date.today()
+        result = []
+        
+        # 모든 조회된 회원의 정보를 반환
+        for member in members:
+            # 회원권 정보 조회
+            subscriptions = Subscription.objects.filter(
+                member=member
+            ).select_related('plan').order_by('-start_date')
+            
+            memberships = []
+            for sub in subscriptions:
+                remaining_days = 0
+                if sub.end_date:
+                    remaining_days = (sub.end_date - today).days
+                
+                memberships.append({
+                    'id': sub.id,
+                    'plan_name': sub.plan.name if sub.plan else '회원권',
+                    'start_date': sub.start_date.isoformat(),
+                    'end_date': sub.end_date.isoformat() if sub.end_date else None,
+                    'status': sub.status,
+                    'remaining_days': remaining_days
+                })
+            
+            # 출석 정보
+            total_attendance = Attendance.objects.filter(
+                member=member,
+                status='출석'
+            ).count()
+            
+            # 연속 출석 계산
+            attendance_streak = 0
+            current_date = today
+            while True:
+                if Attendance.objects.filter(member=member, date=current_date, status='출석').exists():
+                    attendance_streak += 1
+                    current_date -= timedelta(days=1)
+                else:
+                    break
+            
+            # 마지막 출석일
+            last_attendance = Attendance.objects.filter(
+                member=member,
+                status='출석'
+            ).order_by('-date').first()
+            
+            result.append({
+                'id': member.id,
+                'name': f"{member.last_name}{member.first_name}",
+                'phone': member.phone,
+                'status': member.status,
+                'current_plan': member.current_plan.name if member.current_plan else None,
+                'membership_end_date': member.expire_date.isoformat() if member.expire_date else None,
+                'memberships': memberships,
+                'total_attendance': total_attendance,
+                'attendance_streak': attendance_streak,
+                'last_attendance': last_attendance.date.isoformat() if last_attendance else None
+            })
+        
+        # 회원이 1명이면 객체로, 여러 명이면 배열로 반환
+        return Response(result if len(result) > 1 else result[0])
+    
+    @action(detail=False, methods=['get'])
     def dashboard_stats(self, request):
         today = date.today()
         week_ago = today - timedelta(days=7)
@@ -236,6 +317,46 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         if member_id:
             queryset = queryset.filter(member_id=member_id)
         return queryset
+    
+    def create(self, request, *args, **kwargs):
+        """출석 체크 (중복 체크 포함)"""
+        member_id = request.data.get('member')
+        check_date = request.data.get('date', date.today().isoformat())
+        
+        if not member_id:
+            return Response({
+                'error': '회원 ID가 필요합니다'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 오늘 이미 출석했는지 확인
+        existing = Attendance.objects.filter(
+            member_id=member_id,
+            date=check_date,
+            status='출석'
+        ).exists()
+        
+        if existing:
+            return Response({
+                'error': '오늘 이미 출석하셨습니다'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 출석 등록
+        from datetime import datetime
+        attendance_data = {
+            'member': member_id,
+            'date': check_date,
+            'time': datetime.now().time().isoformat(),
+            'status': '출석'
+        }
+        
+        serializer = self.get_serializer(data=attendance_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        return Response({
+            'message': '출석이 완료되었습니다',
+            'attendance': serializer.data
+        }, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'])
     def weekly_stats(self, request):

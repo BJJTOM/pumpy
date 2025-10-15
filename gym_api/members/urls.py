@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from . import auth_views
 
 router = DefaultRouter()
 # 관리자용 API
@@ -31,4 +32,13 @@ urlpatterns = [
     path('', include(router.urls)),
     path('public/signup/', views.public_signup, name='public-signup'),
     path('pending-members/', views.pending_members, name='pending-members'),
+    
+    # 인증 API
+    path('auth/register/', auth_views.register, name='auth-register'),
+    path('auth/login/', auth_views.login, name='auth-login'),
+    path('auth/send-verification/', auth_views.send_verification_code, name='auth-send-verification'),
+    path('auth/verify-phone/', auth_views.verify_phone, name='auth-verify-phone'),
+    path('auth/reset-password/', auth_views.reset_password_request, name='auth-reset-password'),
+    path('auth/reset-password-confirm/', auth_views.reset_password_confirm, name='auth-reset-password-confirm'),
+    path('auth/check-email/', auth_views.check_email, name='auth-check-email'),
 ]

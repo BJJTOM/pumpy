@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { getApiUrl } from '@/lib/api'
+import BottomNav from './components/BottomNav'
 
 export default function MemberAppHome() {
   const router = useRouter()
@@ -14,6 +15,13 @@ export default function MemberAppHome() {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
 
   useEffect(() => {
+    // 로그인 확인
+    const currentUser = localStorage.getItem('currentUser')
+    if (!currentUser) {
+      router.push('/auth/login')
+      return
+    }
+    
     // 서버 URL이 설정되어 있는지 확인
     const serverUrl = localStorage.getItem('serverUrl')
     if (!serverUrl) {
@@ -454,26 +462,8 @@ export default function MemberAppHome() {
         />
       </div>
 
-      {/* Bottom Nav */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'white',
-        borderRadius: '30px 30px 0 0',
-        padding: '15px 20px 25px',
-        boxShadow: '0 -5px 30px rgba(0,0,0,0.15)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        zIndex: 100
-      }}>
-        <NavItem icon="🏠" label="홈" active onClick={() => router.push('/app')} />
-        <NavItem icon="👥" label="커뮤니티" onClick={() => router.push('/app/community')} />
-        <NavItem icon="💬" label="채팅" onClick={() => router.push('/app/chat')} />
-        <NavItem icon="👤" label="내 정보" onClick={() => router.push('/app/profile')} />
-      </div>
+      {/* Bottom Nav - 공통 컴포넌트 사용 */}
+      <BottomNav />
     </div>
   )
 }
@@ -511,38 +501,6 @@ function ActionCard({ icon, title, gradient, onClick }: { icon: string; title: s
         opacity: 0.1
       }}>
         ✨
-      </div>
-    </div>
-  )
-}
-
-// 네비게이션 아이템 컴포넌트
-function NavItem({ icon, label, active, onClick }: { icon: string; label: string; active?: boolean; onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        textAlign: 'center',
-        cursor: 'pointer',
-        padding: '8px',
-        borderRadius: '15px',
-        transition: 'all 0.2s',
-        backgroundColor: active ? '#667eea15' : 'transparent'
-      }}
-    >
-      <div style={{
-        fontSize: '26px',
-        marginBottom: '5px',
-        filter: active ? 'drop-shadow(0 2px 4px rgba(102, 126, 234, 0.4))' : 'none'
-      }}>
-        {icon}
-      </div>
-      <div style={{
-        fontSize: '11px',
-        fontWeight: active ? 700 : 600,
-        color: active ? '#667eea' : '#999'
-      }}>
-        {label}
       </div>
     </div>
   )

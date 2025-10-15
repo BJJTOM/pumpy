@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import TermsModal from '../../components/TermsModal'
 import { getApiUrl } from '@/lib/api'
+import BottomNav from '../components/BottomNav'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -17,6 +18,12 @@ export default function ProfilePage() {
   const [modalOpen, setModalOpen] = useState<'terms' | 'privacy' | 'marketing' | null>(null)
 
   useEffect(() => {
+    // 로그인 확인
+    const currentUser = localStorage.getItem('currentUser')
+    if (!currentUser) {
+      router.push('/auth/login')
+      return
+    }
     loadMember()
   }, [])
 
@@ -487,26 +494,38 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Bottom Nav */}
+      {/* 로그아웃 버튼 */}
       <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'white',
-        borderRadius: '30px 30px 0 0',
-        padding: '15px 20px 25px',
-        boxShadow: '0 -5px 30px rgba(0,0,0,0.15)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        zIndex: 100
+        margin: '0 20px 100px',
+        padding: '0'
       }}>
-        <NavItem icon="🏠" label="홈" onClick={() => router.push('/app')} />
-        <NavItem icon="👥" label="커뮤니티" onClick={() => router.push('/app/community')} />
-        <NavItem icon="💬" label="채팅" onClick={() => router.push('/app/chat')} />
-        <NavItem icon="👤" label="내 정보" active onClick={() => router.push('/app/profile')} />
+        <button
+          onClick={() => {
+            if (confirm('로그아웃 하시겠습니까?')) {
+              localStorage.removeItem('currentUser')
+              localStorage.removeItem('userEmail')
+              router.push('/auth/login')
+            }
+          }}
+          style={{
+            width: '100%',
+            padding: '18px',
+            background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
+            border: 'none',
+            borderRadius: '15px',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(255, 107, 107, 0.3)'
+          }}
+        >
+          🚪 로그아웃
+        </button>
       </div>
+
+      {/* Bottom Nav - 공통 컴포넌트 사용 */}
+      <BottomNav />
 
       {/* 약관 모달 */}
       {modalOpen && (
@@ -609,37 +628,5 @@ function TermsButton({ label, onClick }: { label: string; onClick: () => void })
       <span>{label}</span>
       <span style={{ color: '#999' }}>→</span>
     </button>
-  )
-}
-
-// 네비게이션 아이템 컴포넌트
-function NavItem({ icon, label, active, onClick }: { icon: string; label: string; active?: boolean; onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        textAlign: 'center',
-        cursor: 'pointer',
-        padding: '8px',
-        borderRadius: '15px',
-        transition: 'all 0.2s',
-        backgroundColor: active ? '#667eea15' : 'transparent'
-      }}
-    >
-      <div style={{
-        fontSize: '26px',
-        marginBottom: '5px',
-        filter: active ? 'drop-shadow(0 2px 4px rgba(102, 126, 234, 0.4))' : 'none'
-      }}>
-        {icon}
-      </div>
-      <div style={{
-        fontSize: '11px',
-        fontWeight: active ? 700 : 600,
-        color: active ? '#667eea' : '#999'
-      }}>
-        {label}
-      </div>
-    </div>
   )
 }
