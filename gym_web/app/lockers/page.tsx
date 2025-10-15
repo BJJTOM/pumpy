@@ -20,19 +20,19 @@ export default function LockersPage() {
   }
 
   const createLocker = async () => {
-    const no = prompt('?�커 번호�??�력?�세??)
+    const no = prompt('락커 번호를 입력하세요')
     if (!no) return
 
     try {
       await axios.post(`${getApiUrl()}/lockers/`, {
         no,
         size: 'M',
-        status: '비어?�음'
+        status: '비어있음'
       })
-      alert('?�커가 ?�성?�었?�니??)
+      alert('락커가 생성되었습니다')
       loadData()
     } catch (err) {
-      alert('?�커 ?�성 ?�패')
+      alert('락커 생성 실패')
       console.error(err)
     }
   }
@@ -40,8 +40,8 @@ export default function LockersPage() {
   return (
     <div style={{ display: 'grid', gap: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>?�커 관�?/h2>
-        <button onClick={createLocker}>+ ?�커 추�?</button>
+        <h2 style={{ margin: 0 }}>락커 관리</h2>
+        <button onClick={createLocker}>+ 락커 추가</button>
       </div>
 
       <div className="card">
@@ -49,16 +49,16 @@ export default function LockersPage() {
           <thead>
             <tr>
               <th>번호</th>
-              <th>?�기</th>
-              <th>?�태</th>
-              <th>?�용??/th>
+              <th>크기</th>
+              <th>상태</th>
+              <th>사용자</th>
               <th>기간</th>
               <th>비고</th>
             </tr>
           </thead>
           <tbody>
             {lockers.length === 0 ? (
-              <tr><td colSpan={6} className="muted" style={{ textAlign: 'center', padding: 40 }}>?�록???�커가 ?�습?�다</td></tr>
+              <tr><td colSpan={6} className="muted" style={{ textAlign: 'center', padding: 40 }}>등록된 락커가 없습니다</td></tr>
             ) : (
               lockers.map(l => {
                 const member = members.find(m => m.id === l.assigned_member)
@@ -68,7 +68,7 @@ export default function LockersPage() {
                     <td><span className="pill">{l.size}</span></td>
                     <td>
                       <span className="pill" style={{
-                        backgroundColor: l.status === '비어?�음' ? 'var(--ok)' : 'var(--warn)',
+                        backgroundColor: l.status === '비어있음' ? 'var(--ok)' : 'var(--warn)',
                         color: 'white',
                         border: 'none'
                       }}>
