@@ -41,6 +41,19 @@ gym_web/android/build/
 gym_web/android/app/build/
 gym_web/android/.gradle/
 *.apk
+*.zip
+*.rar
+*.7z
+
+# React Native
+PumpyApp/android/build/
+PumpyApp/android/app/build/
+PumpyApp/android/.gradle/
+PumpyApp/ios/build/
+
+# Large files
+Pumpy_*.apk
+Pumpy_*.zip
 
 # Logs
 npm-debug.log*
