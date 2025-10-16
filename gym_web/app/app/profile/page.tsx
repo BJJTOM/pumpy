@@ -1,8 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import TermsModal from '../../components/TermsModal'
 import { getApiUrl } from '@/lib/api'
 import BottomNav from '../components/BottomNav'
 
@@ -12,13 +10,13 @@ export default function ProfilePage() {
   const [member, setMember] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+  const [aiPhoto, setAiPhoto] = useState<string | null>(null)
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [bodyStats, setBodyStats] = useState({ weight: 70, muscle: 35, fat: 15, height: 175 })
   const [isEditingBody, setIsEditingBody] = useState(false)
   const [tempBodyStats, setTempBodyStats] = useState(bodyStats)
-  const [modalOpen, setModalOpen] = useState<'terms' | 'privacy' | 'marketing' | null>(null)
 
   useEffect(() => {
-    // 로그인 확인
     const currentUser = localStorage.getItem('currentUser')
     if (!currentUser) {
       router.push('/auth/login')
@@ -29,26 +27,23 @@ export default function ProfilePage() {
 
   const loadMember = async () => {
     try {
-      const apiBase = getApiUrl()
+      const userStr = localStorage.getItem('currentUser')
+      if (!userStr) return
 
-      const res = await axios.get(`${apiBase}/members/`)
-      if (res.data.length > 0) {
-        const user = res.data[0]
-        setMember(user)
+      const user = JSON.parse(userStr)
+      setMember(user)
 
-        // 로컬스토리지에서 사진 로드
-        const savedPhoto = localStorage.getItem(`user_photo_${user.id}`)
-        if (savedPhoto) {
-          setSelectedPhoto(savedPhoto)
-        }
+      const savedPhoto = localStorage.getItem(`user_photo_${user.id}`)
+      if (savedPhoto) setSelectedPhoto(savedPhoto)
 
-        // 로컬스토리지에서 신체 정보 로드
-        const savedBodyStats = localStorage.getItem(`body_stats_${user.id}`)
-        if (savedBodyStats) {
-          const stats = JSON.parse(savedBodyStats)
-          setBodyStats(stats)
-          setTempBodyStats(stats)
-        }
+      const savedAiPhoto = localStorage.getItem(`ai_photo_${user.id}`)
+      if (savedAiPhoto) setAiPhoto(savedAiPhoto)
+
+      const savedBodyStats = localStorage.getItem(`body_stats_${user.id}`)
+      if (savedBodyStats) {
+        const stats = JSON.parse(savedBodyStats)
+        setBodyStats(stats)
+        setTempBodyStats(stats)
       }
       setLoading(false)
     } catch (error) {
@@ -60,7 +55,6 @@ export default function ProfilePage() {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // 파일 크기 체크 (5MB 제한)
       if (file.size > 5 * 1024 * 1024) {
         alert('파일 크기는 5MB 이하로 업로드해주세요.')
         return
@@ -72,11 +66,39 @@ export default function ProfilePage() {
         setSelectedPhoto(base64)
         if (member) {
           localStorage.setItem(`user_photo_${member.id}`, base64)
-          alert('✅ 사진이 업로드되었습니다!\nAI 캐릭터가 생성되었습니다.')
         }
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const generateAICharacter = () => {
+    if (!selectedPhoto) {
+      alert('먼저 사진을 업로드해주세요!')
+      return
+    }
+
+    setIsGeneratingAI(true)
+
+    // AI 변환 시뮬레이션 (3초 대기 + 진행률 표시)
+    let progress = 0
+    const interval = setInterval(() => {
+      progress += 10
+      if (progress >= 100) {
+        clearInterval(interval)
+      }
+    }, 300)
+
+    setTimeout(() => {
+      // 실제로는 AI API를 호출하여 이미지 변환
+      // 지금은 CSS 필터 + 효과로 시뮬레이션
+      setAiPhoto(selectedPhoto)
+      if (member) {
+        localStorage.setItem(`ai_photo_${member.id}`, selectedPhoto)
+      }
+      setIsGeneratingAI(false)
+      alert('✨ AI 운동 캐릭터가 생성되었습니다!\n홈 화면에서 확인해보세요! 🎨')
+    }, 3000)
   }
 
   const handleSaveBodyStats = () => {
@@ -101,6 +123,36 @@ export default function ProfilePage() {
     return { text: '비만', color: '#ff6b6b' }
   }
 
+  const handleDeleteAICharacter = () => {
+    if (confirm('AI 캐릭터를 삭제하시겠습니까?')) {
+      setAiPhoto(null)
+      if (member) {
+        localStorage.removeItem(`ai_photo_${member.id}`)
+      }
+      alert('✅ AI 캐릭터가 삭제되었습니다!')
+    }
+  }
+
+  const handleEditAICharacter = () => {
+    if (confirm('새로운 AI 캐릭터를 생성하시겠습니까?\n현재 캐릭터는 삭제됩니다.')) {
+      setAiPhoto(null)
+      if (member) {
+        localStorage.removeItem(`ai_photo_${member.id}`)
+      }
+      alert('✅ 새로운 사진을 업로드해주세요!')
+      fileInputRef.current?.click()
+    }
+  }
+
+  const handleLogout = () => {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      localStorage.removeItem('currentUser')
+      localStorage.removeItem('userToken')
+      localStorage.removeItem('userEmail')
+      router.push('/auth/login')
+    }
+  }
+
   if (loading) {
     return (
       <div style={{
@@ -120,6 +172,7 @@ export default function ProfilePage() {
             margin: '0 auto 20px',
             animation: 'spin 0.8s linear infinite'
           }} />
+          <p style={{ fontSize: '18px', fontWeight: 600 }}>로딩 중...</p>
           <style jsx>{`
             @keyframes spin {
               0% { transform: rotate(0deg); }
@@ -131,502 +184,518 @@ export default function ProfilePage() {
     )
   }
 
-  const daysLeft = member?.expire_date 
-    ? Math.ceil((new Date(member.expire_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-    : 0
-
-  const bmiStatus = getBMIStatus()
-
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f5f5f5',
+      background: '#f8fafc',
       paddingBottom: '100px'
     }}>
       {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '40px 20px 80px',
-        color: 'white',
-        position: 'relative'
+        padding: '30px 20px 40px',
+        borderRadius: '0 0 30px 30px',
+        marginBottom: '-20px'
       }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '30px'
+          color: 'white'
         }}>
+          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800 }}>
+            내 프로필
+          </h1>
           <button
-            onClick={() => router.push('/app')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              fontSize: '24px',
-              cursor: 'pointer',
-              padding: '5px'
-            }}
-          >
-            ←
-          </button>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>내 정보</h1>
-          <button
-            onClick={() => router.push('/app/settings')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              fontSize: '24px',
-              cursor: 'pointer',
-              padding: '5px'
-            }}
-          >
-            ⚙️
-          </button>
-        </div>
-
-        {/* 프로필 카드 */}
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.15)',
-          borderRadius: '25px',
-          padding: '25px',
-          backdropFilter: 'blur(10px)',
-          textAlign: 'center'
-        }}>
-          {/* 프로필 사진 */}
-          <div style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              style={{ display: 'none' }}
-            />
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              style={{
-                width: '120px',
-                height: '120px',
-                borderRadius: '50%',
-                background: selectedPhoto ? `url(${selectedPhoto})` : 'rgba(255,255,255,0.3)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                border: '5px solid white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '48px',
-                cursor: 'pointer',
-                margin: '0 auto',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-              {!selectedPhoto && (
-                <span style={{ fontSize: '56px' }}>
-                  {(member?.full_name || member?.name || '?').charAt(0)}
-                </span>
-              )}
-              {selectedPhoto && (
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)',
-                  mixBlendMode: 'overlay'
-                }} />
-              )}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'rgba(0,0,0,0)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0,
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
-              >
-                <div style={{
-                  background: 'rgba(0,0,0,0.6)',
-                  borderRadius: '50%',
-                  padding: '10px',
-                  fontSize: '24px'
-                }}>
-                  📷
-                </div>
-              </div>
-            </div>
-            <div style={{
-              position: 'absolute',
-              bottom: 5,
-              right: 'calc(50% - 60px)',
-              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '3px solid white',
-              cursor: 'pointer',
-              fontSize: '18px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-            }}>
-              ✨
-            </div>
-          </div>
-
-          <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: 900 }}>
-            {member?.full_name || member?.name || '회원'}
-          </h2>
-          <p style={{ margin: '0 0 15px 0', fontSize: '15px', opacity: 0.9 }}>
-            {member?.phone || '-'}
-          </p>
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            {member?.status && (
-              <span style={{
-                padding: '8px 16px',
-                background: 'rgba(255,255,255,0.25)',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 700
-              }}>
-                ✅ {member.status === 'active' || member.status === '활성' ? '활성' : member.status}
-              </span>
-            )}
-            {member?.current_level && (
-              <span style={{
-                padding: '8px 16px',
-                background: 'rgba(255,255,255,0.25)',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 700
-              }}>
-                🥋 {member.current_level}
-              </span>
-            )}
-            {daysLeft > 0 && (
-              <span style={{
-                padding: '8px 16px',
-                background: daysLeft < 7 ? 'rgba(255, 107, 107, 0.3)' : 'rgba(255,255,255,0.25)',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 700
-              }}>
-                ⏰ D-{daysLeft}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 신체 정보 카드 */}
-      <div style={{
-        margin: '-50px 20px 20px',
-        backgroundColor: 'white',
-        borderRadius: '25px',
-        padding: '30px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-          <h3 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#333' }}>
-            💪 신체 정보
-          </h3>
-          <button
-            onClick={() => {
-              if (isEditingBody) {
-                handleSaveBodyStats()
-              } else {
-                setIsEditingBody(true)
-              }
-            }}
+            onClick={handleLogout}
             style={{
               padding: '10px 20px',
               borderRadius: '20px',
               border: 'none',
-              background: isEditingBody ? 'linear-gradient(135deg, #51cf66 0%, #37b24d 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'rgba(255,255,255,0.2)',
               color: 'white',
               fontSize: '14px',
               fontWeight: 700,
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+              backdropFilter: 'blur(10px)'
             }}
           >
-            {isEditingBody ? '✅ 저장' : '✏️ 수정'}
+            로그아웃
           </button>
         </div>
+      </div>
 
-        {/* BMI 카드 */}
+      <div style={{ padding: '0 20px' }}>
+        {/* AI Character Creation Section */}
         <div style={{
-          padding: '20px',
-          background: `linear-gradient(135deg, ${bmiStatus.color}15 0%, ${bmiStatus.color}05 100%)`,
-          borderRadius: '20px',
+          backgroundColor: 'white',
+          borderRadius: '25px',
+          padding: '30px',
           marginBottom: '20px',
-          textAlign: 'center',
-          border: `2px solid ${bmiStatus.color}20`
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
         }}>
-          <div style={{ fontSize: '14px', color: '#999', marginBottom: '8px', fontWeight: 600 }}>BMI 지수</div>
-          <div style={{ fontSize: '36px', fontWeight: 900, color: bmiStatus.color, marginBottom: '8px' }}>
-            {calculateBMI()}
-          </div>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: 800, color: '#333' }}>
+            🤖 AI 운동 캐릭터 만들기
+          </h3>
+          <p style={{ margin: '0 0 25px 0', fontSize: '14px', color: '#999' }}>
+            사진을 업로드하고 AI가 생성한 나만의 운동 캐릭터를 만들어보세요!
+          </p>
+
+          {/* Photo Upload Section */}
           <div style={{
-            display: 'inline-block',
-            padding: '6px 16px',
-            background: bmiStatus.color,
-            color: 'white',
-            borderRadius: '20px',
-            fontSize: '13px',
-            fontWeight: 700
+            display: 'grid',
+            gridTemplateColumns: aiPhoto ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+            gap: '15px',
+            marginBottom: '20px'
           }}>
-            {bmiStatus.text}
+            {/* Original Photo */}
+            <div>
+              <div style={{ fontSize: '13px', color: '#666', marginBottom: '10px', fontWeight: 600 }}>
+                📸 원본 사진
+              </div>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  width: '100%',
+                  height: '200px',
+                  borderRadius: '15px',
+                  background: selectedPhoto ? `url(${selectedPhoto})` : 'linear-gradient(135deg, #e0e7ff 0%, #e9d5ff 100%)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '48px',
+                  cursor: 'pointer',
+                  border: '2px dashed #cbd5e1',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                {!selectedPhoto && (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '10px' }}>📷</div>
+                    <div style={{ fontSize: '13px', color: '#999', fontWeight: 600 }}>클릭하여 업로드</div>
+                  </>
+                )}
+                {selectedPhoto && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '10px',
+                    right: '10px',
+                    padding: '8px',
+                    background: 'rgba(0,0,0,0.7)',
+                    borderRadius: '10px',
+                    color: 'white',
+                    fontSize: '11px',
+                    textAlign: 'center'
+                  }}>
+                    다시 업로드
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                style={{ display: 'none' }}
+              />
+            </div>
+
+            {/* Arrow or Processing */}
+            {!aiPhoto && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+                color: '#cbd5e1'
+              }}>
+                {isGeneratingAI ? (
+                  <div style={{
+                    textAlign: 'center',
+                    width: '100%'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      border: '5px solid #e0e7ff',
+                      borderTop: '5px solid #667eea',
+                      borderRadius: '50%',
+                      margin: '0 auto 15px',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    <div style={{ fontSize: '14px', color: '#667eea', fontWeight: 700 }}>
+                      AI 생성 중...
+                    </div>
+                    <style jsx>{`
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    `}</style>
+                  </div>
+                ) : '→'}
+              </div>
+            )}
+
+            {/* AI Photo */}
+            {aiPhoto && (
+              <div>
+                <div style={{ fontSize: '13px', color: '#666', marginBottom: '10px', fontWeight: 600 }}>
+                  ✨ AI 캐릭터
+                </div>
+                <div style={{
+                  width: '100%',
+                  height: '200px',
+                  borderRadius: '15px',
+                  background: `url(${aiPhoto})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  border: '3px solid #667eea',
+                  filter: 'contrast(1.2) saturate(1.3) brightness(1.05)'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)',
+                    mixBlendMode: 'overlay'
+                  }} />
+                  <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    padding: '5px 12px',
+                    background: 'rgba(102, 126, 234, 0.95)',
+                    borderRadius: '15px',
+                    color: 'white',
+                    fontSize: '11px',
+                    fontWeight: 700
+                  }}>
+                    ✨ AI
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          {!aiPhoto ? (
+            <button
+              onClick={generateAICharacter}
+              disabled={!selectedPhoto || isGeneratingAI}
+              style={{
+                width: '100%',
+                padding: '18px',
+                borderRadius: '15px',
+                border: 'none',
+                background: (!selectedPhoto || isGeneratingAI) 
+                  ? '#cbd5e1' 
+                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                fontSize: '17px',
+                fontWeight: 800,
+                cursor: (!selectedPhoto || isGeneratingAI) ? 'not-allowed' : 'pointer',
+                boxShadow: (!selectedPhoto || isGeneratingAI) ? 'none' : '0 4px 20px rgba(102, 126, 234, 0.5)',
+                transition: 'all 0.3s'
+              }}
+            >
+              {isGeneratingAI 
+                ? '🎨 AI가 캐릭터를 생성하고 있습니다...' 
+                : '✨ AI 캐릭터 생성하기'}
+            </button>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <button
+                onClick={handleEditAICharacter}
+                style={{
+                  padding: '18px',
+                  borderRadius: '15px',
+                  border: '2px solid #667eea',
+                  background: 'white',
+                  color: '#667eea',
+                  fontSize: '16px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              >
+                ✏️ 수정하기
+              </button>
+              <button
+                onClick={handleDeleteAICharacter}
+                style={{
+                  padding: '18px',
+                  borderRadius: '15px',
+                  border: '2px solid #ff6b6b',
+                  background: 'white',
+                  color: '#ff6b6b',
+                  fontSize: '16px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              >
+                🗑️ 삭제하기
+              </button>
+            </div>
+          )}
+
+          {aiPhoto && (
+            <div style={{
+              marginTop: '15px',
+              padding: '15px',
+              background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
+              borderRadius: '12px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '14px', color: '#667eea', fontWeight: 700 }}>
+                ✅ AI 캐릭터가 생성되었습니다!
+              </div>
+              <div style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
+                홈 화면에서 확인할 수 있습니다
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Body Stats Section */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '25px',
+          padding: '30px',
+          marginBottom: '20px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#333' }}>
+              📊 신체 정보
+            </h3>
+            <button
+              onClick={() => isEditingBody ? handleSaveBodyStats() : setIsEditingBody(true)}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '20px',
+                border: 'none',
+                background: isEditingBody ? '#10b981' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+              }}
+            >
+              {isEditingBody ? '✅ 저장' : '✏️ 수정'}
+            </button>
+          </div>
+
+          {isEditingBody ? (
+            <div style={{ display: 'grid', gap: '15px' }}>
+              <div>
+                <label style={{ fontSize: '13px', color: '#666', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                  키 (cm)
+                </label>
+                <input
+                  type="number"
+                  value={tempBodyStats.height}
+                  onChange={(e) => setTempBodyStats({ ...tempBodyStats, height: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '2px solid #e0e7ff',
+                    fontSize: '16px',
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '13px', color: '#666', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                  체중 (kg)
+                </label>
+                <input
+                  type="number"
+                  value={tempBodyStats.weight}
+                  onChange={(e) => setTempBodyStats({ ...tempBodyStats, weight: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '2px solid #e0e7ff',
+                    fontSize: '16px',
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '13px', color: '#666', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                  근육량 (kg)
+                </label>
+                <input
+                  type="number"
+                  value={tempBodyStats.muscle}
+                  onChange={(e) => setTempBodyStats({ ...tempBodyStats, muscle: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '2px solid #e0e7ff',
+                    fontSize: '16px',
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '13px', color: '#666', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                  체지방 (%)
+                </label>
+                <input
+                  type="number"
+                  value={tempBodyStats.fat}
+                  onChange={(e) => setTempBodyStats({ ...tempBodyStats, fat: parseFloat(e.target.value) })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '2px solid #e0e7ff',
+                    fontSize: '16px',
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px', marginBottom: '20px' }}>
+                <div style={{
+                  padding: '20px',
+                  background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
+                  borderRadius: '15px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📏</div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#667eea', marginBottom: '5px' }}>
+                    {bodyStats.height}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#999', fontWeight: 600 }}>키 (cm)</div>
+                </div>
+
+                <div style={{
+                  padding: '20px',
+                  background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
+                  borderRadius: '15px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>⚖️</div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#667eea', marginBottom: '5px' }}>
+                    {bodyStats.weight}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#999', fontWeight: 600 }}>체중 (kg)</div>
+                </div>
+
+                <div style={{
+                  padding: '20px',
+                  background: 'linear-gradient(135deg, #10b98115 0%, #34d39915 100%)',
+                  borderRadius: '15px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>💪</div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#10b981', marginBottom: '5px' }}>
+                    {bodyStats.muscle}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#999', fontWeight: 600 }}>근육량 (kg)</div>
+                </div>
+
+                <div style={{
+                  padding: '20px',
+                  background: 'linear-gradient(135deg, #f59e0b15 0%, #fbbf2415 100%)',
+                  borderRadius: '15px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>🔥</div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#f59e0b', marginBottom: '5px' }}>
+                    {bodyStats.fat}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#999', fontWeight: 600 }}>체지방 (%)</div>
+                </div>
+              </div>
+
+              {/* BMI Section */}
+              <div style={{
+                padding: '20px',
+                background: `linear-gradient(135deg, ${getBMIStatus().color}15 0%, ${getBMIStatus().color}25 100%)`,
+                borderRadius: '15px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px', fontWeight: 600 }}>
+                  BMI (체질량지수)
+                </div>
+                <div style={{
+                  fontSize: '48px',
+                  fontWeight: 900,
+                  color: getBMIStatus().color,
+                  marginBottom: '8px'
+                }}>
+                  {calculateBMI()}
+                </div>
+                <div style={{
+                  padding: '8px 20px',
+                  background: getBMIStatus().color,
+                  color: 'white',
+                  borderRadius: '20px',
+                  display: 'inline-block',
+                  fontSize: '14px',
+                  fontWeight: 700
+                }}>
+                  {getBMIStatus().text}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Member Info */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '25px',
+          padding: '30px',
+          marginBottom: '20px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+        }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 800, color: '#333' }}>
+            👤 회원 정보
+          </h3>
+          
+          <div style={{ display: 'grid', gap: '15px' }}>
+            <div>
+              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>이름</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: '#333' }}>
+                {member?.last_name}{member?.first_name}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>이메일</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: '#333' }}>
+                {member?.email || '-'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>전화번호</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: '#333' }}>
+                {member?.phone || '-'}
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* 신체 정보 그리드 */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '15px'
-        }}>
-          <BodyStatCard
-            icon="📏"
-            label="키"
-            value={isEditingBody ? tempBodyStats.height : bodyStats.height}
-            unit="cm"
-            color="#667eea"
-            isEditing={isEditingBody}
-            onChange={(val) => setTempBodyStats({ ...tempBodyStats, height: val })}
-          />
-          <BodyStatCard
-            icon="⚖️"
-            label="체중"
-            value={isEditingBody ? tempBodyStats.weight : bodyStats.weight}
-            unit="kg"
-            color="#f093fb"
-            isEditing={isEditingBody}
-            onChange={(val) => setTempBodyStats({ ...tempBodyStats, weight: val })}
-          />
-          <BodyStatCard
-            icon="💪"
-            label="근육량"
-            value={isEditingBody ? tempBodyStats.muscle : bodyStats.muscle}
-            unit="kg"
-            color="#f5576c"
-            isEditing={isEditingBody}
-            onChange={(val) => setTempBodyStats({ ...tempBodyStats, muscle: val })}
-          />
-          <BodyStatCard
-            icon="📊"
-            label="체지방률"
-            value={isEditingBody ? tempBodyStats.fat : bodyStats.fat}
-            unit="%"
-            color="#fcb69f"
-            isEditing={isEditingBody}
-            onChange={(val) => setTempBodyStats({ ...tempBodyStats, fat: val })}
-          />
-        </div>
-
-        {isEditingBody && (
-          <button
-            onClick={() => {
-              setTempBodyStats(bodyStats)
-              setIsEditingBody(false)
-            }}
-            style={{
-              width: '100%',
-              padding: '14px',
-              marginTop: '15px',
-              borderRadius: '15px',
-              border: '1px solid #ddd',
-              background: 'white',
-              color: '#999',
-              fontSize: '15px',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            취소
-          </button>
-        )}
       </div>
 
-      {/* 회원 정보 카드 */}
-      <div style={{
-        margin: '0 20px 20px',
-        backgroundColor: 'white',
-        borderRadius: '25px',
-        padding: '30px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-      }}>
-        <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', fontWeight: 800, color: '#333' }}>
-          📋 회원 정보
-        </h3>
-        <div style={{ display: 'grid', gap: '15px' }}>
-          <InfoRow label="📧 이메일" value={member?.email || '-'} />
-          <InfoRow label="📅 가입일" value={member?.join_date || '-'} />
-          <InfoRow label="⏰ 만료일" value={member?.expire_date || '-'} />
-          <InfoRow label="📊 총 출석" value={`${member?.total_attendance_days || 0}일`} />
-          <InfoRow label="⭐ 포인트" value={`${member?.points?.toLocaleString() || 0}P`} />
-        </div>
-      </div>
-
-      {/* 약관 카드 */}
-      <div style={{
-        margin: '0 20px 20px',
-        backgroundColor: 'white',
-        borderRadius: '25px',
-        padding: '30px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-      }}>
-        <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', fontWeight: 800, color: '#333' }}>
-          📄 약관 및 정책
-        </h3>
-        <div style={{ display: 'grid', gap: '12px' }}>
-          <TermsButton label="이용약관" onClick={() => setModalOpen('terms')} />
-          <TermsButton label="개인정보처리방침" onClick={() => setModalOpen('privacy')} />
-          <TermsButton label="마케팅 수신 동의" onClick={() => setModalOpen('marketing')} />
-        </div>
-      </div>
-
-      {/* 로그아웃 버튼 */}
-      <div style={{
-        margin: '0 20px 100px',
-        padding: '0'
-      }}>
-        <button
-          onClick={() => {
-            if (confirm('로그아웃 하시겠습니까?')) {
-              localStorage.removeItem('currentUser')
-              localStorage.removeItem('userEmail')
-              router.push('/auth/login')
-            }
-          }}
-          style={{
-            width: '100%',
-            padding: '18px',
-            background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
-            border: 'none',
-            borderRadius: '15px',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(255, 107, 107, 0.3)'
-          }}
-        >
-          🚪 로그아웃
-        </button>
-      </div>
-
-      {/* Bottom Nav - 공통 컴포넌트 사용 */}
       <BottomNav />
-
-      {/* 약관 모달 */}
-      {modalOpen && (
-        <TermsModal
-          isOpen={true}
-          type={modalOpen}
-          onClose={() => setModalOpen(null)}
-        />
-      )}
     </div>
   )
 }
 
-// 신체 정보 카드 컴포넌트
-function BodyStatCard({ icon, label, value, unit, color, isEditing, onChange }: {
-  icon: string;
-  label: string;
-  value: number;
-  unit: string;
-  color: string;
-  isEditing: boolean;
-  onChange: (val: number) => void;
-}) {
-  return (
-    <div style={{
-      padding: '20px',
-      background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
-      borderRadius: '15px',
-      textAlign: 'center',
-      border: `1px solid ${color}20`
-    }}>
-      <div style={{ fontSize: '28px', marginBottom: '8px' }}>{icon}</div>
-      {isEditing ? (
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-          style={{
-            width: '100%',
-            fontSize: '24px',
-            fontWeight: 800,
-            color: color,
-            textAlign: 'center',
-            border: `2px solid ${color}`,
-            borderRadius: '10px',
-            padding: '8px',
-            marginBottom: '8px'
-          }}
-        />
-      ) : (
-        <div style={{ fontSize: '24px', fontWeight: 800, color: color, marginBottom: '5px' }}>
-          {value}{unit}
-        </div>
-      )}
-      <div style={{ fontSize: '12px', color: '#999', fontWeight: 600 }}>{label}</div>
-    </div>
-  )
-}
-
-// 정보 행 컴포넌트
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '15px',
-      background: '#f8f9fa',
-      borderRadius: '12px'
-    }}>
-      <span style={{ fontSize: '15px', color: '#666', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: '15px', color: '#333', fontWeight: 700 }}>{value}</span>
-    </div>
-  )
-}
-
-// 약관 버튼 컴포넌트
-function TermsButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        width: '100%',
-        padding: '16px',
-        background: '#f8f9fa',
-        border: 'none',
-        borderRadius: '12px',
-        fontSize: '15px',
-        fontWeight: 600,
-        color: '#333',
-        cursor: 'pointer',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        transition: 'all 0.2s'
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.background = '#e9ecef'}
-      onMouseLeave={(e) => e.currentTarget.style.background = '#f8f9fa'}
-    >
-      <span>{label}</span>
-      <span style={{ color: '#999' }}>→</span>
-    </button>
-  )
-}

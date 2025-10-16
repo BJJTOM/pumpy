@@ -152,17 +152,30 @@ export default function CheckInPage() {
 
     try {
       const apiBase = getApiUrl()
-      await axios.post(`${apiBase}/attendance/`, {
+      const today = new Date().toISOString().split('T')[0]
+      const now = new Date().toISOString()
+      
+      console.log('출석 체크 시작:', {
+        member_id: selectedMember.id,
+        date: today,
+        check_in_time: now
+      })
+      
+      const response = await axios.post(`${apiBase}/attendance/`, {
         member: selectedMember.id,
-        date: new Date().toISOString().split('T')[0]
+        date: today,
+        check_in_time: now,
+        status: 'present'
       }, {
         timeout: 10000
       })
 
+      console.log('출석 체크 성공:', response.data)
       setStep('success')
       setLoading(false)
     } catch (err: any) {
       console.error('출석 체크 실패:', err)
+      console.error('에러 상세:', err.response?.data)
       if (err.response?.data?.error) {
         setError(err.response.data.error)
       } else {

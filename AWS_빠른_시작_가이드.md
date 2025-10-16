@@ -414,3 +414,4 @@ ssh ubuntu@YOUR_STATIC_IP
 소요 시간: 약 30분
 월 비용: $5 (첫 3개월 무료)
 
+

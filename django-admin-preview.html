@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django 관리 | Pumpy Gym</title>
+    
+    <!-- AdminLTE CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5568d3;
+            --primary-light: #7c94f5;
+            --secondary-color: #764ba2;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Main Header - Gradient */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+            border-bottom: none !important;
+        }
+
+        .main-header .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .main-header .navbar-nav .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        /* Brand Logo */
+        .brand-link {
+            background: rgba(0, 0, 0, 0.2) !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sidebar - Dark */
+        .main-sidebar {
+            background: #1e293b !important;
+        }
+
+        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.4);
+        }
+
+        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+            color: #ffffff !important;
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+            border: none;
+        }
+
+        /* Small Box */
+        .small-box {
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .small-box:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            transition: all 0.3s ease;
+        }
+
+        /* Info Box */
+        .info-box {
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+            border: none !important;
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
+            box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Tables */
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+            color: #ffffff !important;
+            border: none;
+        }
+
+        .table tbody tr:hover {
+            background: #f9fafb;
+            transform: scale(1.005);
+            transition: all 0.3s ease;
+        }
+
+        /* Content Header */
+        .content-header h1 {
+            font-weight: 700;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-dark">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link">🏠 대시보드</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link">📱 회원 앱</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link">✅ 출석 체크</a>
+                </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fas fa-user"></i> 관리자
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Sidebar -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a href="#" class="brand-link">
+                <span class="brand-text font-weight-light">💪 Pumpy Admin</span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                        <!-- Dashboard -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>대시보드</p>
+                            </a>
+                        </li>
+
+                        <!-- 회원 관리 -->
+                        <li class="nav-header">회원 관리</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-user-friends"></i>
+                                <p>회원</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>출석</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-id-card"></i>
+                                <p>회원권</p>
+                            </a>
+                        </li>
+
+                        <!-- 운영 관리 -->
+                        <li class="nav-header">운영 관리</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-dollar-sign"></i>
+                                <p>매출</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-dumbbell"></i>
+                                <p>코치</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-key"></i>
+                                <p>락커</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-running"></i>
+                                <p>WOD</p>
+                            </a>
+                        </li>
+
+                        <!-- 시스템 -->
+                        <li class="nav-header">시스템</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-users-cog"></i>
+                                <p>인증 및 권한</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Content Header -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">사이트 관리</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">홈</a></li>
+                                <li class="breadcrumb-item active">사이트 관리</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <section class="content">
+                <div class="container-fluid">
+                    <!-- Small boxes (Stat box) -->
+                    <div class="row">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>150</h3>
+                                    <p>전체 회원</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">자세히 보기 <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>42</h3>
+                                    <p>오늘 출석</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">자세히 보기 <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>₩8.5M</h3>
+                                    <p>이번 달 매출</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">자세히 보기 <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-danger">
+                                <div class="inner">
+                                    <h3>8</h3>
+                                    <p>만료 임박</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">자세히 보기 <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main row -->
+                    <div class="row">
+                        <!-- Recent Activity -->
+                        <section class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header border-0">
+                                    <h3 class="card-title">최근 작업</h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-sm btn-tool">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>작업</th>
+                                                    <th>객체</th>
+                                                    <th>날짜</th>
+                                                    <th>사용자</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><span class="badge badge-success">추가됨</span></td>
+                                                    <td>회원: 김철수</td>
+                                                    <td>2025년 10월 15일, 오후 3:45</td>
+                                                    <td>admin</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="badge badge-info">변경됨</span></td>
+                                                    <td>출석: #1234</td>
+                                                    <td>2025년 10월 15일, 오후 2:30</td>
+                                                    <td>admin</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="badge badge-success">추가됨</span></td>
+                                                    <td>회원: 이영희</td>
+                                                    <td>2025년 10월 14일, 오후 5:15</td>
+                                                    <td>admin</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="badge badge-warning">삭제됨</span></td>
+                                                    <td>락커: #25</td>
+                                                    <td>2025년 10월 14일, 오전 11:00</td>
+                                                    <td>admin</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="badge badge-info">변경됨</span></td>
+                                                    <td>회원권: 3개월 회원권</td>
+                                                    <td>2025년 10월 13일, 오후 4:20</td>
+                                                    <td>admin</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">빠른 작업</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-6">
+                                            <a href="#" class="btn btn-app btn-primary w-100">
+                                                <i class="fas fa-user-plus"></i>
+                                                회원 추가
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <a href="#" class="btn btn-app btn-success w-100">
+                                                <i class="fas fa-calendar-check"></i>
+                                                출석 기록
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <a href="#" class="btn btn-app btn-warning w-100">
+                                                <i class="fas fa-dollar-sign"></i>
+                                                매출 등록
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <a href="#" class="btn btn-app btn-info w-100">
+                                                <i class="fas fa-chart-bar"></i>
+                                                통계 보기
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2025 <a href="#">Pumpy Gym Management</a>.</strong>
+            All rights reserved.
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 1.0.0
+            </div>
+        </footer>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+</body>
+</html>
+
+

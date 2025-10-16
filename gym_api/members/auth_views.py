@@ -3,11 +3,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
+from django.conf import settings
 from datetime import datetime
 import random
 import string
 from .models import Member
 from .serializers import MemberSerializer
+
+DEBUG = getattr(settings, 'DEBUG', False)
 
 
 @api_view(['POST'])
@@ -36,8 +39,8 @@ def register(request):
             'error': '이미 사용 중인 전화번호입니다.'
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    # 비밀번호 확인
-    if data.get('password') != data.get('password_confirm'):
+    # 비밀번호 확인 (password_confirm이 있을 경우에만)
+    if data.get('password_confirm') and data.get('password') != data.get('password_confirm'):
         return Response({
             'error': '비밀번호가 일치하지 않습니다.'
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -84,8 +87,12 @@ def register(request):
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Registration Error: {error_details}")  # 서버 로그에 출력
         return Response({
-            'error': f'회원가입 중 오류가 발생했습니다: {str(e)}'
+            'error': f'회원가입 중 오류가 발생했습니다: {str(e)}',
+            'details': str(e) if DEBUG else None
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

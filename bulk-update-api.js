@@ -36,3 +36,4 @@ files.forEach(file => {
 
 console.log('All files updated!');
 
+

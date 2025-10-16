@@ -1,0 +1,12 @@
+{
+  "email": "testuser999@example.com",
+  "password": "testpass123",
+  "first_name": "Test",
+  "last_name": "User",
+  "phone": "01099999999",
+  "terms_agreed": true,
+  "privacy_agreed": true,
+  "marketing_agreed": false
+}
+
+

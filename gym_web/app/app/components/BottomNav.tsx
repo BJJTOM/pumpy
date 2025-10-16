@@ -11,8 +11,9 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { icon: '🏠', label: '홈', path: '/app' },
   { icon: '👥', label: '커뮤니티', path: '/app/community' },
-  { icon: '💬', label: '채팅', path: '/app/chat' },
-  { icon: '👤', label: '내 정보', path: '/app/profile' }
+  { icon: '📋', label: '내정보', path: '/app/info' },
+  { icon: '🔔', label: '알림', path: '/app/notifications' },
+  { icon: '👤', label: '프로필', path: '/app/profile' }
 ]
 
 export default function BottomNav() {

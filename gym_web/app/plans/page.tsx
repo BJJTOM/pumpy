@@ -5,44 +5,11 @@ import { getApiUrl } from '@/lib/api'
 
 export default function PlansPage() {
   const [plans, setPlans] = useState<any[]>([])
-  const [filteredPlans, setFilteredPlans] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [editingPlan, setEditingPlan] = useState<any>(null)
-  const [selectedCategory, setSelectedCategory] = useState<string>('?ÑÏ≤¥')
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '?ºÎ∞ò',
-    price: '',
-    original_price: '',
-    duration_months: '',
-    duration_days: '',
-    visits: '',
-    weekly_limit: '',
-    discount_rate: '',
-    includes_uniform: false,
-    includes_rashguard: false,
-    includes_locker: false,
-    includes_towel: false,
-    includes_gear: false,
-    is_popular: false,
-    description: '',
-    notes: ''
-  })
-
-  const categories = ['?ÑÏ≤¥', '?ºÎ∞ò', '?§Ïù¥?¥Ìä∏', '?§Ï†ÑÎ∞?, '?òÎìú?∏Î†à?¥Îãù', '?§Ï¶à', 'PT', 'Í∑∏Î£π']
 
   useEffect(() => {
     loadPlans()
   }, [])
-
-  useEffect(() => {
-    if (selectedCategory === '?ÑÏ≤¥') {
-      setFilteredPlans(plans)
-    } else {
-      setFilteredPlans(plans.filter(p => p.category === selectedCategory))
-    }
-  }, [selectedCategory, plans])
 
   const loadPlans = async () => {
     setLoading(true)
@@ -50,475 +17,46 @@ export default function PlansPage() {
       const apiBase = getApiUrl()
       const res = await axios.get(`${apiBase}/plans/`, { timeout: 30000 })
       setPlans(res.data)
-      setFilteredPlans(res.data)
-      console.log('???ÅÌíà ?∞Ïù¥??Î°úÎìú ?±Í≥µ')
     } catch (err) {
-      console.error('???ÅÌíà ?∞Ïù¥??Î°úÎìú ?§Ìå®:', err)
+      console.error('Plans loading failed:', err)
       setPlans([])
-      setFilteredPlans([])
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    const data = {
-      name: formData.name,
-      category: formData.category,
-      price: Number(formData.price),
-      original_price: formData.original_price ? Number(formData.original_price) : null,
-      duration_months: formData.duration_months ? Number(formData.duration_months) : null,
-      duration_days: formData.duration_days ? Number(formData.duration_days) : null,
-      visits: formData.visits ? Number(formData.visits) : null,
-      weekly_limit: formData.weekly_limit ? Number(formData.weekly_limit) : null,
-      discount_rate: formData.discount_rate ? Number(formData.discount_rate) : 0,
-      includes_uniform: formData.includes_uniform,
-      includes_rashguard: formData.includes_rashguard,
-      includes_locker: formData.includes_locker,
-      includes_towel: formData.includes_towel,
-      includes_gear: formData.includes_gear,
-      is_popular: formData.is_popular,
-      description: formData.description,
-      notes: formData.notes
-    }
-
-    const request = editingPlan
-      ? axios.put(`${getApiUrl()}/plans/${editingPlan.id}/`, data)
-      : axios.post(`${getApiUrl()}/plans/`, data)
-
-    request
-      .then(() => {
-        alert(editingPlan ? '???òÏ†ï?òÏóà?µÎãà?? : '???±Î°ù?òÏóà?µÎãà??)
-        setShowModal(false)
-        setEditingPlan(null)
-        resetForm()
-        loadPlans()
-      })
-      .catch(err => alert('???§Ìå®: ' + (err.response?.data?.detail || '?§Î•òÍ∞Ä Î∞úÏÉù?àÏäµ?àÎã§')))
-  }
-
-  const handleDelete = (id: number) => {
-    if (!confirm('?ïÎßê ??†ú?òÏãúÍ≤†Ïäµ?àÍπå?')) return
-
-    axios.delete(`${getApiUrl()}/plans/${id}/`)
-      .then(() => {
-        alert('??†ú?òÏóà?µÎãà??)
-        loadPlans()
-      })
-      .catch(err => alert('??†ú ?§Ìå®'))
-  }
-
-  const handleEdit = (plan: any) => {
-    setEditingPlan(plan)
-    setFormData({
-      name: plan.name,
-      category: plan.category || '?ºÎ∞ò',
-      price: plan.price,
-      original_price: plan.original_price || '',
-      duration_months: plan.duration_months || '',
-      duration_days: plan.duration_days || '',
-      visits: plan.visits || '',
-      weekly_limit: plan.weekly_limit || '',
-      discount_rate: plan.discount_rate || '',
-      includes_uniform: plan.includes_uniform || false,
-      includes_rashguard: plan.includes_rashguard || false,
-      includes_locker: plan.includes_locker || false,
-      includes_towel: plan.includes_towel || false,
-      includes_gear: plan.includes_gear || false,
-      is_popular: plan.is_popular || false,
-      description: plan.description || '',
-      notes: plan.notes || ''
-    })
-    setShowModal(true)
-  }
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      category: '?ºÎ∞ò',
-      price: '',
-      original_price: '',
-      duration_months: '',
-      duration_days: '',
-      visits: '',
-      weekly_limit: '',
-      discount_rate: '',
-      includes_uniform: false,
-      includes_rashguard: false,
-      includes_locker: false,
-      includes_towel: false,
-      includes_gear: false,
-      is_popular: false,
-      description: '',
-      notes: ''
-    })
-  }
-
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 60, color: 'var(--text)' }}>
-        <div style={{ fontSize: '48px', marginBottom: 16 }}>??/div>
-        <p>Î°úÎî© Ï§?..</p>
+      <div style={{ textAlign: 'center', padding: 60 }}>
+        <p>Loading...</p>
       </div>
     )
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-2xl)', flexWrap: 'wrap', gap: 16 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--text)' }}>
-            ?é´ ?ÅÌíà Í¥ÄÎ¶?          </h1>
-          <p style={{ margin: '4px 0 0 0', color: 'var(--text-sub)' }}>
-            Ï¥?{plans.length}Í∞??ÅÌíà ??{filteredPlans.length}Í∞??úÏãú
-          </p>
-        </div>
-        <button onClick={() => { resetForm(); setShowModal(true); }} className="btn btn-primary">
-          + ?ÅÌíà Ï∂îÍ?
-        </button>
-      </div>
-
-      {/* Ïπ¥ÌÖåÍ≥†Î¶¨ ?ÑÌÑ∞ */}
-      <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className="btn btn-sm"
-              style={{
-                backgroundColor: selectedCategory === cat ? 'var(--pri)' : 'var(--pill)',
-                color: selectedCategory === cat ? 'white' : 'var(--text)',
-                border: 'none'
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ?ÅÌíà Í∑∏Î¶¨??*/}
-      {filteredPlans.length === 0 ? (
-        <div className="card" style={{ padding: 'var(--spacing-4xl)', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: 16 }}>?ì¶</div>
-          <p style={{ color: 'var(--text-sub)' }}>?±Î°ù???ÅÌíà???ÜÏäµ?àÎã§</p>
-          <button onClick={() => setShowModal(true)} className="btn btn-primary" style={{ marginTop: 16 }}>
-            Ï≤??ÅÌíà Ï∂îÍ??òÍ∏∞
-          </button>
+    <div style={{ padding: 40 }}>
+      <h1 style={{ marginBottom: 20 }}>Membership Plans</h1>
+      
+      {plans.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 40 }}>
+          <p>No plans available</p>
         </div>
       ) : (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
-          gap: 'var(--spacing-lg)' 
-        }}>
-          {filteredPlans.map(plan => (
-            <div key={plan.id} className="card" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-md)' }}>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: 'var(--text)' }}>
-                    {plan.name}
-                  </h3>
-                </div>
-                <div style={{ display: 'flex', gap: 'var(--spacing-xs)' }}>
-                  {plan.is_popular && <span className="badge danger">?∏Í∏∞</span>}
-                  {plan.category && <span className="badge success">{plan.category}</span>}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-                <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--pri)' }}>
-                  ??Number(plan.price).toLocaleString()}
-                </div>
-                {plan.original_price && Number(plan.original_price) > Number(plan.price) && (
-                  <div style={{ fontSize: '14px', color: 'var(--text-disabled)', textDecoration: 'line-through' }}>
-                    ??Number(plan.original_price).toLocaleString()}
-                  </div>
-                )}
-                {plan.discount_rate > 0 && (
-                  <span className="badge danger" style={{ marginTop: 4 }}>
-                    {plan.discount_rate}% ?†Ïù∏
-                  </span>
-                )}
-              </div>
-
-              <div style={{ display: 'grid', gap: 'var(--spacing-sm)', fontSize: '14px', marginBottom: 'var(--spacing-lg)', padding: 'var(--spacing-md)', backgroundColor: 'var(--pill)', borderRadius: 'var(--radius-lg)' }}>
-                {plan.duration_months && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-sub)' }}>Í∏∞Í∞Ñ</span>
-                    <span style={{ fontWeight: 600, color: 'var(--text)' }}>{plan.duration_months}Í∞úÏõî</span>
-                  </div>
-                )}
-                {plan.duration_days && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-sub)' }}>?ºÏàò</span>
-                    <span style={{ fontWeight: 600, color: 'var(--text)' }}>{plan.duration_days}??/span>
-                  </div>
-                )}
-                {plan.visits && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-sub)' }}>?üÏàò</span>
-                    <span style={{ fontWeight: 600, color: 'var(--text)' }}>{plan.visits}??/span>
-                  </div>
-                )}
-                {plan.weekly_limit && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-sub)' }}>Ï£ºÎãπ</span>
-                    <span style={{ fontWeight: 600, color: 'var(--text)' }}>{plan.weekly_limit}??/span>
-                  </div>
-                )}
-              </div>
-
-              {(plan.includes_uniform || plan.includes_rashguard || plan.includes_locker || plan.includes_towel || plan.includes_gear) && (
-                <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 'var(--spacing-xs)' }}>
-                    ?¨Ìï® ?¨Ìï≠
-                  </div>
-                  <div style={{ display: 'flex', gap: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
-                    {plan.includes_uniform && <span className="pill" style={{ fontSize: '12px' }}>?ÑÎ≥µ</span>}
-                    {plan.includes_rashguard && <span className="pill" style={{ fontSize: '12px' }}>?òÏâ¨Í∞Ä??/span>}
-                    {plan.includes_locker && <span className="pill" style={{ fontSize: '12px' }}>?ΩÏª§</span>}
-                    {plan.includes_towel && <span className="pill" style={{ fontSize: '12px' }}>?òÍ±¥</span>}
-                    {plan.includes_gear && <span className="pill" style={{ fontSize: '12px' }}>?•ÎπÑ</span>}
-                  </div>
-                </div>
-              )}
-
-              {plan.description && (
-                <p style={{ fontSize: '14px', color: 'var(--text-sub)', marginBottom: 'var(--spacing-lg)', lineHeight: 1.5 }}>
-                  {plan.description}
-                </p>
-              )}
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-sm)', marginTop: 'auto' }}>
-                <button onClick={() => handleEdit(plan)} className="btn btn-secondary btn-sm">
-                  ?òÏ†ï
-                </button>
-                <button onClick={() => handleDelete(plan.id)} className="btn btn-sm" style={{ 
-                  backgroundColor: 'transparent',
-                  border: '1px solid var(--line)',
-                  color: 'var(--danger)'
-                }}>
-                  ??†ú
-                </button>
-              </div>
+        <div style={{ display: 'grid', gap: 20 }}>
+          {plans.map(plan => (
+            <div key={plan.id} style={{ 
+              padding: 20, 
+              border: '1px solid #ddd', 
+              borderRadius: 8 
+            }}>
+              <h3>{plan.name}</h3>
+              <p>Price: {Number(plan.price).toLocaleString()} KRW</p>
+              {plan.duration_months && <p>Duration: {plan.duration_months} months</p>}
+              {plan.description && <p>{plan.description}</p>}
             </div>
           ))}
         </div>
       )}
-
-      {/* Î™®Îã¨ */}
-      {showModal && (
-        <>
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              zIndex: 1000,
-            }}
-            onClick={() => { setShowModal(false); setEditingPlan(null); }}
-          />
-          <div
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: 'var(--card-bg)',
-              borderRadius: 'var(--radius-xl)',
-              boxShadow: 'var(--shadow-xl)',
-              zIndex: 1001,
-              width: '90%',
-              maxWidth: 600,
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }}
-          >
-            <div style={{ padding: 'var(--spacing-3xl)' }}>
-              <h2 style={{ margin: '0 0 var(--spacing-xl) 0', fontSize: '24px', fontWeight: 700, color: 'var(--text)' }}>
-                {editingPlan ? '?èÔ∏è ?ÅÌíà ?òÏ†ï' : '???ÅÌíà Ï∂îÍ?'}
-              </h2>
-
-              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 'var(--spacing-lg)' }}>
-                <div>
-                  <label>?ÅÌíàÎ™?*</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    placeholder="?? Ï£ºÏßì??Î¨¥Ï†ú??1Í∞úÏõî"
-                  />
-                </div>
-
-                <div>
-                  <label>Ïπ¥ÌÖåÍ≥†Î¶¨</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  >
-                    {categories.filter(c => c !== '?ÑÏ≤¥').map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
-                  <div>
-                    <label>?êÎß§Í∞ÄÍ≤?(?? *</label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      required
-                      placeholder="150000"
-                    />
-                  </div>
-                  <div>
-                    <label>?ïÍ? (??</label>
-                    <input
-                      type="number"
-                      value={formData.original_price}
-                      onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
-                      placeholder="200000"
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
-                  <div>
-                    <label>Í∏∞Í∞Ñ (Í∞úÏõî)</label>
-                    <input
-                      type="number"
-                      value={formData.duration_months}
-                      onChange={(e) => setFormData({ ...formData, duration_months: e.target.value })}
-                      placeholder="1"
-                    />
-                  </div>
-                  <div>
-                    <label>Í∏∞Í∞Ñ (??</label>
-                    <input
-                      type="number"
-                      value={formData.duration_days}
-                      onChange={(e) => setFormData({ ...formData, duration_days: e.target.value })}
-                      placeholder="30"
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--spacing-md)' }}>
-                  <div>
-                    <label>?üÏàò</label>
-                    <input
-                      type="number"
-                      value={formData.visits}
-                      onChange={(e) => setFormData({ ...formData, visits: e.target.value })}
-                      placeholder="10"
-                    />
-                  </div>
-                  <div>
-                    <label>Ï£ºÎãπ ?üÏàò</label>
-                    <input
-                      type="number"
-                      value={formData.weekly_limit}
-                      onChange={(e) => setFormData({ ...formData, weekly_limit: e.target.value })}
-                      placeholder="3"
-                    />
-                  </div>
-                  <div>
-                    <label>?†Ïù∏??(%)</label>
-                    <input
-                      type="number"
-                      value={formData.discount_rate}
-                      onChange={(e) => setFormData({ ...formData, discount_rate: e.target.value })}
-                      placeholder="10"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ marginBottom: 'var(--spacing-sm)' }}>?¨Ìï® ?¨Ìï≠</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 'var(--spacing-sm)' }}>
-                    {[
-                      { key: 'includes_uniform', label: '?ÑÎ≥µ' },
-                      { key: 'includes_rashguard', label: '?òÏâ¨Í∞Ä?? },
-                      { key: 'includes_locker', label: '?ΩÏª§' },
-                      { key: 'includes_towel', label: '?òÍ±¥' },
-                      { key: 'includes_gear', label: '?•ÎπÑ' }
-                    ].map(item => (
-                      <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={formData[item.key as keyof typeof formData] as boolean}
-                          onChange={(e) => setFormData({ ...formData, [item.key]: e.target.checked })}
-                        />
-                        <span style={{ fontSize: '14px', color: 'var(--text)' }}>{item.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer', padding: 'var(--spacing-md)', backgroundColor: 'var(--pill)', borderRadius: 'var(--radius-lg)' }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_popular}
-                    onChange={(e) => setFormData({ ...formData, is_popular: e.target.checked })}
-                  />
-                  <span style={{ fontWeight: 600, color: 'var(--text)' }}>‚≠??∏Í∏∞ ?ÅÌíà?ºÎ°ú ?úÏãú</span>
-                </label>
-
-                <div>
-                  <label>?ÅÌíà ?§Î™Ö</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="?ÅÌíà???Ä???§Î™Ö???ÖÎ†•?òÏÑ∏??
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <label>?¥Î? Î©îÎ™®</label>
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Í¥ÄÎ¶¨Ïûê??Î©îÎ™®"
-                    rows={2}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-lg)' }}>
-                  <button 
-                    type="button" 
-                    onClick={() => { setShowModal(false); setEditingPlan(null); }}
-                    className="btn btn-secondary"
-                  >
-                    Ï∑®ÏÜå
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    {editingPlan ? '?òÏ†ï' : 'Ï∂îÍ?'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </>
-      )}
-
-      <style jsx>{`
-        @media (max-width: 768px) {
-          div[style*="gridTemplateColumns"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   )
 }

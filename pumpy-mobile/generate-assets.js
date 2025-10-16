@@ -31,3 +31,4 @@ console.log('');
 console.log('⚠️  주의: EAS Build는 PNG 파일이 필요합니다.');
 console.log('SVG를 PNG로 변환하거나, 임시로 빌드를 진행합니다.');
 
+

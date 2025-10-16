@@ -312,10 +312,11 @@ export default function RegisterPage() {
       return
     }
 
-    if (!phoneVerification.verified) {
-      setError('전화번호 인증을 완료해주세요.')
-      return
-    }
+    // 전화번호 인증 임시 비활성화
+    // if (!phoneVerification.verified) {
+    //   setError('전화번호 인증을 완료해주세요.')
+    //   return
+    // }
 
     setLoading(true)
 
@@ -328,7 +329,7 @@ export default function RegisterPage() {
         first_name: formData.firstName,
         last_name: formData.lastName,
         phone: formData.phone,
-        phone_verified: phoneVerification.verified,
+        phone_verified: true, // 전화번호 인증 임시 비활성화
         terms_agreed: agreements.terms,
         privacy_agreed: agreements.privacy,
         marketing_agreed: agreements.marketing
@@ -588,7 +589,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* 전화번호 인증 */}
+            {/* 전화번호 (인증 없이 입력만) */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{
                 display: 'block',
@@ -599,48 +600,37 @@ export default function RegisterPage() {
               }}>
                 전화번호 * (- 없이 입력)
               </label>
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/[^0-9]/g, '') })}
-                  placeholder="01012345678"
-                  disabled={loading || phoneVerification.verified}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    padding: '0 16px',
-                    fontSize: '15px',
-                    border: '2px solid #e0e0e0',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    fontFamily: 'inherit'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-                />
-                <button
-                  type="button"
-                  onClick={sendVerificationCode}
-                  disabled={loading || phoneVerification.verified || !formData.phone}
-                  style={{
-                    padding: '0 20px',
-                    height: '48px',
-                    background: phoneVerification.verified ? '#4caf50' : '#667eea',
-                    border: 'none',
-                    borderRadius: '12px',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    cursor: phoneVerification.verified ? 'default' : 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {phoneVerification.verified ? '인증완료' : phoneVerification.sent ? '재전송' : '인증번호'}
-                </button>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/[^0-9]/g, '') })}
+                placeholder="01012345678"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  height: '48px',
+                  padding: '0 16px',
+                  fontSize: '15px',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '12px',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+              />
+              <div style={{
+                fontSize: '12px',
+                color: '#10b981',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                📱 인증 없이 바로 가입 가능합니다
               </div>
-
-              {phoneVerification.sent && !phoneVerification.verified && (
+              
+              {/* 인증 UI 제거됨 */}
+              {false && phoneVerification.sent && !phoneVerification.verified && (
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
                     type="text"

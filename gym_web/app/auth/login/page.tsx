@@ -34,13 +34,18 @@ export default function LoginPage() {
         timeout: 10000
       })
 
-      if (res.data.member) {
+      if (res.data.user) {
         // 로그인 성공 - localStorage에 회원 정보 저장
-        localStorage.setItem('currentUser', JSON.stringify(res.data.member))
+        localStorage.setItem('currentUser', JSON.stringify(res.data.user))
+        localStorage.setItem('userToken', res.data.token)
         localStorage.setItem('userEmail', email)
         
-        // 메인 화면으로 이동
-        router.push('/app')
+        alert('로그인 성공!')
+        
+        // 관리자 대시보드로 이동 (웹 관리자용)
+        router.push('/')
+      } else {
+        setError('로그인 응답 형식이 올바르지 않습니다.')
       }
     } catch (err: any) {
       console.error('로그인 실패:', err)

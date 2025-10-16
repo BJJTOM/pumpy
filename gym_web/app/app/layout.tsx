@@ -9,19 +9,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
 
-  // 로그인 체크 제외 경로
-  const publicPaths = ['/app/server-config']
-
   useEffect(() => {
-    // 공개 경로가 아닌 경우 로그인 체크
-    if (!publicPaths.includes(pathname)) {
-      const user = localStorage.getItem('currentUser')
-      if (!user) {
-        router.push('/auth/login')
-        return
-      }
-      setCurrentUser(JSON.parse(user))
+    // 항상 로그인 체크 (서버 설정 화면 제거됨)
+    const user = localStorage.getItem('currentUser')
+    if (!user) {
+      router.push('/auth/login')
+      return
     }
+    setCurrentUser(JSON.parse(user))
   }, [pathname, router])
 
   return (

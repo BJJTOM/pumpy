@@ -38,3 +38,4 @@ foreach ($file in $files) {
 
 Write-Host "`nAll files updated!"
 
+

@@ -1,0 +1,25 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background - Black with Gold Border -->
+  <rect width="512" height="512" fill="#000000"/>
+  <rect x="10" y="10" width="492" height="492" fill="#1a1a1a" stroke="#d4af37" stroke-width="8" rx="60"/>
+  
+  <!-- Shark Fin (Stylized) -->
+  <path d="M 256 120 L 350 280 L 300 260 L 256 360 L 212 260 L 162 280 Z" fill="#d4af37"/>
+  
+  <!-- Boxing Glove -->
+  <circle cx="180" cy="320" r="45" fill="#d4af37"/>
+  <rect x="160" y="355" width="40" height="60" fill="#d4af37" rx="5"/>
+  
+  <!-- Dumbbell -->
+  <rect x="300" y="315" width="80" height="15" fill="#d4af37" rx="7"/>
+  <circle cx="295" cy="322" r="20" fill="#d4af37"/>
+  <circle cx="385" cy="322" r="20" fill="#d4af37"/>
+  
+  <!-- Text "BS" (BlackShark) -->
+  <text x="256" y="450" font-family="Arial Black, sans-serif" font-size="80" font-weight="900" fill="#d4af37" text-anchor="middle">BS</text>
+  
+  <!-- Shine Effect -->
+  <path d="M 100 100 Q 150 150 100 200" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.3"/>
+</svg>
+
+

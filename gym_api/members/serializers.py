@@ -142,6 +142,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
+        read_only_fields = ('like_count', 'comment_count', 'share_count', 'view_count', 'created_at', 'updated_at')
 
 
 class LikeSerializer(serializers.ModelSerializer):
