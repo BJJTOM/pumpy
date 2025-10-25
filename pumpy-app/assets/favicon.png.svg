@@ -1,0 +1,32 @@
+<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+    <!-- 배경 (라운드 사각형) -->
+    <rect width="48" height="48" rx="9.600000000000001" fill="#f0f0f0"/>
+    
+    <!-- 그리드 패턴 (diagonal lines) -->
+    <defs>
+      <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="40" x2="40" y2="0" stroke="#e0e0e0" stroke-width="1"/>
+      </pattern>
+    </defs>
+    <rect width="48" height="48" fill="url(#grid)" opacity="0.5"/>
+    
+    <!-- X 아이콘 (파란색 그라데이션) -->
+    <defs>
+      <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#5ec2f0;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#4a9fd8;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    
+    <!-- 왼쪽 위에서 오른쪽 아래로 -->
+    <rect x="12" y="16.799999999999997" width="7.199999999999999" height="24" 
+          rx="1.44" 
+          fill="url(#blueGradient)" 
+          transform="rotate(45 24 24)"/>
+    
+    <!-- 오른쪽 위에서 왼쪽 아래로 -->
+    <rect x="28.799999999999997" y="16.799999999999997" width="7.199999999999999" height="24" 
+          rx="1.44" 
+          fill="url(#blueGradient)" 
+          transform="rotate(-45 24 24)"/>
+  </svg>
