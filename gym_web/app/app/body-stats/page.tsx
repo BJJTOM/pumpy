@@ -200,25 +200,25 @@ export default function BodyStatsPage() {
                 label="키 (cm)"
                 icon="📏"
                 value={tempStats.height}
-                onChange={(value) => setTempStats({ ...tempStats, height: value })}
+                onChange={(value: string) => setTempStats({ ...tempStats, height: value })}
               />
               <InputField
                 label="체중 (kg)"
                 icon="⚖️"
                 value={tempStats.weight}
-                onChange={(value) => setTempStats({ ...tempStats, weight: value })}
+                onChange={(value: string) => setTempStats({ ...tempStats, weight: value })}
               />
               <InputField
                 label="근육량 (kg)"
                 icon="💪"
                 value={tempStats.muscle}
-                onChange={(value) => setTempStats({ ...tempStats, muscle: value })}
+                onChange={(value: string) => setTempStats({ ...tempStats, muscle: value })}
               />
               <InputField
                 label="체지방 (%)"
                 icon="🔥"
                 value={tempStats.fat}
-                onChange={(value) => setTempStats({ ...tempStats, fat: value })}
+                onChange={(value: string) => setTempStats({ ...tempStats, fat: value })}
               />
             </div>
 
