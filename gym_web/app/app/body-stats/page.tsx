@@ -354,7 +354,15 @@ export default function BodyStatsPage() {
   )
 }
 
-function StatCard({ emoji, value, label, gradient, color }: any) {
+type StatCardProps = {
+  emoji: string
+  value: number
+  label: string
+  gradient: string
+  color: string
+}
+
+function StatCard({ emoji, value, label, gradient, color }: StatCardProps) {
   return (
     <div style={{
       padding: '20px',
@@ -378,7 +386,14 @@ function StatCard({ emoji, value, label, gradient, color }: any) {
   )
 }
 
-function InputField({ label, icon, value, onChange }: any) {
+type InputFieldProps = {
+  label: string
+  icon: string
+  value: number
+  onChange: (value: number) => void
+}
+
+function InputField({ label, icon, value, onChange }: InputFieldProps) {
   return (
     <div>
       <label style={{
