@@ -187,7 +187,34 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <>
+      {/* 떠다니는 배경 아이콘 */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}>
+        <div className="bg-icon" style={{ top: '10%', left: '5%' }}>💪</div>
+        <div className="bg-icon" style={{ top: '50%', right: '10%' }}>🏋️</div>
+        <div className="bg-icon" style={{ bottom: '15%', left: '45%' }}>🔥</div>
+        <div className="bg-icon" style={{ top: '30%', right: '30%' }}>⚡</div>
+        <div className="bg-icon" style={{ bottom: '40%', left: '15%' }}>💯</div>
+      </div>
+
+      {/* 떠다니는 원들 */}
+      <div className="floating-circles">
+        <div className="circle"></div>
+        <div className="circle"></div>
+        <div className="circle"></div>
+        <div className="circle"></div>
+      </div>
+
+    <div style={{ display: 'grid', gap: 16, position: 'relative', zIndex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ margin: 0, fontSize: '24px' }}>📊 대시보드</h2>
         <div style={{ fontSize: '14px' }} className="muted">
@@ -232,7 +259,11 @@ export default function Dashboard() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
         gap: 12 
       }}>
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card shine-effect" style={{ 
+          padding: 16,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+          backdropFilter: 'blur(10px)'
+        }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>이번 달 매출</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>
             ₩ {(stats.month_revenue / 10000).toFixed(0)}만
@@ -244,7 +275,11 @@ export default function Dashboard() {
           )}
         </div>
         
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card shine-effect" style={{ 
+          padding: 16,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+          backdropFilter: 'blur(10px)'
+        }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>활성 회원</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>{stats.active_members}</div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">
@@ -252,25 +287,41 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card shine-effect" style={{ 
+          padding: 16,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+          backdropFilter: 'blur(10px)'
+        }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>신규 회원</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>{stats.new_members_this_month}</div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">이번 달</div>
         </div>
 
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card shine-effect" style={{ 
+          padding: 16,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+          backdropFilter: 'blur(10px)'
+        }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>주간 출석률</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>{stats.attendance_rate}%</div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">최근 7일</div>
         </div>
 
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card shine-effect" style={{ 
+          padding: 16,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+          backdropFilter: 'blur(10px)'
+        }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>재등록률</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>{stats.renewal_rate}%</div>
           <div style={{ fontSize: 11, marginTop: 4 }} className="muted">지난달 기준</div>
         </div>
 
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card shine-effect" style={{ 
+          padding: 16,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+          backdropFilter: 'blur(10px)'
+        }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>정지/해지</div>
           <div style={{ fontSize: '24px', fontWeight: 800 }}>
             {stats.paused_members + stats.cancelled_members}
@@ -454,48 +505,67 @@ export default function Dashboard() {
             🚀 빠른 액션
           </div>
           <div style={{ padding: 12, display: 'grid', gap: 8 }}>
-            <a href="/checkin" style={{ 
-              padding: '12px 14px', 
+            <a href="/checkin" className="app-btn" style={{ 
+              padding: '14px 16px', 
               background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
               color: 'white',
-              borderRadius: 8, 
+              borderRadius: 12, 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              fontSize: '14px',
+              gap: '10px',
+              fontSize: '15px',
               fontWeight: 700,
-              textAlign: 'center'
+              textAlign: 'center',
+              boxShadow: '0 4px 15px rgba(79, 172, 254, 0.4)'
             }}>
               ✅ 출석 체크 (터치)
             </a>
-            <a href="/app" style={{ 
-              padding: '12px 14px', 
+            <a href="/community" className="app-btn" style={{ 
+              padding: '14px 16px', 
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
-              borderRadius: 8, 
+              borderRadius: 12, 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              fontSize: '14px',
+              gap: '10px',
+              fontSize: '15px',
               fontWeight: 700,
-              textAlign: 'center'
+              textAlign: 'center',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+            }}>
+              💬 커뮤니티
+            </a>
+            <a href="/app" className="app-btn" style={{ 
+              padding: '14px 16px', 
+              background: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+              color: 'white',
+              borderRadius: 12, 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              fontSize: '15px',
+              fontWeight: 700,
+              textAlign: 'center',
+              boxShadow: '0 4px 15px rgba(48, 207, 208, 0.4)'
             }}>
               📱 회원용 앱 접속
             </a>
-            <a href="/signup" style={{ 
-              padding: '12px 14px', 
+            <a href="/signup" className="app-btn" style={{ 
+              padding: '14px 16px', 
               background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
               color: 'white',
-              borderRadius: 8, 
+              borderRadius: 12, 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              fontSize: '14px',
+              gap: '10px',
+              fontSize: '15px',
               fontWeight: 700,
-              textAlign: 'center'
+              textAlign: 'center',
+              boxShadow: '0 4px 15px rgba(245, 87, 108, 0.4)'
             }}>
               ✍️ 회원 신청 페이지
             </a>
@@ -543,5 +613,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    </>
   )
 }

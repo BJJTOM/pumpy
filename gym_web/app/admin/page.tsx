@@ -284,6 +284,7 @@ export default function AdminDashboard() {
           <SidebarItem icon="📊" label="대시보드" active={activeMenu === 'dashboard'} onClick={() => { setActiveMenu('dashboard'); router.push('/admin'); }} />
           <SidebarItem icon="✅" label="출석 체크" onClick={() => router.push('/checkin')} />
           <SidebarItem icon="👥" label="회원 관리" onClick={() => router.push('/members')} />
+          <SidebarItem icon="💬" label="커뮤니티" onClick={() => router.push('/community')} />
           <SidebarItem icon="🔔" label="승인 대기" onClick={() => router.push('/pending')} />
           <SidebarItem icon="📅" label="수업 일정" onClick={() => router.push('/schedule')} />
           <SidebarItem icon="💳" label="상품 관리" onClick={() => router.push('/plans')} />
