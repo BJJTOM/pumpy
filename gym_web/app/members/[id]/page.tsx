@@ -415,6 +415,7 @@ export default function MemberDetailPage() {
       <div>
         {activeTab === 'info' && (
           <div style={{ display: 'grid', gap: 'var(--spacing-xl)' }}>
+            {/* 기본 정보 */}
             <div className="card" style={{ padding: 'var(--spacing-3xl)' }}>
               <h3 style={{
                 margin: '0 0 var(--spacing-xl) 0',
@@ -422,43 +423,227 @@ export default function MemberDetailPage() {
                 fontWeight: 700,
                 color: 'var(--text)',
                 paddingBottom: 'var(--spacing-md)',
-                borderBottom: '2px solid var(--line)'
+                borderBottom: '2px solid var(--pri)'
               }}>
-                📋 회원 상세정보
+                📋 기본 정보
               </h3>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: 'var(--spacing-xl)'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: 'var(--spacing-lg)'
               }}>
-                <InfoItem label="📱 전화번호" value={member.phone || '-'} />
+                <InfoItem label="📱 휴대폰" value={member.phone || '-'} />
+                <InfoItem label="🏠 자택전화" value={member.home_phone || '-'} />
+                <InfoItem label="🏢 직장전화" value={member.work_phone || '-'} />
                 <InfoItem label="📧 이메일" value={member.email || '-'} />
+                <InfoItem label="🆔 관번" value={member.member_number || '-'} />
                 <InfoItem label="📅 가입일" value={member.join_date || '-'} />
                 <InfoItem label="🎂 생년월일" value={member.birth_date || '-'} />
                 <InfoItem label="⚧ 성별" value={member.gender || '-'} />
+                <InfoItem label="🎂 나이 (만)" value={member.age ? `${member.age}세` : '-'} />
                 <InfoItem label="📍 주소" value={member.address || '-'} />
+              </div>
+            </div>
+
+            {/* 학년 분류 및 신체 정보 */}
+            <div className="card" style={{ padding: 'var(--spacing-3xl)' }}>
+              <h3 style={{
+                margin: '0 0 var(--spacing-xl) 0',
+                fontSize: '20px',
+                fontWeight: 700,
+                color: 'var(--text)',
+                paddingBottom: 'var(--spacing-md)',
+                borderBottom: '2px solid var(--pri)'
+              }}>
+                🎓 학년 분류 & 💪 신체 정보
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: 'var(--spacing-lg)'
+              }}>
+                <InfoItem label="🎓 학년 분류" value={member.age_group || '-'} />
+                <InfoItem label="🏫 학교명" value={member.school_name || '-'} />
+                <InfoItem label="📚 학년/반" value={member.school_grade || '-'} />
+                <InfoItem label="🙏 종교" value={member.religion || '-'} />
+                <InfoItem label="📏 신장" value={member.height ? `${member.height}cm` : '-'} />
+                <InfoItem label="⚖️ 체중" value={member.weight ? `${member.weight}kg` : '-'} />
+                <InfoItem label="🩸 혈액형" value={member.blood_type || '-'} />
+              </div>
+            </div>
+
+            {/* 입관 & 단수 정보 */}
+            <div className="card" style={{ padding: 'var(--spacing-3xl)' }}>
+              <h3 style={{
+                margin: '0 0 var(--spacing-xl) 0',
+                fontSize: '20px',
+                fontWeight: 700,
+                color: 'var(--text)',
+                paddingBottom: 'var(--spacing-md)',
+                borderBottom: '2px solid var(--pri)'
+              }}>
+                🥋 입관 & 단수 정보
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: 'var(--spacing-lg)'
+              }}>
+                <InfoItem label="📅 입관일자" value={member.admission_date || '-'} />
+                <InfoItem label="📅 퇴관일자" value={member.withdrawal_date || '-'} />
+                <InfoItem label="🥋 단(품)급" value={member.dan_rank || '-'} />
+                <InfoItem label="📅 단(품)급 취득일" value={member.dan_rank_date || '-'} />
+                <InfoItem label="🔢 단(품)번호" value={member.dan_rank_number || '-'} />
+                <InfoItem label="👨‍👩‍👧 부모님 직업" value={member.parent_job || '-'} />
+              </div>
+            </div>
+
+            {/* 회원권 정보 */}
+            <div className="card" style={{ padding: 'var(--spacing-3xl)' }}>
+              <h3 style={{
+                margin: '0 0 var(--spacing-xl) 0',
+                fontSize: '20px',
+                fontWeight: 700,
+                color: 'var(--text)',
+                paddingBottom: 'var(--spacing-md)',
+                borderBottom: '2px solid var(--pri)'
+              }}>
+                💳 회원권 정보
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: 'var(--spacing-lg)'
+              }}>
                 <InfoItem label="🎫 현재 회원권" value={stats.activeSubscription?.plan_name || '-'} />
                 <InfoItem label="⏰ 만료일" value={member.expire_date || '-'} />
+                <InfoItem label="🔢 잔여 횟수" value={member.remaining_visits ? `${member.remaining_visits}회` : '-'} />
                 <InfoItem label="🆘 긴급연락처" value={member.emergency_contact || '-'} />
               </div>
+            </div>
 
-              {member.notes && (
+            {/* 상세 정보 */}
+            {(member.admission_motivation || member.personality_description || member.exercise_aptitude || member.training_reason || member.special_notes) && (
+              <div className="card" style={{ padding: 'var(--spacing-3xl)' }}>
+                <h3 style={{
+                  margin: '0 0 var(--spacing-xl) 0',
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  color: 'var(--text)',
+                  paddingBottom: 'var(--spacing-md)',
+                  borderBottom: '2px solid var(--pri)'
+                }}>
+                  📝 상세 정보
+                </h3>
+                
+                <div style={{ display: 'grid', gap: 'var(--spacing-xl)' }}>
+                  {member.admission_motivation && (
+                    <div style={{
+                      padding: 'var(--spacing-lg)',
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--line)'
+                    }}>
+                      <div style={{ fontWeight: 700, marginBottom: 'var(--spacing-sm)', color: 'var(--text)', fontSize: '15px' }}>
+                        🎯 입관 동기
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-sub)', whiteSpace: 'pre-wrap' }}>
+                        {member.admission_motivation}
+                      </div>
+                    </div>
+                  )}
+
+                  {member.personality_description && (
+                    <div style={{
+                      padding: 'var(--spacing-lg)',
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--line)'
+                    }}>
+                      <div style={{ fontWeight: 700, marginBottom: 'var(--spacing-sm)', color: 'var(--text)', fontSize: '15px' }}>
+                        😊 본인 성격
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-sub)', whiteSpace: 'pre-wrap' }}>
+                        {member.personality_description}
+                      </div>
+                    </div>
+                  )}
+
+                  {member.exercise_aptitude && (
+                    <div style={{
+                      padding: 'var(--spacing-lg)',
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--line)'
+                    }}>
+                      <div style={{ fontWeight: 700, marginBottom: 'var(--spacing-sm)', color: 'var(--text)', fontSize: '15px' }}>
+                        💪 본인 운동 소질
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-sub)', whiteSpace: 'pre-wrap' }}>
+                        {member.exercise_aptitude}
+                      </div>
+                    </div>
+                  )}
+
+                  {member.training_reason && (
+                    <div style={{
+                      padding: 'var(--spacing-lg)',
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--line)'
+                    }}>
+                      <div style={{ fontWeight: 700, marginBottom: 'var(--spacing-sm)', color: 'var(--text)', fontSize: '15px' }}>
+                        🤔 수련 보낸 이유
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-sub)', whiteSpace: 'pre-wrap' }}>
+                        {member.training_reason}
+                      </div>
+                    </div>
+                  )}
+
+                  {member.special_notes && (
+                    <div style={{
+                      padding: 'var(--spacing-lg)',
+                      background: 'var(--bg2)',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--line)'
+                    }}>
+                      <div style={{ fontWeight: 700, marginBottom: 'var(--spacing-sm)', color: 'var(--text)', fontSize: '15px' }}>
+                        ⭐ 본인의 특기 사항
+                      </div>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-sub)', whiteSpace: 'pre-wrap' }}>
+                        {member.special_notes}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {member.notes && (
+              <div className="card" style={{ padding: 'var(--spacing-3xl)' }}>
+                <h3 style={{
+                  margin: '0 0 var(--spacing-xl) 0',
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  color: 'var(--text)',
+                  paddingBottom: 'var(--spacing-md)',
+                  borderBottom: '2px solid var(--pri)'
+                }}>
+                  📝 관리자 메모
+                </h3>
                 <div style={{
-                  marginTop: 'var(--spacing-xl)',
                   padding: 'var(--spacing-xl)',
                   background: 'var(--bg2)',
                   borderRadius: 'var(--radius-lg)',
                   border: '1px solid var(--line)'
                 }}>
-                  <div style={{ fontWeight: 700, marginBottom: 'var(--spacing-sm)', color: 'var(--text)' }}>
-                    📝 특이사항
-                  </div>
                   <div style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--text-sub)', whiteSpace: 'pre-wrap' }}>
                     {member.notes}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 

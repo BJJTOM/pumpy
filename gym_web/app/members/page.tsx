@@ -39,17 +39,45 @@ export default function MembersPage() {
       const apiBase = getApiUrl()
       console.log('🔗 API 주소:', apiBase)
       
-      const res = await axios.get<Member[]>(`${apiBase}/members/`, { timeout: 30000 })
+      const res = await axios.get<Member[]>(`${apiBase}/members/`, { 
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
       console.log('✅ 회원 목록 로드 성공:', res.data.length, '명')
-      setMembers(res.data)
+      
+      // 데이터 안전하게 처리
+      const safeMembers = res.data.map(member => ({
+        ...member,
+        full_name: member.full_name || `${member.last_name || ''}${member.first_name || ''}`,
+        name: member.name || member.full_name || `${member.last_name || ''}${member.first_name || ''}`,
+        phone: member.phone || '',
+        email: member.email || '',
+        status: member.status || 'pending',
+        expire_date: member.expire_date || undefined,
+        days_until_expire: member.days_until_expire !== undefined ? member.days_until_expire : undefined,
+        current_level: member.current_level || '',
+        join_date: member.join_date || '',
+        total_attendance_days: member.total_attendance_days || 0,
+        points: member.points || 0
+      }))
+      
+      setMembers(safeMembers)
     } catch (err: any) {
       console.error('❌ 회원 목록 로드 실패:', err)
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      })
+      
       if (err.code === 'ECONNABORTED') {
         alert('서버 응답 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.')
       } else if (err.response) {
-        alert(`서버 오류: ${err.response.status} - ${err.response.statusText}`)
+        alert(`서버 오류: ${err.response.status}\n${JSON.stringify(err.response.data, null, 2)}`)
       } else if (err.request) {
-        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.')
+        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.\n\n백엔드 서버: http://localhost:8000')
       } else {
         alert('회원 목록을 불러오는데 실패했습니다.')
       }

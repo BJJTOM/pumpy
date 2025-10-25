@@ -1,67 +1,95 @@
-# Dependencies
-node_modules/
-gym_web/node_modules/
-pumpy-mobile/node_modules/
-
-# Next.js
-gym_web/.next/
-gym_web/out/
-gym_web/.vercel/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+target/
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+.pyenv
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # Django
-gym_api/.venv/
-gym_api/__pycache__/
-gym_api/**/migrations/__pycache__/
-gym_api/**/__pycache__/
-gym_api/db.sqlite3
-gym_api/*.pyc
-gym_api/*.pyo
-gym_api/*.log
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_root/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.next/
+out/
+.cache/
+.parcel-cache
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
 
 # Environment variables
-.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# OS
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-
-# IDE
-.vscode/
-.idea/
-*.sublime-*
-
-# Build outputs
-gym_web/android/build/
-gym_web/android/app/build/
-gym_web/android/.gradle/
-*.apk
-*.zip
-*.rar
-*.7z
-
-# React Native
-PumpyApp/android/build/
-PumpyApp/android/app/build/
-PumpyApp/android/.gradle/
-PumpyApp/ios/build/
-
-# Large files
-Pumpy_*.apk
-Pumpy_*.zip
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Testing
+coverage/
+.nyc_output
 
 # Misc
-.cursor/
-*.txt
-!requirements.txt
-
+*.pem
+*.key
+.ssh/
+.aws/

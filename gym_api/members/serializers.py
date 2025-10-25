@@ -14,6 +14,21 @@ class MembershipPlanSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     days_until_expire = serializers.ReadOnlyField()
     full_name = serializers.ReadOnlyField()
+    membership = serializers.SerializerMethodField()
+    
+    def get_membership(self, obj):
+        """최신 활성 회원권 정보 반환"""
+        active_subscription = obj.subscriptions.filter(is_active=True).order_by('-start_date').first()
+        if active_subscription:
+            return {
+                'id': active_subscription.id,
+                'plan_name': active_subscription.plan.name,
+                'start_date': active_subscription.start_date,
+                'end_date': active_subscription.end_date,
+                'duration': active_subscription.plan.duration_months,
+                'status': 'active' if active_subscription.is_active else 'inactive'
+            }
+        return None
     
     class Meta:
         model = Member
@@ -38,7 +53,10 @@ class MemberListSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     member_name = serializers.CharField(source='member.full_name', read_only=True)
+    member_email = serializers.CharField(source='member.email', read_only=True)
+    member_phone = serializers.CharField(source='member.phone', read_only=True)
     plan_name = serializers.CharField(source='plan.name', read_only=True)
+    plan_price = serializers.DecimalField(source='plan.price', max_digits=10, decimal_places=2, read_only=True)
     
     class Meta:
         model = Subscription

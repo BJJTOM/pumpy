@@ -39,13 +39,15 @@ export default function AdminDashboard() {
   const loadData = async () => {
     try {
       const apiBase = getApiUrl()
-      const [membersRes, attendanceRes] = await Promise.all([
+      const [membersRes, attendanceRes, revenueRes] = await Promise.all([
         axios.get(`${apiBase}/members/`, { timeout: 10000 }),
-        axios.get(`${apiBase}/attendance/`, { timeout: 10000 })
+        axios.get(`${apiBase}/attendance/`, { timeout: 10000 }),
+        axios.get(`${apiBase}/revenues/`, { timeout: 10000 })
       ])
       
       const members = membersRes.data
       const attendance = attendanceRes.data
+      const revenues = revenueRes.data
       
       const activeMembers = members.filter((m: any) => m.status === 'active').length
       const pendingMembers = members.filter((m: any) => m.status === 'pending').length
@@ -55,13 +57,32 @@ export default function AdminDashboard() {
         return a.date === today
       }).length
       
+      // 이번 달 매출 계산
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      
+      const monthlyRevenue = revenues
+        .filter((r: any) => {
+          const revenueDate = new Date(r.date)
+          return revenueDate.getMonth() === currentMonth && 
+                 revenueDate.getFullYear() === currentYear
+        })
+        .reduce((sum: number, r: any) => sum + parseFloat(r.amount || 0), 0)
+      
+      console.log('📊 대시보드 데이터 로드 완료')
+      console.log('   - 전체 회원:', members.length)
+      console.log('   - 활성 회원:', activeMembers)
+      console.log('   - 이번 달 매출:', monthlyRevenue.toLocaleString(), '원')
+      console.log('   - 오늘 출석:', todayAttendance, '명')
+      
       setStats({
         totalMembers: members.length,
         activeMembers,
         pendingMembers,
         cancelledMembers,
         todayAttendance,
-        monthlyRevenue: members.length * 150000
+        monthlyRevenue
       })
       
       setRecentMembers(members.slice(0, 10))
@@ -285,9 +306,9 @@ export default function AdminDashboard() {
           <SidebarItem icon="✅" label="출석 체크" onClick={() => router.push('/checkin')} />
           <SidebarItem icon="👥" label="회원 관리" onClick={() => router.push('/members')} />
           <SidebarItem icon="💬" label="커뮤니티" onClick={() => router.push('/community')} />
-          <SidebarItem icon="🔔" label="승인 대기" onClick={() => router.push('/pending')} />
+          <SidebarItem icon="💳" label="회원권 승인" onClick={() => router.push('/admin/membership-approvals')} />
           <SidebarItem icon="📅" label="수업 일정" onClick={() => router.push('/schedule')} />
-          <SidebarItem icon="💳" label="상품 관리" onClick={() => router.push('/plans')} />
+          <SidebarItem icon="🎁" label="상품 관리" onClick={() => router.push('/plans')} />
           <SidebarItem icon="📈" label="분석" onClick={() => router.push('/analytics')} />
           <SidebarItem icon="🔍" label="출결" onClick={() => router.push('/attendance')} />
           <SidebarItem icon="💰" label="매출" onClick={() => router.push('/revenue')} />

@@ -100,6 +100,17 @@ class Member(models.Model):
         ('5단', '5단'), ('6단', '6단'), ('7단', '7단'), ('8단', '8단'),
         ('9단', '9단'), ('10단', '10단'), ('초보', '초보'), ('중급', '중급'), ('고급', '고급')
     ]
+    RELIGION_CHOICES = [
+        ('무교', '무교'), ('기독교', '기독교'), ('천주교', '천주교'),
+        ('불교', '불교'), ('기타', '기타')
+    ]
+    AGE_GROUP_CHOICES = [
+        ('유치부', '유치부'), ('초등부', '초등부'), ('중등부', '중등부'),
+        ('고등부', '고등부'), ('대학부', '대학부'), ('일반부', '일반부')
+    ]
+    BLOOD_TYPE_CHOICES = [
+        ('A', 'A형'), ('B', 'B형'), ('O', 'O형'), ('AB', 'AB형'), ('RH-', 'RH-')
+    ]
     
     # 기본 정보
     first_name = models.CharField(max_length=50, verbose_name='이름')
@@ -115,6 +126,38 @@ class Member(models.Model):
     
     # 프로필 사진
     photo = models.TextField(blank=True, verbose_name='프로필 사진 URL')
+    
+    # 입관원서 추가 정보
+    member_number = models.CharField(max_length=50, blank=True, verbose_name='관번')  # 관번
+    home_phone = models.CharField(max_length=20, blank=True, verbose_name='자택전화')  # 자택전화
+    work_phone = models.CharField(max_length=20, blank=True, verbose_name='직장전화')  # 직장전화
+    religion = models.CharField(max_length=20, blank=True, choices=RELIGION_CHOICES, verbose_name='종교')  # 종교
+    age_group = models.CharField(max_length=20, blank=True, choices=AGE_GROUP_CHOICES, verbose_name='학년분류')  # 학년분류
+    school_name = models.CharField(max_length=100, blank=True, verbose_name='학교명')  # 학교명
+    school_grade = models.CharField(max_length=20, blank=True, verbose_name='학년/반')  # 학년/반
+    age = models.PositiveIntegerField(null=True, blank=True, verbose_name='나이(만)')  # 나이
+    height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='신장(cm)')  # 신장
+    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='체중(kg)')  # 체중
+    blood_type = models.CharField(max_length=10, blank=True, choices=BLOOD_TYPE_CHOICES, verbose_name='혈액형')  # 혈액형
+    
+    # 입관/퇴관 정보
+    admission_date = models.DateField(null=True, blank=True, verbose_name='입관일자')  # 입관일자
+    withdrawal_date = models.DateField(null=True, blank=True, verbose_name='퇴관일자')  # 퇴관일자
+    
+    # 단(품) 정보
+    dan_rank = models.CharField(max_length=50, blank=True, verbose_name='단(품)급')  # 단(품)급
+    dan_rank_date = models.DateField(null=True, blank=True, verbose_name='단(품)급 취득일')  # 단(품)급 일자
+    dan_rank_number = models.CharField(max_length=50, blank=True, verbose_name='단(품)번호')  # 단(품)번호
+    
+    # 부모/보호자 정보
+    parent_job = models.CharField(max_length=100, blank=True, verbose_name='부모님 직업')  # 부모님 직업
+    
+    # 입관 관련 상세 정보
+    admission_motivation = models.TextField(blank=True, verbose_name='입관 동기')  # 입관 동기
+    personality_description = models.TextField(blank=True, verbose_name='본인 성격')  # 본인 성격  
+    exercise_aptitude = models.TextField(blank=True, verbose_name='본인 운동 소질')  # 본인 운동 소질
+    training_reason = models.TextField(blank=True, verbose_name='수련 보낸 이유')  # 태권도/수련 보낸 이유
+    special_notes = models.TextField(blank=True, verbose_name='본인의 특기 사항')  # 본인의 특기 사항
     
     # 상태 및 회원권
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', verbose_name='상태')
@@ -189,12 +232,28 @@ class Member(models.Model):
 
 
 class Subscription(models.Model):
+    APPROVAL_STATUS_CHOICES = [
+        ('pending', '승인대기'),
+        ('approved', '승인완료'),
+        ('rejected', '거절됨'),
+    ]
+    
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='subscriptions', verbose_name='회원')
     plan = models.ForeignKey(MembershipPlan, on_delete=models.CASCADE, verbose_name='회원권')
     start_date = models.DateField(verbose_name='시작일')
     end_date = models.DateField(verbose_name='종료일')
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='결제 금액')
     is_active = models.BooleanField(default=True, verbose_name='활성화')
+    
+    # 승인 관련
+    approval_status = models.CharField(max_length=20, choices=APPROVAL_STATUS_CHOICES, default='approved', verbose_name='승인 상태')
+    payment_method = models.CharField(max_length=50, blank=True, verbose_name='결제 수단')
+    approved_at = models.DateTimeField(null=True, blank=True, verbose_name='승인 일시')
+    rejected_at = models.DateTimeField(null=True, blank=True, verbose_name='거절 일시')
+    rejection_reason = models.TextField(blank=True, verbose_name='거절 사유')
+    
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='생성일')
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name='수정일')
 
     class Meta:
         verbose_name = '구독'
@@ -467,7 +526,18 @@ class MealLog(models.Model):
 
 class Post(models.Model):
     """커뮤니티 게시글"""
+    CATEGORY_CHOICES = [
+        ('general', '자유게시판'),
+        ('workout', '운동정보'),
+        ('nutrition', '식단'),
+        ('question', '질문'),
+        ('success', '성공사례'),
+        ('review', '리뷰'),
+    ]
+    
     author = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='posts', verbose_name='작성자')
+    title = models.CharField(max_length=200, verbose_name='제목', default='')
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='general', verbose_name='카테고리')
     content = models.TextField(verbose_name='내용')
     images = models.TextField(blank=True, verbose_name='이미지 URLs (JSON)')
     

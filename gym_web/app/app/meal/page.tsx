@@ -1,372 +1,256 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
 
-export default function MealLog() {
+export default function MealPage() {
   const router = useRouter()
-  const [mealType, setMealType] = useState('breakfast')
-  const [foodName, setFoodName] = useState('')
-  const [calories, setCalories] = useState('')
-  const [protein, setProtein] = useState('')
-  const [carbs, setCarbs] = useState('')
-  const [fat, setFat] = useState('')
-  const [notes, setNotes] = useState('')
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
-  const mealTypes = [
-    { value: 'breakfast', label: '아침', emoji: '🌅' },
-    { value: 'lunch', label: '점심', emoji: '☀️' },
-    { value: 'dinner', label: '저녁', emoji: '🌙' },
-    { value: 'snack', label: '간식', emoji: '🍪' }
-  ]
+  useEffect(() => {
+    const userStr = localStorage.getItem('currentUser')
+    if (!userStr) {
+      router.push('/auth/login')
+      return
+    }
+    setCurrentUser(JSON.parse(userStr))
+  }, [router])
 
-  const handleSubmit = async () => {
-    // TODO: API POST 요청
-    alert('식단이 기록되었습니다!')
-    router.push('/app')
+  const mealPlan = {
+    breakfast: ['오트밀 1컵', '바나나 1개', '아몬드 한 줌', '우유 200ml'],
+    lunch: ['현미밥 1공기', '닭가슴살 150g', '브로콜리', '샐러드'],
+    dinner: ['고구마 1개', '연어 150g', '채소 샐러드', '올리브 오일'],
+    snack: ['프로틴 쉐이크', '견과류', '과일']
   }
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      padding: '20px',
-      paddingBottom: '40px'
+      background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      paddingBottom: '100px'
     }}>
       {/* Header */}
       <div style={{
+        padding: '25px 20px',
         display: 'flex',
         alignItems: 'center',
-        gap: '15px',
-        marginBottom: '30px',
-        color: 'white'
+        gap: '15px'
       }}>
         <div
           onClick={() => router.back()}
           style={{
-            fontSize: '28px',
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             cursor: 'pointer',
-            padding: '5px'
+            color: 'white',
+            fontSize: '20px',
+            fontWeight: 800
           }}
         >
           ←
         </div>
-        <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800 }}>
-          식단 기록
+        <h1 style={{
+          margin: 0,
+          fontSize: '28px',
+          fontWeight: 900,
+          color: 'white',
+          textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+        }}>
+          오늘의 식단
         </h1>
       </div>
 
-      {/* Form Card */}
+      {/* Content */}
       <div style={{
-        backgroundColor: 'white',
-        borderRadius: '25px',
-        padding: '30px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+        padding: '0 20px'
       }}>
-        {/* Icon */}
         <div style={{
-          textAlign: 'center',
-          marginBottom: '30px'
+          marginBottom: '20px'
         }}>
-          <div style={{
-            width: 100,
-            height: 100,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '50px',
-            margin: '0 auto 15px'
-          }}>
-            🍽️
-          </div>
-          <h2 style={{ margin: '0 0 10px 0', fontSize: '24px', fontWeight: 800 }}>
-            오늘 뭐 드셨나요?
-          </h2>
-          <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
-            건강한 식단 관리를 시작해보세요
-          </p>
-        </div>
-
-        {/* Meal Type Selection */}
-        <div style={{ marginBottom: '25px' }}>
-          <label style={{
-            display: 'block',
-            marginBottom: '10px',
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#333'
-          }}>
-            식사 시간
-          </label>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '10px'
-          }}>
-            {mealTypes.map(mt => (
-              <div
-                key={mt.value}
-                onClick={() => setMealType(mt.value)}
-                style={{
-                  padding: '15px 10px',
-                  borderRadius: '12px',
-                  border: mealType === mt.value ? '2px solid #f5576c' : '2px solid #eee',
-                  backgroundColor: mealType === mt.value ? '#fff0f5' : 'white',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <div style={{ fontSize: '28px', marginBottom: '5px' }}>{mt.emoji}</div>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: mealType === mt.value ? '#f5576c' : '#666'
-                }}>
-                  {mt.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Food Name */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            marginBottom: '10px',
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#333'
-          }}>
-            음식명
-          </label>
-          <input
-            type="text"
-            value={foodName}
-            onChange={(e) => setFoodName(e.target.value)}
-            placeholder="예: 닭가슴살 샐러드"
-            style={{
-              width: '100%',
-              padding: '15px',
-              borderRadius: '12px',
-              border: '2px solid #eee',
-              fontSize: '16px',
-              outline: 'none',
-              transition: 'border 0.2s'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#f5576c'}
-            onBlur={(e) => e.target.style.borderColor = '#eee'}
+          <MealCard
+            icon="🌅"
+            title="아침"
+            items={mealPlan.breakfast}
+            color="#fbbf24"
+          />
+          <MealCard
+            icon="☀️"
+            title="점심"
+            items={mealPlan.lunch}
+            color="#f59e0b"
+          />
+          <MealCard
+            icon="🌙"
+            title="저녁"
+            items={mealPlan.dinner}
+            color="#667eea"
+          />
+          <MealCard
+            icon="🍎"
+            title="간식"
+            items={mealPlan.snack}
+            color="#10b981"
           />
         </div>
 
-        {/* Nutrition Grid */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            marginBottom: '10px',
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#333'
-          }}>
-            영양 정보
-          </label>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '15px'
-          }}>
-            <div>
-              <div style={{
-                fontSize: '13px',
-                color: '#666',
-                marginBottom: '8px',
-                fontWeight: 600
-              }}>
-                칼로리 (kcal)
-              </div>
-              <input
-                type="number"
-                value={calories}
-                onChange={(e) => setCalories(e.target.value)}
-                placeholder="300"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '2px solid #eee',
-                  fontSize: '15px',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#f5576c'}
-                onBlur={(e) => e.target.style.borderColor = '#eee'}
-              />
-            </div>
-            <div>
-              <div style={{
-                fontSize: '13px',
-                color: '#666',
-                marginBottom: '8px',
-                fontWeight: 600
-              }}>
-                단백질 (g)
-              </div>
-              <input
-                type="number"
-                value={protein}
-                onChange={(e) => setProtein(e.target.value)}
-                placeholder="25"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '2px solid #eee',
-                  fontSize: '15px',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#f5576c'}
-                onBlur={(e) => e.target.style.borderColor = '#eee'}
-              />
-            </div>
-            <div>
-              <div style={{
-                fontSize: '13px',
-                color: '#666',
-                marginBottom: '8px',
-                fontWeight: 600
-              }}>
-                탄수화물 (g)
-              </div>
-              <input
-                type="number"
-                value={carbs}
-                onChange={(e) => setCarbs(e.target.value)}
-                placeholder="30"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '2px solid #eee',
-                  fontSize: '15px',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#f5576c'}
-                onBlur={(e) => e.target.style.borderColor = '#eee'}
-              />
-            </div>
-            <div>
-              <div style={{
-                fontSize: '13px',
-                color: '#666',
-                marginBottom: '8px',
-                fontWeight: 600
-              }}>
-                지방 (g)
-              </div>
-              <input
-                type="number"
-                value={fat}
-                onChange={(e) => setFat(e.target.value)}
-                placeholder="10"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '2px solid #eee',
-                  fontSize: '15px',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#f5576c'}
-                onBlur={(e) => e.target.style.borderColor = '#eee'}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Notes */}
-        <div style={{ marginBottom: '25px' }}>
-          <label style={{
-            display: 'block',
-            marginBottom: '10px',
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#333'
-          }}>
-            메모 (선택사항)
-          </label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="맛있게 먹었어요!"
-            style={{
-              width: '100%',
-              minHeight: '100px',
-              padding: '15px',
-              borderRadius: '12px',
-              border: '2px solid #eee',
-              fontSize: '15px',
-              resize: 'none',
-              outline: 'none',
-              transition: 'border 0.2s'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#f5576c'}
-            onBlur={(e) => e.target.style.borderColor = '#eee'}
-          />
-        </div>
-
-        {/* Photo Upload Button */}
-        <button style={{
-          width: '100%',
-          padding: '15px',
-          borderRadius: '12px',
-          border: '2px dashed #ddd',
-          backgroundColor: '#fafafa',
-          fontSize: '15px',
-          fontWeight: 600,
-          color: '#666',
-          cursor: 'pointer',
+        {/* 영양 정보 */}
+        <div style={{
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '20px',
+          padding: '25px',
           marginBottom: '20px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+        }}>
+          <h3 style={{
+            margin: '0 0 15px 0',
+            fontSize: '18px',
+            fontWeight: 800,
+            color: '#333'
+          }}>
+            📊 예상 영양 정보
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '12px'
+          }}>
+            <NutritionItem label="칼로리" value="2000" unit="kcal" color="#f59e0b" />
+            <NutritionItem label="단백질" value="150" unit="g" color="#10b981" />
+            <NutritionItem label="탄수화물" value="200" unit="g" color="#667eea" />
+          </div>
+        </div>
+
+        {/* 팁 */}
+        <div style={{
+          background: 'rgba(255,255,255,0.15)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '20px',
+          padding: '25px',
+          textAlign: 'center',
+          border: '2px solid rgba(255,255,255,0.3)'
+        }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>💡</div>
+          <div style={{
+            fontSize: '16px',
+            fontWeight: 800,
+            color: 'white',
+            marginBottom: '8px',
+            textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+          }}>
+            식단 관리 팁
+          </div>
+          <div style={{
+            fontSize: '14px',
+            color: 'rgba(255,255,255,0.9)',
+            lineHeight: '1.6',
+            fontWeight: 600
+          }}>
+            운동 전 1-2시간 전에 가벼운 식사를 하고,<br />
+            운동 후 30분 이내에 단백질을 섭취하세요!
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
+    </div>
+  )
+}
+
+function MealCard({ icon, title, items, color }: any) {
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.95)',
+      borderRadius: '20px',
+      padding: '20px',
+      marginBottom: '15px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '15px',
+        paddingBottom: '12px',
+        borderBottom: '2px solid #f3f4f6'
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '12px',
+          background: `${color}20`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '10px'
+          fontSize: '24px'
         }}>
-          <span style={{ fontSize: '24px' }}>📷</span>
-          사진 추가하기
-        </button>
-
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          disabled={!foodName || !calories}
-          style={{
-            width: '100%',
-            padding: '18px',
-            borderRadius: '15px',
-            border: 'none',
-            background: foodName && calories
-              ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-              : '#ddd',
-            color: 'white',
-            fontSize: '18px',
-            fontWeight: 800,
-            cursor: foodName && calories ? 'pointer' : 'not-allowed',
-            transition: 'transform 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            if (foodName && calories) {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }
-          }}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          기록 저장하기
-        </button>
+          {icon}
+        </div>
+        <h3 style={{
+          margin: 0,
+          fontSize: '20px',
+          fontWeight: 900,
+          color: '#333'
+        }}>
+          {title}
+        </h3>
+      </div>
+      <div style={{
+        display: 'grid',
+        gap: '8px'
+      }}>
+        {items.map((item: string, idx: number) => (
+          <div
+            key={idx}
+            style={{
+              padding: '10px 12px',
+              background: '#f8f9fa',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#666',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <span style={{ color }}>•</span>
+            {item}
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-
-
+function NutritionItem({ label, value, unit, color }: any) {
+  return (
+    <div style={{
+      padding: '15px',
+      background: '#f8f9fa',
+      borderRadius: '12px',
+      textAlign: 'center'
+    }}>
+      <div style={{
+        fontSize: '22px',
+        fontWeight: 900,
+        color,
+        marginBottom: '5px'
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontSize: '11px',
+        color: '#999',
+        fontWeight: 600
+      }}>
+        {label} ({unit})
+      </div>
+    </div>
+  )
+}

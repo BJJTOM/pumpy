@@ -5,13 +5,47 @@ import axios from 'axios'
 import { getApiUrl } from '@/lib/api'
 import BottomNav from '../components/BottomNav'
 
+type Post = {
+  id: number
+  title: string
+  content: string
+  author: {
+    id: number
+    first_name: string
+    last_name: string
+  }
+  category: string
+  like_count: number
+  comment_count: number
+  view_count: number
+  created_at: string
+  updated_at: string
+}
+
+const CATEGORIES = [
+  { id: 'all', name: '전체', icon: '📋', color: '#667eea' },
+  { id: 'general', name: '자유게시판', icon: '💬', color: '#4facfe' },
+  { id: 'workout', name: '운동정보', icon: '💪', color: '#f093fb' },
+  { id: 'nutrition', name: '식단', icon: '🍎', color: '#30cfd0' },
+  { id: 'question', name: '질문', icon: '❓', color: '#fa709a' },
+  { id: 'success', name: '성공사례', icon: '🎉', color: '#fbc531' },
+  { id: 'review', name: '리뷰', icon: '⭐', color: '#a8e063' },
+]
+
 export default function CommunityPage() {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
-  const [posts, setPosts] = useState<any[]>([])
-  const [stories, setStories] = useState<any[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
+  const [showNewPostModal, setShowNewPostModal] = useState(false)
+  const [newPost, setNewPost] = useState({
+    title: '',
+    content: '',
+    category: 'general'
+  })
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser')
@@ -19,75 +53,142 @@ export default function CommunityPage() {
       router.push('/auth/login')
       return
     }
-    setCurrentUser(JSON.parse(userStr))
-    loadData()
+    const user = JSON.parse(userStr)
+    setCurrentUser(user)
+    
+    // 좋아요한 게시글 불러오기
+    const liked = localStorage.getItem(`liked_posts_${user.id}`)
+    if (liked) {
+      setLikedPosts(new Set(JSON.parse(liked)))
+    }
+    
+    loadPosts()
+  }, [router])
 
-    // 자동 새로고침 (30초마다)
-    const interval = setInterval(() => {
-      refreshData()
-    }, 30000)
+  useEffect(() => {
+    if (selectedCategory === 'all') {
+      setFilteredPosts(posts)
+    } else {
+      setFilteredPosts(posts.filter(post => post.category === selectedCategory))
+    }
+  }, [selectedCategory, posts])
 
-    return () => clearInterval(interval)
-  }, [])
-
-  const loadData = async () => {
+  const loadPosts = async () => {
     try {
       const apiBase = getApiUrl()
-      console.log('커뮤니티 데이터 로드 시작:', apiBase)
+      const res = await axios.get(`${apiBase}/posts/`)
+      console.log('게시글 로드:', res.data)
+      setPosts(res.data)
+      setFilteredPosts(res.data)
+      setLoading(false)
+    } catch (error) {
+      console.error('게시글 로드 실패:', error)
+      setLoading(false)
+    }
+  }
+
+  const handleCreatePost = async () => {
+    if (!newPost.title.trim() || !newPost.content.trim()) {
+      alert('제목과 내용을 입력해주세요!')
+      return
+    }
+
+    try {
+      const apiBase = getApiUrl()
+      const res = await axios.post(`${apiBase}/posts/`, {
+        title: newPost.title,
+        content: newPost.content,
+        category: newPost.category,
+        author: currentUser.id
+      })
+      console.log('게시글 생성 성공:', res.data)
       
-      // 게시글 로드
-      const postsRes = await axios.get(`${apiBase}/posts/`)
-      console.log('게시글 로드 성공:', postsRes.data.length, '개')
-      console.log('게시글 데이터:', postsRes.data)
-      setPosts(postsRes.data)
-
-      // 스토리 로드
-      const storiesRes = await axios.get(`${apiBase}/stories/`)
-      console.log('스토리 로드 성공:', storiesRes.data.length, '개')
-      setStories(storiesRes.data)
-
-      setLoading(false)
-    } catch (error: any) {
-      console.error('커뮤니티 데이터 로드 실패:', error)
-      console.error('에러 상세:', error.response?.data)
-      setPosts([])
-      setStories([])
-      setLoading(false)
+      setShowNewPostModal(false)
+      setNewPost({ title: '', content: '', category: 'general' })
+      loadPosts()
+    } catch (error) {
+      console.error('게시글 생성 실패:', error)
+      alert('게시글 작성에 실패했습니다.')
     }
   }
 
-  const refreshData = async () => {
-    setRefreshing(true)
-    await loadData()
-    setRefreshing(false)
+  const getCategoryInfo = (categoryId: string) => {
+    return CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[1]
   }
 
-  const handleLike = async (postId: number) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return '방금 전'
+    if (diffMins < 60) return `${diffMins}분 전`
+    if (diffHours < 24) return `${diffHours}시간 전`
+    if (diffDays < 7) return `${diffDays}일 전`
+    
+    return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+  }
+
+  const handleLike = async (postId: number, e: React.MouseEvent) => {
+    e.stopPropagation() // 게시글 클릭 이벤트 방지
+    
     if (!currentUser) return
+
+    const isLiked = likedPosts.has(postId)
+    const newLikedPosts = new Set(likedPosts)
+    
     try {
       const apiBase = getApiUrl()
-      await axios.post(`${apiBase}/posts/${postId}/like/`, {
-        member_id: currentUser.id
-      })
-      // 게시글 새로고침
-      await loadData()
+      
+      if (isLiked) {
+        // 좋아요 취소
+        newLikedPosts.delete(postId)
+        await axios.post(`${apiBase}/posts/${postId}/unlike/`, {
+          member: currentUser.id
+        })
+      } else {
+        // 좋아요 추가
+        newLikedPosts.add(postId)
+        await axios.post(`${apiBase}/posts/${postId}/like/`, {
+          member: currentUser.id
+        })
+      }
+      
+      setLikedPosts(newLikedPosts)
+      localStorage.setItem(`liked_posts_${currentUser.id}`, JSON.stringify(Array.from(newLikedPosts)))
+      
+      // 게시글 목록 새로고침
+      loadPosts()
     } catch (error) {
-      console.error(error)
+      console.error('좋아요 처리 실패:', error)
+      // API 실패 시 로컬에서만 처리
+      setLikedPosts(newLikedPosts)
+      localStorage.setItem(`liked_posts_${currentUser.id}`, JSON.stringify(Array.from(newLikedPosts)))
+      
+      // UI 업데이트
+      setPosts(posts.map(post => 
+        post.id === postId 
+          ? { ...post, like_count: post.like_count + (isLiked ? -1 : 1) }
+          : post
+      ))
     }
   }
 
-  const handleCommentSubmit = async (postId: number, content: string) => {
-    if (!currentUser || !content.trim()) return
+  const handlePostClick = async (postId: number) => {
     try {
       const apiBase = getApiUrl()
-      await axios.post(`${apiBase}/posts/${postId}/comment/`, {
-        member_id: currentUser.id,
-        content: content.trim()
-      })
-      // 게시글 새로고침
-      await loadData()
+      // 조회수 증가
+      await axios.post(`${apiBase}/posts/${postId}/increment_view/`)
+      
+      // 게시글 상세 페이지로 이동
+      router.push(`/app/community/${postId}`)
     } catch (error) {
-      console.error(error)
+      console.error('조회수 증가 실패:', error)
+      // API 실패해도 페이지는 이동
+      router.push(`/app/community/${postId}`)
     }
   }
 
@@ -98,25 +199,19 @@ export default function CommunityPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f8fafc'
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
       }}>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', color: 'white' }}>
           <div style={{
             width: '48px',
             height: '48px',
-            border: '4px solid #e0e7ff',
-            borderTop: '4px solid #667eea',
+            border: '4px solid rgba(255,255,255,0.3)',
+            borderTop: '4px solid white',
             borderRadius: '50%',
             margin: '0 auto 20px',
             animation: 'spin 0.8s linear infinite'
           }} />
-          <p style={{ fontSize: '16px', fontWeight: 600, color: '#667eea' }}>로딩 중...</p>
-          <style jsx>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
+          <p style={{ fontSize: '18px', fontWeight: 600 }}>로딩 중...</p>
         </div>
       </div>
     )
@@ -125,430 +220,483 @@ export default function CommunityPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f8fafc',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       paddingBottom: '100px'
     }}>
-      {/* Header */}
+      {/* 배경 장식 */}
       <div style={{
+        position: 'absolute',
+        top: '10%',
+        right: '5%',
+        fontSize: '120px',
+        opacity: 0.05
+      }}>💬</div>
+      <div style={{
+        position: 'absolute',
+        bottom: '30%',
+        left: '10%',
+        fontSize: '100px',
+        opacity: 0.05
+      }}>🎉</div>
+
+      {/* 헤더 */}
+      <div style={{
+        background: 'rgba(255,255,255,0.95)',
+        padding: '20px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
         position: 'sticky',
         top: 0,
-        zIndex: 100,
-        background: 'white',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '15px 20px'
+        zIndex: 100
       }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          marginBottom: '15px'
         }}>
           <h1 style={{
             margin: 0,
             fontSize: '24px',
-            fontWeight: 800,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            fontWeight: 900,
+            color: '#1f2937'
           }}>
             커뮤니티
           </h1>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button
-              onClick={refreshData}
-              disabled={refreshing}
+          <button
+            onClick={() => setShowNewPostModal(true)}
+            style={{
+              padding: '10px 20px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>✏️</span>
+            글쓰기
+          </button>
+        </div>
+
+        {/* 카테고리 탭 */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '5px'
+        }}>
+          {CATEGORIES.map(category => (
+            <div
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                border: 'none',
-                background: refreshing ? '#e0e7ff' : '#f3f4f6',
-                cursor: refreshing ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                animation: refreshing ? 'spin 1s linear infinite' : 'none'
-              }}
-            >
-              🔄
-            </button>
-            <button
-              onClick={() => router.push('/app/community/profile')}
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                border: '2px solid #667eea',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                background: selectedCategory === category.id
+                  ? `linear-gradient(135deg, ${category.color} 0%, ${category.color}dd 100%)`
+                  : '#f3f4f6',
+                color: selectedCategory === category.id ? 'white' : '#6b7280',
+                fontSize: '13px',
+                fontWeight: 700,
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                color: 'white',
-                fontWeight: 800
+                whiteSpace: 'nowrap',
+                transition: 'all 0.3s',
+                border: selectedCategory === category.id ? 'none' : '2px solid #e5e7eb',
+                boxShadow: selectedCategory === category.id
+                  ? `0 4px 12px ${category.color}40`
+                  : 'none'
               }}
             >
-              {currentUser?.first_name?.charAt(0) || '👤'}
-            </button>
-          </div>
+              <span style={{ marginRight: '4px' }}>{category.icon}</span>
+              {category.name}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Stories Slider */}
-      {stories.length > 0 && (
-        <div style={{
-          background: 'white',
-          borderBottom: '1px solid #e5e7eb',
-          padding: '15px 20px',
-          overflowX: 'auto',
-          whiteSpace: 'nowrap'
-        }}>
-          <div style={{ display: 'inline-flex', gap: '15px' }}>
-            {/* Add Story Button */}
-            <div
-              onClick={() => router.push('/app/community/story/new')}
-              style={{
-                display: 'inline-flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{
-                width: '70px',
-                height: '70px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '32px',
-                color: 'white',
-                marginBottom: '5px'
-              }}>
-                +
-              </div>
-              <span style={{ fontSize: '12px', color: '#666', fontWeight: 600 }}>내 스토리</span>
-            </div>
-
-            {/* Stories */}
-            {stories.map(story => (
-              <div
-                key={story.id}
-                onClick={() => router.push(`/app/community/story/${story.id}`)}
-                style={{
-                  display: 'inline-flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  cursor: 'pointer'
-                }}
-              >
-                <div style={{
-                  width: '70px',
-                  height: '70px',
-                  borderRadius: '50%',
-                  background: `url(${story.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  border: '3px solid #667eea',
-                  marginBottom: '5px'
-                }} />
-                <span style={{ fontSize: '12px', color: '#666', fontWeight: 600 }}>
-                  {story.member?.first_name || '회원'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Posts Feed */}
-      <div style={{ padding: '20px' }}>
-        {/* New Post Button */}
-        <button
-          onClick={() => router.push('/app/community/new')}
-          style={{
-            width: '100%',
-            padding: '20px',
-            borderRadius: '15px',
-            border: '2px dashed #cbd5e1',
-            background: 'white',
-            cursor: 'pointer',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#667eea'
-          }}
-        >
-          <span style={{ fontSize: '24px' }}>📸</span>
-          <span>게시글 작성하기</span>
-        </button>
-
-        {posts.length === 0 ? (
+      {/* 게시글 목록 */}
+      <div style={{ padding: '20px', position: 'relative', zIndex: 10 }}>
+        {filteredPosts.length === 0 ? (
           <div style={{
-            textAlign: 'center',
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: '20px',
             padding: '60px 20px',
-            color: '#999'
+            textAlign: 'center'
           }}>
-            <div style={{ fontSize: '64px', marginBottom: '20px' }}>📝</div>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: 700 }}>
-              첫 게시글을 작성해보세요!
-            </h3>
-            <p style={{ margin: 0, fontSize: '14px' }}>
-              운동 인증샷이나 일상을 공유해보세요
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+            <p style={{ fontSize: '16px', color: '#6b7280', fontWeight: 600 }}>
+              아직 게시글이 없습니다
+            </p>
+            <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '8px' }}>
+              첫 번째 글을 작성해보세요!
             </p>
           </div>
         ) : (
-          posts.map(post => (
-            <PostCard
-              key={post.id}
-              post={post}
-              currentUser={currentUser}
-              onLike={handleLike}
-              onComment={handleCommentSubmit}
-              onProfileClick={() => router.push(`/app/community/profile/${post.member.id}`)}
-            />
-          ))
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            {filteredPosts.map(post => {
+              const categoryInfo = getCategoryInfo(post.category)
+              const isLiked = likedPosts.has(post.id)
+              return (
+                <div
+                  key={post.id}
+                  onClick={() => handlePostClick(post.id)}
+                  style={{
+                    background: 'rgba(255,255,255,0.95)',
+                    borderRadius: '20px',
+                    padding: '20px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                    border: '2px solid rgba(255,255,255,0.5)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)'
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  {/* 카테고리 배지 */}
+                  <div style={{
+                    display: 'inline-block',
+                    padding: '4px 12px',
+                    borderRadius: '12px',
+                    background: `${categoryInfo.color}20`,
+                    color: categoryInfo.color,
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    marginBottom: '12px'
+                  }}>
+                    <span style={{ marginRight: '4px' }}>{categoryInfo.icon}</span>
+                    {categoryInfo.name}
+                  </div>
+
+                  {/* 제목 */}
+                  <h3 style={{
+                    margin: '0 0 8px 0',
+                    fontSize: '16px',
+                    fontWeight: 800,
+                    color: '#1f2937',
+                    lineHeight: 1.4
+                  }}>
+                    {post.title}
+                  </h3>
+
+                  {/* 내용 미리보기 */}
+                  <p style={{
+                    margin: '0 0 12px 0',
+                    fontSize: '14px',
+                    color: '#6b7280',
+                    lineHeight: 1.5,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical'
+                  }}>
+                    {post.content}
+                  </p>
+
+                  {/* 하단 정보 */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingTop: '12px',
+                    borderTop: '1px solid #f3f4f6'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: 700
+                      }}>
+                        {post.author.last_name?.[0] || 'U'}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#374151' }}>
+                          {post.author.last_name}{post.author.first_name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                          {formatDate(post.created_at)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      display: 'flex',
+                      gap: '12px',
+                      fontSize: '12px',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{ color: '#9ca3af' }}>👁️ {post.view_count}</span>
+                      <span
+                        onClick={(e) => handleLike(post.id, e)}
+                        style={{
+                          color: isLiked ? '#ef4444' : '#9ca3af',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.1)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)'
+                        }}
+                      >
+                        {isLiked ? '❤️' : '🤍'} {post.like_count}
+                      </span>
+                      <span style={{ color: '#9ca3af' }}>💬 {post.comment_count}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
 
-      <BottomNav />
-    </div>
-  )
-}
-
-// Post Card Component
-function PostCard({ post, currentUser, onLike, onComment, onProfileClick }: any) {
-  const [showComments, setShowComments] = useState(false)
-  const [commentText, setCommentText] = useState('')
-
-  const handleSubmitComment = () => {
-    if (commentText.trim()) {
-      onComment(post.id, commentText)
-      setCommentText('')
-    }
-  }
-
-  return (
-    <div style={{
-      background: 'white',
-      borderRadius: '20px',
-      marginBottom: '20px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-      overflow: 'hidden'
-    }}>
-      {/* Post Header */}
-      <div style={{
-        padding: '15px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div
-          onClick={onProfileClick}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            cursor: 'pointer'
-          }}
-        >
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: 800
-          }}>
-            {post.member?.first_name?.charAt(0) || '?'}
-          </div>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>
-              {post.member?.last_name}{post.member?.first_name}
-            </div>
-            <div style={{ fontSize: '12px', color: '#999' }}>
-              {new Date(post.created_at).toLocaleDateString('ko-KR')}
-            </div>
-          </div>
-        </div>
-        <button style={{
-          border: 'none',
-          background: 'transparent',
-          fontSize: '20px',
-          cursor: 'pointer'
-        }}>
-          ⋮
-        </button>
-      </div>
-
-      {/* Post Image */}
-      {post.image && (
+      {/* 글쓰기 모달 */}
+      {showNewPostModal && (
         <div style={{
-          width: '100%',
-          height: '400px',
-          background: `url(${post.image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }} />
-      )}
-
-      {/* Post Actions */}
-      <div style={{ padding: '15px' }}>
-        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
           display: 'flex',
-          gap: '15px',
-          marginBottom: '10px'
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
         }}>
-          <button
-            onClick={() => onLike(post.id)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              fontSize: '24px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px'
-            }}
-          >
-            <span>{post.is_liked ? '❤️' : '🤍'}</span>
-            <span style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
-              {post.likes_count}
-            </span>
-          </button>
-          <button
-            onClick={() => setShowComments(!showComments)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              fontSize: '24px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px'
-            }}
-          >
-            <span>💬</span>
-            <span style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
-              {post.comments_count}
-            </span>
-          </button>
-        </div>
-
-        {/* Post Caption */}
-        {post.caption && (
-          <p style={{
-            margin: '0 0 10px 0',
-            fontSize: '14px',
-            color: '#333',
-            lineHeight: 1.5
-          }}>
-            <strong>{post.member?.first_name}</strong> {post.caption}
-          </p>
-        )}
-
-        {/* Comments Section */}
-        {showComments && (
           <div style={{
-            marginTop: '15px',
-            paddingTop: '15px',
-            borderTop: '1px solid #f0f0f0'
+            background: 'white',
+            borderRadius: '25px',
+            padding: '30px',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflow: 'auto'
           }}>
-            {/* Comment Input */}
             <div style={{
               display: 'flex',
-              gap: '10px',
-              marginBottom: '15px'
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '25px'
             }}>
-              <input
-                type="text"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="댓글을 입력하세요..."
-                style={{
-                  flex: 1,
-                  padding: '10px 15px',
-                  borderRadius: '20px',
-                  border: '1px solid #e0e7ff',
-                  fontSize: '14px'
-                }}
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmitComment()}
-              />
+              <h2 style={{
+                margin: 0,
+                fontSize: '22px',
+                fontWeight: 900,
+                color: '#1f2937'
+              }}>
+                새 게시글 작성
+              </h2>
               <button
-                onClick={handleSubmitComment}
-                disabled={!commentText.trim()}
+                onClick={() => setShowNewPostModal(false)}
                 style={{
-                  padding: '10px 20px',
-                  borderRadius: '20px',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: '#f3f4f6',
                   border: 'none',
-                  background: commentText.trim() ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e0e7ff',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: commentText.trim() ? 'pointer' : 'not-allowed'
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
-                게시
+                ✕
               </button>
             </div>
 
-            {/* Comments List */}
-            {post.comments && post.comments.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {post.comments.map((comment: any) => (
-                  <div key={comment.id} style={{
-                    display: 'flex',
-                    gap: '10px'
-                  }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
+            {/* 카테고리 선택 */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#374151',
+                marginBottom: '8px'
+              }}>
+                카테고리
+              </label>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '8px'
+              }}>
+                {CATEGORIES.filter(c => c.id !== 'all').map(category => (
+                  <button
+                    key={category.id}
+                    onClick={() => setNewPost({ ...newPost, category: category.id })}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '12px',
+                      background: newPost.category === category.id
+                        ? `${category.color}20`
+                        : '#f9fafb',
+                      border: newPost.category === category.id
+                        ? `2px solid ${category.color}`
+                        : '2px solid #e5e7eb',
+                      color: newPost.category === category.id ? category.color : '#6b7280',
                       fontSize: '12px',
-                      fontWeight: 800,
-                      flexShrink: 0
-                    }}>
-                      {comment.member?.first_name?.charAt(0) || '?'}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        background: '#f3f4f6',
-                        padding: '10px 12px',
-                        borderRadius: '15px'
-                      }}>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#333', marginBottom: '3px' }}>
-                          {comment.member?.last_name}{comment.member?.first_name}
-                        </div>
-                        <div style={{ fontSize: '14px', color: '#333' }}>
-                          {comment.content}
-                        </div>
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#999', marginTop: '5px', marginLeft: '12px' }}>
-                        {new Date(comment.created_at).toLocaleDateString('ko-KR')}
-                      </div>
-                    </div>
-                  </div>
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ fontSize: '20px', marginBottom: '4px' }}>{category.icon}</div>
+                    {category.name}
+                  </button>
                 ))}
               </div>
-            )}
+            </div>
+
+            {/* 제목 */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#374151',
+                marginBottom: '8px'
+              }}>
+                제목
+              </label>
+              <input
+                type="text"
+                placeholder="제목을 입력하세요"
+                value={newPost.title}
+                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: '2px solid #e5e7eb',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  outline: 'none',
+                  transition: 'border 0.2s'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              />
+            </div>
+
+            {/* 내용 */}
+            <div style={{ marginBottom: '25px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#374151',
+                marginBottom: '8px'
+              }}>
+                내용
+              </label>
+              <textarea
+                placeholder="내용을 입력하세요"
+                value={newPost.content}
+                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                style={{
+                  width: '100%',
+                  minHeight: '200px',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: '2px solid #e5e7eb',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  outline: 'none',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  transition: 'border 0.2s'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              />
+            </div>
+
+            {/* 버튼 */}
+            <div style={{
+              display: 'flex',
+              gap: '10px'
+            }}>
+              <button
+                onClick={() => setShowNewPostModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: '2px solid #e5e7eb',
+                  background: 'white',
+                  color: '#6b7280',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleCreatePost}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+                }}
+              >
+                작성하기
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}} />
+
+      <BottomNav />
     </div>
   )
 }

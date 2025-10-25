@@ -45,7 +45,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def like(self, request, pk=None):
         """게시물 좋아요"""
         post = self.get_object()
-        member_id = request.data.get('member_id')
+        member_id = request.data.get('member') or request.data.get('member_id')
         
         if not member_id:
             return Response({'error': '회원 ID가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
@@ -56,20 +56,46 @@ class PostViewSet(viewsets.ModelViewSet):
         )
         
         if created:
-            post.likes_count += 1
+            post.like_count += 1
             post.save()
-            return Response({'message': '좋아요!', 'likes_count': post.likes_count})
+            return Response({'message': '좋아요!', 'like_count': post.like_count})
         else:
             like.delete()
-            post.likes_count = max(0, post.likes_count - 1)
+            post.like_count = max(0, post.like_count - 1)
             post.save()
-            return Response({'message': '좋아요 취소', 'likes_count': post.likes_count})
+            return Response({'message': '좋아요 취소', 'like_count': post.like_count})
+    
+    @action(detail=True, methods=['post'])
+    def unlike(self, request, pk=None):
+        """게시물 좋아요 취소"""
+        post = self.get_object()
+        member_id = request.data.get('member') or request.data.get('member_id')
+        
+        if not member_id:
+            return Response({'error': '회원 ID가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            like = Like.objects.get(post=post, member_id=member_id)
+            like.delete()
+            post.like_count = max(0, post.like_count - 1)
+            post.save()
+            return Response({'message': '좋아요 취소', 'like_count': post.like_count})
+        except Like.DoesNotExist:
+            return Response({'error': '좋아요하지 않은 게시글입니다'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def increment_view(self, request, pk=None):
+        """게시물 조회수 증가"""
+        post = self.get_object()
+        post.view_count += 1
+        post.save()
+        return Response({'view_count': post.view_count})
     
     @action(detail=True, methods=['post'])
     def comment(self, request, pk=None):
         """댓글 작성"""
         post = self.get_object()
-        member_id = request.data.get('member_id')
+        member_id = request.data.get('member') or request.data.get('member_id')
         content = request.data.get('content')
         
         if not member_id or not content:
@@ -77,11 +103,11 @@ class PostViewSet(viewsets.ModelViewSet):
         
         comment = Comment.objects.create(
             post=post,
-            member_id=member_id,
+            author_id=member_id,
             content=content
         )
         
-        post.comments_count += 1
+        post.comment_count += 1
         post.save()
         
         serializer = CommentSerializer(comment)

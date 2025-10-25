@@ -1,252 +1,342 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
+import { getApiUrl } from '@/lib/api'
+import BottomNav from '../components/BottomNav'
 
-export default function AttendanceHistory() {
+export default function AttendanceHistoryPage() {
   const router = useRouter()
-  const [selectedMonth, setSelectedMonth] = useState('2025-10')
-  
-  const attendanceData = [
-    { date: '2025-10-14', time: '18:30', calories: 450 },
-    { date: '2025-10-12', time: '19:00', calories: 500 },
-    { date: '2025-10-10', time: '18:00', calories: 420 },
-    { date: '2025-10-08', time: '19:30', calories: 480 },
-    { date: '2025-10-06', time: '18:15', calories: 390 },
-    { date: '2025-10-04', time: '19:45', calories: 510 },
-    { date: '2025-10-02', time: '18:30', calories: 460 }
-  ]
+  const [loading, setLoading] = useState(true)
+  const [attendanceData, setAttendanceData] = useState<any[]>([])
+  const [stats, setStats] = useState({ consecutive: 0, thisMonth: 0, total: 0 })
 
-  const totalDays = attendanceData.length
-  const totalCalories = attendanceData.reduce((sum, item) => sum + item.calories, 0)
-  const avgCalories = Math.round(totalCalories / totalDays)
+  useEffect(() => {
+    const userStr = localStorage.getItem('currentUser')
+    if (!userStr) {
+      router.push('/auth/login')
+      return
+    }
+    const user = JSON.parse(userStr)
+    loadAttendance(user.id)
+  }, [router])
+
+  const loadAttendance = async (memberId: number) => {
+    try {
+      const response = await axios.get(`${getApiUrl()}/attendance/?member=${memberId}`)
+      const records = response.data || []
+      setAttendanceData(records.slice(0, 30)) // 최근 30개만
+
+      const thisMonth = records.filter((r: any) => {
+        const date = new Date(r.check_in_time || r.date)
+        const now = new Date()
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+      }).length
+
+      setStats({
+        consecutive: calculateConsecutiveDays(records),
+        thisMonth,
+        total: records.length
+      })
+    } catch (error) {
+      console.error('출석 데이터 로드 실패:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const calculateConsecutiveDays = (records: any[]) => {
+    if (records.length === 0) return 0
+    
+    const dates = records
+      .map((r: any) => {
+        const dateStr = r.check_in_time || r.date
+        return dateStr ? new Date(dateStr).toISOString().split('T')[0] : null
+      })
+      .filter((d): d is string => d !== null)
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+    
+    let consecutive = 0
+    const today = new Date().toISOString().split('T')[0]
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+    
+    if (dates[0] !== today && dates[0] !== yesterday) return 0
+    
+    for (let i = 0; i < dates.length; i++) {
+      const expected = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+      if (dates[i] === expected) {
+        consecutive++
+      } else {
+        break
+      }
+    }
+    
+    return consecutive
+  }
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+      }}>
+        <div style={{ textAlign: 'center', color: 'white' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '4px solid rgba(255,255,255,0.3)',
+            borderTop: '4px solid white',
+            borderRadius: '50%',
+            margin: '0 auto 20px',
+            animation: 'spin 0.8s linear infinite'
+          }} />
+          <p style={{ fontSize: '18px', fontWeight: 600 }}>로딩 중...</p>
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f5f5f5',
-      paddingBottom: '40px'
+      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      paddingBottom: '100px'
     }}>
       {/* Header */}
       <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        backgroundColor: 'white',
-        padding: '20px',
-        borderBottom: '1px solid #eee'
+        padding: '25px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '15px'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '15px',
-          marginBottom: '15px'
-        }}>
-          <div
-            onClick={() => router.back()}
-            style={{
-              fontSize: '24px',
-              cursor: 'pointer'
-            }}
-          >
-            ←
-          </div>
-          <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 700 }}>출석 기록</h1>
-        </div>
-
-        {/* Month Selector */}
-        <select
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
+        <div
+          onClick={() => router.back()}
           style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '12px',
-            border: '2px solid #eee',
-            fontSize: '15px',
-            fontWeight: 600,
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             cursor: 'pointer',
-            outline: 'none'
+            color: 'white',
+            fontSize: '20px',
+            fontWeight: 800
           }}
         >
-          <option value="2025-10">2025년 10월</option>
-          <option value="2025-09">2025년 9월</option>
-          <option value="2025-08">2025년 8월</option>
-        </select>
+          ←
+        </div>
+        <h1 style={{
+          margin: 0,
+          fontSize: '28px',
+          fontWeight: 900,
+          color: 'white',
+          textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+        }}>
+          출석 기록
+        </h1>
       </div>
 
-      {/* Stats Summary */}
+      {/* Content */}
       <div style={{
-        padding: '20px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '12px'
+        padding: '0 20px'
       }}>
+        {/* 통계 카드 */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          padding: '20px',
-          textAlign: 'center',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '12px',
+          marginBottom: '20px'
         }}>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#667eea', marginBottom: '5px' }}>
-            {totalDays}
-          </div>
-          <div style={{ fontSize: '13px', color: '#999' }}>출석일</div>
+          <StatCard
+            icon="🔥"
+            label="연속 출석"
+            value={stats.consecutive}
+            unit="일"
+            color="#f59e0b"
+          />
+          <StatCard
+            icon="📅"
+            label="이번 달"
+            value={stats.thisMonth}
+            unit="회"
+            color="#667eea"
+          />
+          <StatCard
+            icon="🏆"
+            label="총 출석"
+            value={stats.total}
+            unit="회"
+            color="#10b981"
+          />
         </div>
 
+        {/* 출석 기록 리스트 */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '20px',
           padding: '20px',
-          textAlign: 'center',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
         }}>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#667eea', marginBottom: '5px' }}>
-            {totalCalories}
-          </div>
-          <div style={{ fontSize: '13px', color: '#999' }}>칼로리</div>
-        </div>
-
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          padding: '20px',
-          textAlign: 'center',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-        }}>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#667eea', marginBottom: '5px' }}>
-            {avgCalories}
-          </div>
-          <div style={{ fontSize: '13px', color: '#999' }}>평균</div>
-        </div>
-      </div>
-
-      {/* Calendar View */}
-      <div style={{ padding: '0 20px 20px' }}>
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          padding: '20px',
-          marginBottom: '15px'
-        }}>
-          <h3 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: 700 }}>
-            📅 이번 달 출석
+          <h3 style={{
+            margin: '0 0 15px 0',
+            fontSize: '18px',
+            fontWeight: 800,
+            color: '#333'
+          }}>
+            📝 최근 출석 기록
           </h3>
-          
-          {/* Simple Calendar Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: '8px'
+            gap: '10px'
           }}>
-            {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
-              <div
-                key={idx}
-                style={{
-                  textAlign: 'center',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: idx === 0 ? '#FF3B30' : idx === 6 ? '#667eea' : '#999',
-                  padding: '8px 0'
-                }}
-              >
-                {day}
-              </div>
-            ))}
-            
-            {/* Calendar Days */}
-            {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
-              const dateStr = `2025-10-${String(day).padStart(2, '0')}`
-              const hasAttendance = attendanceData.some(item => item.date === dateStr)
-              
-              return (
-                <div
-                  key={day}
-                  style={{
-                    aspectRatio: '1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    backgroundColor: hasAttendance ? '#667eea' : 'transparent',
-                    color: hasAttendance ? 'white' : '#333',
-                    position: 'relative'
-                  }}
-                >
-                  {day}
-                  {hasAttendance && (
+            {attendanceData.length > 0 ? (
+              attendanceData.map((record: any, idx: number) => {
+                const checkInTime = new Date(record.check_in_time || record.date)
+                const hour = checkInTime.getHours()
+                const timeOfDay = hour >= 5 && hour < 12 ? '🌅 아침' : hour >= 12 && hour < 18 ? '☀️ 오후' : '🌙 저녁'
+                
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '15px',
+                      background: '#f8f9fa',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <div>
+                      <div style={{
+                        fontSize: '15px',
+                        fontWeight: 800,
+                        color: '#333',
+                        marginBottom: '4px'
+                      }}>
+                        {checkInTime.toLocaleDateString('ko-KR', {
+                          month: 'long',
+                          day: 'numeric',
+                          weekday: 'short'
+                        })}
+                      </div>
+                      <div style={{
+                        fontSize: '13px',
+                        color: '#999',
+                        fontWeight: 600
+                      }}>
+                        {checkInTime.toLocaleTimeString('ko-KR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
                     <div style={{
-                      position: 'absolute',
-                      bottom: 2,
-                      width: 4,
-                      height: 4,
-                      borderRadius: '50%',
-                      backgroundColor: 'white'
-                    }} />
-                  )}
+                      padding: '6px 12px',
+                      background: 'white',
+                      borderRadius: '10px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#10b981'
+                    }}>
+                      {timeOfDay}
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              <div style={{
+                padding: '40px 20px',
+                textAlign: 'center',
+                color: '#999'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '15px' }}>📅</div>
+                <div style={{ fontSize: '16px', fontWeight: 700 }}>
+                  아직 출석 기록이 없습니다
                 </div>
-              )
-            })}
+                <div style={{ fontSize: '14px', marginTop: '8px' }}>
+                  오늘부터 운동을 시작해보세요!
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Attendance List */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          overflow: 'hidden'
-        }}>
+        {/* 응원 메시지 */}
+        {stats.consecutive >= 7 && (
           <div style={{
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0',
-            fontWeight: 700,
-            fontSize: '16px'
+            marginTop: '20px',
+            background: 'rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '20px',
+            padding: '25px',
+            textAlign: 'center',
+            border: '2px solid rgba(255,255,255,0.3)'
           }}>
-            📝 출석 내역
-          </div>
-          
-          {attendanceData.map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                padding: '15px 20px',
-                borderBottom: idx < attendanceData.length - 1 ? '1px solid #f0f0f0' : 'none',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600, marginBottom: '5px' }}>
-                  {new Date(item.date).toLocaleDateString('ko-KR', {
-                    month: 'long',
-                    day: 'numeric',
-                    weekday: 'short'
-                  })}
-                </div>
-                <div style={{ fontSize: '13px', color: '#999' }}>
-                  🕐 {item.time}
-                </div>
-              </div>
-              <div style={{
-                padding: '8px 16px',
-                borderRadius: '20px',
-                backgroundColor: '#f0f4ff',
-                fontSize: '14px',
-                fontWeight: 700,
-                color: '#667eea'
-              }}>
-                🔥 {item.calories} kcal
-              </div>
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎉</div>
+            <div style={{
+              fontSize: '18px',
+              fontWeight: 800,
+              color: 'white',
+              marginBottom: '8px',
+              textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            }}>
+              대단해요! {stats.consecutive}일 연속 출석 중!
             </div>
-          ))}
-        </div>
+            <div style={{
+              fontSize: '14px',
+              color: 'rgba(255,255,255,0.9)',
+              fontWeight: 600
+            }}>
+              이대로만 계속하면 목표 달성은 시간문제예요!
+            </div>
+          </div>
+        )}
       </div>
+
+      <BottomNav />
     </div>
   )
 }
 
-
-
+function StatCard({ icon, label, value, unit, color }: any) {
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.95)',
+      borderRadius: '15px',
+      padding: '18px 12px',
+      textAlign: 'center',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+    }}>
+      <div style={{ fontSize: '28px', marginBottom: '8px' }}>{icon}</div>
+      <div style={{
+        fontSize: '24px',
+        fontWeight: 900,
+        color,
+        marginBottom: '4px'
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontSize: '11px',
+        color: '#999',
+        fontWeight: 600
+      }}>
+        {label} ({unit})
+      </div>
+    </div>
+  )
+}

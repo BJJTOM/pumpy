@@ -1,16 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import { getApiUrl } from '@/lib/api'
 import BottomNav from '../components/BottomNav'
 
-export default function MemberInfoPage() {
+export default function GymInfoPage() {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<any>(null)
-  const [memberDetail, setMemberDetail] = useState<any>(null)
-  const [subscriptions, setSubscriptions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser')
@@ -18,295 +13,277 @@ export default function MemberInfoPage() {
       router.push('/auth/login')
       return
     }
-    const user = JSON.parse(userStr)
-    setCurrentUser(user)
-    loadMemberInfo(user.id)
-  }, [])
+    setCurrentUser(JSON.parse(userStr))
+  }, [router])
 
-  const loadMemberInfo = async (memberId: number) => {
-    try {
-      const apiBase = getApiUrl()
-      
-      // 회원 상세 정보
-      const memberRes = await axios.get(`${apiBase}/members/${memberId}/`)
-      setMemberDetail(memberRes.data)
-      
-      // 회원권 정보
-      const subscriptionsRes = await axios.get(`${apiBase}/subscriptions/?member=${memberId}`)
-      setSubscriptions(subscriptionsRes.data)
-      
-      setLoading(false)
-    } catch (error) {
-      console.error('회원 정보 로드 실패:', error)
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-      }}>
-        <div style={{ textAlign: 'center', color: 'white' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '4px solid rgba(255,255,255,0.3)',
-            borderTop: '4px solid white',
-            borderRadius: '50%',
-            margin: '0 auto 20px',
-            animation: 'spin 0.8s linear infinite'
-          }} />
-          <p style={{ fontSize: '18px', fontWeight: 600 }}>로딩 중...</p>
-          <style jsx>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-      </div>
-    )
+  const gymInfo = {
+    name: 'Pumpy 체육관',
+    location: '서울시 강남구 테헤란로 123',
+    phone: '02-1234-5678',
+    hours: '평일 06:00 - 23:00\n주말 08:00 - 20:00',
+    facilities: ['런닝머신', '웨이트 트레이닝', '요가실', '샤워실', '락커룸', 'PT룸'],
+    rules: [
+      '운동복과 실내화를 착용해주세요',
+      '기구 사용 후 소독제로 닦아주세요',
+      '큰 소리로 대화는 자제해주세요',
+      '사진 및 영상 촬영 시 다른 회원 배려',
+      '음식물 반입 금지 (물, 음료 제외)'
+    ]
   }
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f8fafc',
+      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
       paddingBottom: '100px'
     }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #1a1a1a 0%, #000000 100%)',
-        padding: '30px 20px 40px',
-        borderRadius: '0 0 30px 30px',
-        marginBottom: '-20px',
-        border: '2px solid #d4af37',
-        borderTop: 'none'
+        padding: '25px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '15px'
       }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          color: 'white'
-        }}>
-          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800 }}>
-            내 정보
-          </h1>
-          <button
-            onClick={() => router.back()}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '20px',
-              border: '2px solid #d4af37',
-              background: 'transparent',
-              color: '#d4af37',
-              fontSize: '14px',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            뒤로
-          </button>
+        <div
+          onClick={() => router.back()}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: 'white',
+            fontSize: '20px',
+            fontWeight: 800
+          }}
+        >
+          ←
         </div>
+        <h1 style={{
+          margin: 0,
+          fontSize: '28px',
+          fontWeight: 900,
+          color: 'white',
+          textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+        }}>
+          체육관 정보
+        </h1>
       </div>
 
-      <div style={{ padding: '0 20px' }}>
+      {/* Content */}
+      <div style={{
+        padding: '0 20px'
+      }}>
         {/* 기본 정보 */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '25px',
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '20px',
           padding: '25px',
-          marginBottom: '20px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+          marginBottom: '15px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
         }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 800, color: '#333' }}>
-            👤 기본 정보
-          </h3>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <InfoRow label="이름" value={memberDetail ? `${memberDetail.last_name}${memberDetail.first_name}` : '-'} />
-            <InfoRow label="이메일" value={memberDetail?.email || '-'} />
-            <InfoRow label="전화번호" value={memberDetail?.phone || '-'} />
-            <InfoRow label="생년월일" value={memberDetail?.birth_date || '-'} />
-            <InfoRow label="성별" value={memberDetail?.gender || '-'} />
-            <InfoRow label="주소" value={memberDetail?.address || '-'} />
-            <InfoRow label="가입일" value={memberDetail?.join_date ? new Date(memberDetail.join_date).toLocaleDateString('ko-KR') : '-'} />
-            <InfoRow 
-              label="상태" 
-              value={memberDetail?.status === 'active' ? '활성' : memberDetail?.status === 'pending' ? '승인대기' : memberDetail?.status === 'paused' ? '정지' : '해지'}
-              valueColor={memberDetail?.status === 'active' ? '#10b981' : '#999'}
-            />
-          </div>
-        </div>
-
-        {/* 회원권 정보 */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '25px',
-          padding: '25px',
-          marginBottom: '20px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-        }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 800, color: '#333' }}>
-            🎫 회원권 정보
-          </h3>
-          
-          {subscriptions.length === 0 ? (
-            <div style={{
-              padding: '40px 20px',
-              textAlign: 'center',
-              color: '#999'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '15px' }}>📝</div>
-              <div style={{ fontSize: '15px', fontWeight: 600 }}>등록된 회원권이 없습니다</div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              {subscriptions.map((sub, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: '20px',
-                    background: sub.is_active 
-                      ? 'linear-gradient(135deg, #10b98115 0%, #05966915 100%)' 
-                      : '#f8fafc',
-                    borderRadius: '15px',
-                    border: sub.is_active ? '2px solid #10b981' : '1px solid #e5e7eb'
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '15px'
-                  }}>
-                    <div>
-                      <div style={{
-                        fontSize: '18px',
-                        fontWeight: 800,
-                        color: '#333',
-                        marginBottom: '5px'
-                      }}>
-                        {sub.plan_name || '회원권'}
-                        {sub.is_active && (
-                          <span style={{
-                            marginLeft: '10px',
-                            fontSize: '11px',
-                            padding: '3px 10px',
-                            background: '#10b981',
-                            color: 'white',
-                            borderRadius: '10px',
-                            fontWeight: 700
-                          }}>
-                            사용중
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '13px', color: '#999' }}>
-                        {sub.duration_months}개월권
-                      </div>
-                    </div>
-                    <div style={{
-                      fontSize: '20px',
-                      fontWeight: 900,
-                      color: '#667eea'
-                    }}>
-                      {parseInt(sub.amount_paid).toLocaleString()}원
-                    </div>
-                  </div>
-                  
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '10px',
-                    paddingTop: '15px',
-                    borderTop: '1px solid #e5e7eb'
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>시작일</div>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>
-                        {new Date(sub.start_date).toLocaleDateString('ko-KR')}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>종료일</div>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>
-                        {new Date(sub.end_date).toLocaleDateString('ko-KR')}
-                      </div>
-                    </div>
-                  </div>
-
-                  {sub.is_active && (
-                    <div style={{
-                      marginTop: '15px',
-                      padding: '12px',
-                      background: 'white',
-                      borderRadius: '10px',
-                      fontSize: '13px',
-                      color: '#667eea',
-                      fontWeight: 600,
-                      textAlign: 'center'
-                    }}>
-                      남은 기간: {Math.max(0, Math.ceil((new Date(sub.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}일
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* 입관 동의서 */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '25px',
-          padding: '25px',
-          marginBottom: '20px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-        }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 800, color: '#333' }}>
-            📋 입관 동의서
-          </h3>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <ConsentItem 
-              title="이용약관 동의" 
-              agreed={memberDetail?.terms_agreed}
-              date={memberDetail?.join_date}
-            />
-            <ConsentItem 
-              title="개인정보 처리방침 동의" 
-              agreed={memberDetail?.privacy_agreed}
-              date={memberDetail?.join_date}
-            />
-            <ConsentItem 
-              title="마케팅 정보 수신 동의" 
-              agreed={memberDetail?.marketing_agreed}
-              date={memberDetail?.join_date}
-            />
-          </div>
-
           <div style={{
-            marginTop: '20px',
-            padding: '15px',
-            background: '#f8fafc',
-            borderRadius: '12px',
-            fontSize: '13px',
-            color: '#666',
-            lineHeight: 1.6
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+            marginBottom: '20px',
+            paddingBottom: '15px',
+            borderBottom: '2px solid #f3f4f6'
           }}>
-            <div style={{ fontWeight: 700, marginBottom: '8px', color: '#333' }}>📌 동의 내용</div>
-            • 시설 이용 규칙 준수<br />
-            • 개인 정보 수집 및 이용<br />
-            • 사진 및 영상 촬영 동의<br />
-            • 부상 발생 시 책임 소재<br />
-            • 환불 및 양도 규정
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '15px',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '32px'
+            }}>
+              🏋️
+            </div>
+            <div>
+              <h2 style={{
+                margin: '0 0 5px 0',
+                fontSize: '22px',
+                fontWeight: 900,
+                color: '#333'
+              }}>
+                {gymInfo.name}
+              </h2>
+              <div style={{
+                fontSize: '14px',
+                color: '#999',
+                fontWeight: 600
+              }}>
+                헬스 & 피트니스 센터
+              </div>
+            </div>
           </div>
+
+          <InfoItem
+            icon="📍"
+            label="위치"
+            value={gymInfo.location}
+          />
+          <InfoItem
+            icon="📞"
+            label="연락처"
+            value={gymInfo.phone}
+          />
+          <InfoItem
+            icon="🕐"
+            label="운영시간"
+            value={gymInfo.hours}
+            multiline
+          />
+        </div>
+
+        {/* 시설 안내 */}
+        <div style={{
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '20px',
+          padding: '25px',
+          marginBottom: '15px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+        }}>
+          <h3 style={{
+            margin: '0 0 15px 0',
+            fontSize: '18px',
+            fontWeight: 800,
+            color: '#333',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '22px' }}>🏢</span>
+            시설 안내
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px'
+          }}>
+            {gymInfo.facilities.map((facility, idx) => (
+              <div
+                key={idx}
+                style={{
+                  padding: '12px',
+                  background: '#f8f9fa',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  color: '#333',
+                  textAlign: 'center'
+                }}
+              >
+                ✓ {facility}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 이용 수칙 */}
+        <div style={{
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '20px',
+          padding: '25px',
+          marginBottom: '15px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+        }}>
+          <h3 style={{
+            margin: '0 0 15px 0',
+            fontSize: '18px',
+            fontWeight: 800,
+            color: '#333',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '22px' }}>📋</span>
+            이용 수칙
+          </h3>
+          <div style={{
+            display: 'grid',
+            gap: '10px'
+          }}>
+            {gymInfo.rules.map((rule, idx) => (
+              <div
+                key={idx}
+                style={{
+                  padding: '12px 15px',
+                  background: '#f8f9fa',
+                  borderLeft: '4px solid #f59e0b',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#666',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px'
+                }}
+              >
+                <span style={{ color: '#f59e0b', fontWeight: 800 }}>{idx + 1}.</span>
+                {rule}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 문의하기 버튼 */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '12px'
+        }}>
+          <button
+            onClick={() => {
+              window.location.href = `tel:${gymInfo.phone}`
+            }}
+            style={{
+              padding: '18px',
+              background: 'rgba(255,255,255,0.95)',
+              border: '2px solid rgba(255,255,255,0.5)',
+              borderRadius: '15px',
+              fontSize: '16px',
+              fontWeight: 800,
+              color: '#f59e0b',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            📞 전화하기
+          </button>
+          <button
+            onClick={() => {
+              alert('지도 앱을 실행합니다')
+            }}
+            style={{
+              padding: '18px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              borderRadius: '15px',
+              fontSize: '16px',
+              fontWeight: 800,
+              color: 'white',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            🗺️ 길찾기
+          </button>
         </div>
       </div>
 
@@ -315,59 +292,50 @@ export default function MemberInfoPage() {
   )
 }
 
-// 정보 행 컴포넌트
-function InfoRow({ label, value, valueColor = '#333' }: { label: string, value: string, valueColor?: string }) {
+function InfoItem({ icon, label, value, multiline = false }: any) {
   return (
     <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '12px 0',
-      borderBottom: '1px solid #f0f0f0'
+      marginBottom: '15px',
+      paddingBottom: '15px',
+      borderBottom: '1px solid #f3f4f6'
     }}>
-      <div style={{ fontSize: '14px', color: '#999', fontWeight: 600 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: '14px', color: valueColor, fontWeight: 700 }}>
-        {value}
-      </div>
-    </div>
-  )
-}
-
-// 동의 항목 컴포넌트
-function ConsentItem({ title, agreed, date }: { title: string, agreed?: boolean, date?: string }) {
-  return (
-    <div style={{
-      padding: '15px',
-      background: agreed ? '#10b98110' : '#f8fafc',
-      borderRadius: '12px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    }}>
-      <div>
-        <div style={{
-          fontSize: '14px',
-          fontWeight: 700,
-          color: '#333',
-          marginBottom: '4px'
-        }}>
-          {title}
-        </div>
-        {agreed && date && (
-          <div style={{ fontSize: '12px', color: '#999' }}>
-            {new Date(date).toLocaleDateString('ko-KR')} 동의
-          </div>
-        )}
-      </div>
       <div style={{
-        fontSize: '24px'
+        display: 'flex',
+        alignItems: multiline ? 'flex-start' : 'center',
+        gap: '12px'
       }}>
-        {agreed ? '✅' : '❌'}
+        <div style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '10px',
+          background: '#f8f9fa',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '20px',
+          flexShrink: 0
+        }}>
+          {icon}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{
+            fontSize: '13px',
+            color: '#999',
+            marginBottom: '5px',
+            fontWeight: 600
+          }}>
+            {label}
+          </div>
+          <div style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            color: '#333',
+            whiteSpace: multiline ? 'pre-line' : 'normal'
+          }}>
+            {value}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
-
-

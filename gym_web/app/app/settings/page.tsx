@@ -1,328 +1,264 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
 
-export default function Settings() {
+export default function SettingsPage() {
   const router = useRouter()
-  const [pushEnabled, setPushEnabled] = useState(true)
-  const [allowMessages, setAllowMessages] = useState(true)
-  const [isPublic, setIsPublic] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [darkMode, setDarkMode] = useState(false)
+  const [notifications, setNotifications] = useState(true)
+  const [autoLogin, setAutoLogin] = useState(true)
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('currentUser')
+    if (!userStr) {
+      router.push('/auth/login')
+      return
+    }
+    setCurrentUser(JSON.parse(userStr))
+
+    // Load settings
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true'
+    const savedNotifications = localStorage.getItem('notifications') !== 'false'
+    const savedAutoLogin = localStorage.getItem('autoLogin') !== 'false'
+    
+    setDarkMode(savedDarkMode)
+    setNotifications(savedNotifications)
+    setAutoLogin(savedAutoLogin)
+  }, [router])
+
+  const handleToggle = (setting: string, value: boolean) => {
+    switch(setting) {
+      case 'darkMode':
+        setDarkMode(value)
+        localStorage.setItem('darkMode', value.toString())
+        break
+      case 'notifications':
+        setNotifications(value)
+        localStorage.setItem('notifications', value.toString())
+        break
+      case 'autoLogin':
+        setAutoLogin(value)
+        localStorage.setItem('autoLogin', value.toString())
+        break
+    }
+  }
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f5f5f5',
-      paddingBottom: '40px'
+      background: '#f0f2f5',
+      paddingBottom: '100px'
     }}>
       {/* Header */}
       <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        backgroundColor: 'white',
-        padding: '20px',
-        borderBottom: '1px solid #eee',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '15px'
+        background: 'white',
+        borderBottom: '1px solid #e5e7eb',
+        padding: '20px'
       }}>
-        <div
-          onClick={() => router.back()}
-          style={{
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '15px'
+        }}>
+          <div
+            onClick={() => router.back()}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: '#f3f4f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '18px'
+            }}
+          >
+            ←
+          </div>
+          <h1 style={{
+            margin: 0,
             fontSize: '24px',
-            cursor: 'pointer'
-          }}
-        >
-          ←
+            fontWeight: 800,
+            color: '#1f2937'
+          }}>
+            설정
+          </h1>
         </div>
-        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 700 }}>설정</h1>
       </div>
 
-      {/* Settings Sections */}
-      <div style={{ padding: '20px', display: 'grid', gap: '15px' }}>
+      {/* Content */}
+      <div style={{ padding: '20px' }}>
+        {/* 일반 설정 */}
+        <div style={{
+          background: 'white',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 15px rgba(0,0,0,0.08)',
+          marginBottom: '15px'
+        }}>
+          <div style={{ padding: '20px 20px 10px 20px' }}>
+            <h3 style={{
+              margin: 0,
+              fontSize: '16px',
+              fontWeight: 800,
+              color: '#333'
+            }}>
+              일반
+            </h3>
+          </div>
+          <SettingItem
+            icon="🌙"
+            title="다크 모드"
+            value={darkMode}
+            onChange={(v) => handleToggle('darkMode', v)}
+          />
+          <SettingItem
+            icon="🔑"
+            title="자동 로그인"
+            value={autoLogin}
+            onChange={(v) => handleToggle('autoLogin', v)}
+            isLast
+          />
+        </div>
+
         {/* 알림 설정 */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          overflow: 'hidden'
+          background: 'white',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 15px rgba(0,0,0,0.08)',
+          marginBottom: '15px'
         }}>
-          <div style={{
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0',
-            fontWeight: 700,
-            fontSize: '16px'
-          }}>
-            🔔 알림 설정
+          <div style={{ padding: '20px 20px 10px 20px' }}>
+            <h3 style={{
+              margin: 0,
+              fontSize: '16px',
+              fontWeight: 800,
+              color: '#333'
+            }}>
+              알림
+            </h3>
           </div>
-          
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0'
-          }}>
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: '5px' }}>푸시 알림</div>
-              <div style={{ fontSize: '13px', color: '#999' }}>운동, 커뮤니티 알림 받기</div>
-            </div>
-            <div
-              onClick={() => setPushEnabled(!pushEnabled)}
-              style={{
-                width: 50,
-                height: 28,
-                borderRadius: 14,
-                backgroundColor: pushEnabled ? '#667eea' : '#ddd',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-            >
-              <div style={{
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                backgroundColor: 'white',
-                position: 'absolute',
-                top: 2,
-                left: pushEnabled ? 24 : 2,
-                transition: 'all 0.3s'
-              }} />
-            </div>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '15px 20px'
-          }}>
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: '5px' }}>채팅 허용</div>
-              <div style={{ fontSize: '13px', color: '#999' }}>다른 회원의 메시지 받기</div>
-            </div>
-            <div
-              onClick={() => setAllowMessages(!allowMessages)}
-              style={{
-                width: 50,
-                height: 28,
-                borderRadius: 14,
-                backgroundColor: allowMessages ? '#667eea' : '#ddd',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-            >
-              <div style={{
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                backgroundColor: 'white',
-                position: 'absolute',
-                top: 2,
-                left: allowMessages ? 24 : 2,
-                transition: 'all 0.3s'
-              }} />
-            </div>
-          </div>
-        </div>
-
-        {/* 프로필 설정 */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0',
-            fontWeight: 700,
-            fontSize: '16px'
-          }}>
-            👤 프로필 설정
-          </div>
-          
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0',
-            cursor: 'pointer'
-          }}
-          onClick={() => router.push('/app/character')}>
-            <div>
-              <div style={{ fontWeight: 600 }}>AI 캐릭터 변경</div>
-            </div>
-            <div style={{ fontSize: '18px', color: '#ccc' }}>›</div>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '15px 20px'
-          }}>
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: '5px' }}>프로필 공개</div>
-              <div style={{ fontSize: '13px', color: '#999' }}>커뮤니티에 프로필 표시</div>
-            </div>
-            <div
-              onClick={() => setIsPublic(!isPublic)}
-              style={{
-                width: 50,
-                height: 28,
-                borderRadius: 14,
-                backgroundColor: isPublic ? '#667eea' : '#ddd',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-            >
-              <div style={{
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                backgroundColor: 'white',
-                position: 'absolute',
-                top: 2,
-                left: isPublic ? 24 : 2,
-                transition: 'all 0.3s'
-              }} />
-            </div>
-          </div>
-        </div>
-
-        {/* 계정 */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0',
-            fontWeight: 700,
-            fontSize: '16px'
-          }}>
-            🔐 계정
-          </div>
-          
-          {[
-            { icon: '🔑', label: '비밀번호 변경' },
-            { icon: '📱', label: '전화번호 변경' },
-            { icon: '📧', label: '이메일 변경' }
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '15px 20px',
-                borderBottom: idx < 2 ? '1px solid #f0f0f0' : 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '20px' }}>{item.icon}</span>
-                <span style={{ fontWeight: 600 }}>{item.label}</span>
-              </div>
-              <div style={{ fontSize: '18px', color: '#ccc' }}>›</div>
-            </div>
-          ))}
+          <SettingItem
+            icon="🔔"
+            title="푸시 알림"
+            value={notifications}
+            onChange={(v) => handleToggle('notifications', v)}
+            isLast
+          />
         </div>
 
         {/* 앱 정보 */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          overflow: 'hidden'
+          background: 'white',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 15px rgba(0,0,0,0.08)'
         }}>
-          <div style={{
-            padding: '15px 20px',
-            borderBottom: '1px solid #f0f0f0',
-            fontWeight: 700,
-            fontSize: '16px'
-          }}>
-            ℹ️ 앱 정보
+          <div style={{ padding: '20px 20px 10px 20px' }}>
+            <h3 style={{
+              margin: 0,
+              fontSize: '16px',
+              fontWeight: 800,
+              color: '#333'
+            }}>
+              앱 정보
+            </h3>
           </div>
-          
-          {[
-            { label: '버전', value: '1.0.0' },
-            { label: '이용약관', value: '' },
-            { label: '개인정보처리방침', value: '' },
-            { label: '고객센터', value: '' }
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '15px 20px',
-                borderBottom: idx < 3 ? '1px solid #f0f0f0' : 'none',
-                cursor: item.value ? 'default' : 'pointer'
-              }}
-            >
-              <span style={{ fontWeight: 600 }}>{item.label}</span>
-              {item.value ? (
-                <span style={{ color: '#999' }}>{item.value}</span>
-              ) : (
-                <div style={{ fontSize: '18px', color: '#ccc' }}>›</div>
-              )}
-            </div>
-          ))}
+          <InfoItem icon="📱" title="버전" value="1.0.0" />
+          <InfoItem icon="🏢" title="개발사" value="Pumpy Corp." isLast />
         </div>
+      </div>
 
-        {/* 로그아웃 */}
-        <button
-          onClick={() => {
-            if (confirm('로그아웃 하시겠습니까?')) {
-              router.push('/')
-            }
-          }}
-          style={{
-            width: '100%',
-            padding: '16px',
-            borderRadius: '15px',
-            border: 'none',
-            backgroundColor: 'white',
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#FF3B30',
-            cursor: 'pointer'
-          }}
-        >
-          로그아웃
-        </button>
+      <BottomNav />
+    </div>
+  )
+}
 
-        {/* 회원 탈퇴 */}
-        <button
-          onClick={() => {
-            if (confirm('정말 탈퇴하시겠습니까?')) {
-              alert('회원 탈퇴가 완료되었습니다.')
-              router.push('/')
-            }
-          }}
-          style={{
-            width: '100%',
-            padding: '16px',
-            borderRadius: '15px',
-            border: 'none',
-            backgroundColor: 'transparent',
-            fontSize: '14px',
-            color: '#999',
-            cursor: 'pointer',
-            textDecoration: 'underline'
-          }}
-        >
-          회원 탈퇴
-        </button>
+function SettingItem({ icon, title, value, onChange, isLast = false }: any) {
+  return (
+    <div style={{
+      padding: '16px 20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderBottom: isLast ? 'none' : '1px solid #f3f4f6'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <span style={{ fontSize: '20px' }}>{icon}</span>
+        <span style={{
+          fontSize: '16px',
+          fontWeight: 600,
+          color: '#1f2937'
+        }}>
+          {title}
+        </span>
+      </div>
+      <div
+        onClick={() => onChange(!value)}
+        style={{
+          width: '50px',
+          height: '30px',
+          borderRadius: '15px',
+          background: value ? '#667eea' : '#d1d5db',
+          position: 'relative',
+          cursor: 'pointer',
+          transition: 'background 0.3s'
+        }}
+      >
+        <div style={{
+          width: '26px',
+          height: '26px',
+          borderRadius: '50%',
+          background: 'white',
+          position: 'absolute',
+          top: '2px',
+          left: value ? '22px' : '2px',
+          transition: 'left 0.3s',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        }} />
       </div>
     </div>
   )
 }
 
-
-
+function InfoItem({ icon, title, value, isLast = false }: any) {
+  return (
+    <div style={{
+      padding: '16px 20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderBottom: isLast ? 'none' : '1px solid #f3f4f6'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <span style={{ fontSize: '20px' }}>{icon}</span>
+        <span style={{
+          fontSize: '16px',
+          fontWeight: 600,
+          color: '#1f2937'
+        }}>
+          {title}
+        </span>
+      </div>
+      <span style={{
+        fontSize: '14px',
+        color: '#9ca3af',
+        fontWeight: 600
+      }}>
+        {value}
+      </span>
+    </div>
+  )
+}

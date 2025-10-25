@@ -302,3 +302,6 @@ export default function TermsModal({ isOpen, onClose, type }: TermsModalProps) {
 
 
 
+
+
+
