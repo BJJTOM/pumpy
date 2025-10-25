@@ -4,6 +4,9 @@
 const LOCAL_API_URL = 'http://localhost:8000/api'
 const AWS_API_URL = '/api'  // 상대 경로 - Nginx 프록시 사용
 
+// 환경 변수에서 API URL 가져오기 (빌드 시 최적화)
+const PRODUCTION_API_URL = process.env.NEXT_PUBLIC_API_URL || AWS_API_URL
+
 export const getApiUrl = (): string => {
   // 브라우저 환경에서만 localStorage 체크
   if (typeof window !== 'undefined') {
@@ -19,8 +22,8 @@ export const getApiUrl = (): string => {
     }
   }
   
-  // AWS 또는 기타 환경에서는 상대 경로 사용 (Nginx 프록시)
-  return AWS_API_URL
+  // AWS 또는 기타 환경에서는 프로덕션 API 사용
+  return PRODUCTION_API_URL
 }
 
 export const setApiUrl = (url: string): void => {
@@ -52,27 +55,47 @@ export const getFrontendUrl = (): string => {
   return `${protocol}//${hostname}${port ? ':' + port : ''}`
 }
 
-// API 호출 헬퍼 함수
-export const apiCall = async (endpoint: string, options?: RequestInit) => {
+// API 호출 헬퍼 함수 (타임아웃 및 재시도 로직 포함)
+export const apiCall = async (
+  endpoint: string, 
+  options?: RequestInit,
+  retries: number = 2,
+  timeout: number = 10000
+) => {
   const apiUrl = getApiUrl()
   const url = `${apiUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`
   
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-    })
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`)
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
+        signal: controller.signal,
+      })
+      
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`)
+      }
+      
+      return await response.json()
+    } catch (error) {
+      const isLastAttempt = attempt === retries
+      
+      if (isLastAttempt) {
+        console.error(`API Call Error (${url}):`, error)
+        throw error
+      }
+      
+      // 재시도 전 대기 (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500))
     }
-    
-    return await response.json()
-  } catch (error) {
-    console.error('API Call Error:', error)
-    throw error
   }
 }

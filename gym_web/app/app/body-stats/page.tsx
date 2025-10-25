@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNav from '../components/BottomNav'
 
@@ -27,20 +27,23 @@ export default function BodyStatsPage() {
     setLoading(false)
   }, [router])
 
-  const calculateBMI = () => {
+  // BMI 계산 메모이제이션
+  const calculateBMI = useMemo(() => {
     const heightM = bodyStats.height / 100
     return (bodyStats.weight / (heightM * heightM)).toFixed(1)
-  }
+  }, [bodyStats.height, bodyStats.weight])
 
-  const getBMIStatus = () => {
-    const bmi = parseFloat(calculateBMI())
+  // BMI 상태 메모이제이션
+  const getBMIStatus = useMemo(() => {
+    const bmi = parseFloat(calculateBMI)
     if (bmi < 18.5) return { text: '저체중', color: '#51cf66', emoji: '😰' }
     if (bmi < 23) return { text: '정상', color: '#667eea', emoji: '😊' }
     if (bmi < 25) return { text: '과체중', color: '#ffa94d', emoji: '😅' }
     return { text: '비만', color: '#ff6b6b', emoji: '😓' }
-  }
+  }, [calculateBMI])
 
-  const handleSave = () => {
+  // 저장 핸들러 메모이제이션
+  const handleSave = useCallback(() => {
     const userStr = localStorage.getItem('currentUser')
     if (!userStr) return
 
@@ -49,12 +52,21 @@ export default function BodyStatsPage() {
     setBodyStats(tempStats)
     setIsEditing(false)
     alert('✅ 신체 정보가 저장되었습니다!')
-  }
+  }, [tempStats])
 
-  const handleCancel = () => {
+  // 취소 핸들러 메모이제이션
+  const handleCancel = useCallback(() => {
     setTempStats(bodyStats)
     setIsEditing(false)
-  }
+  }, [bodyStats])
+  
+  // 권장 체중 범위 메모이제이션
+  const recommendedWeightRange = useMemo(() => {
+    const heightM = bodyStats.height / 100
+    const minWeight = (heightM * heightM * 18.5).toFixed(1)
+    const maxWeight = (heightM * heightM * 23).toFixed(1)
+    return { min: minWeight, max: maxWeight }
+  }, [bodyStats.height])
 
   if (loading) {
     return (
@@ -151,7 +163,7 @@ export default function BodyStatsPage() {
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '60px', marginBottom: '15px' }}>
-            {getBMIStatus().emoji}
+            {getBMIStatus.emoji}
           </div>
           <div style={{
             fontSize: '14px',
@@ -164,21 +176,21 @@ export default function BodyStatsPage() {
           <div style={{
             fontSize: '56px',
             fontWeight: 900,
-            color: getBMIStatus().color,
+            color: getBMIStatus.color,
             marginBottom: '15px'
           }}>
-            {calculateBMI()}
+            {calculateBMI}
           </div>
           <div style={{
             padding: '10px 25px',
-            background: getBMIStatus().color,
+            background: getBMIStatus.color,
             color: 'white',
             borderRadius: '25px',
             display: 'inline-block',
             fontSize: '16px',
             fontWeight: 700
           }}>
-            {getBMIStatus().text}
+            {getBMIStatus.text}
           </div>
         </div>
 
@@ -200,25 +212,25 @@ export default function BodyStatsPage() {
                 label="키 (cm)"
                 icon="📏"
                 value={tempStats.height}
-                onChange={(value: string) => setTempStats({ ...tempStats, height: value })}
+                onChange={(value) => setTempStats({ ...tempStats, height: value })}
               />
               <InputField
                 label="체중 (kg)"
                 icon="⚖️"
                 value={tempStats.weight}
-                onChange={(value: string) => setTempStats({ ...tempStats, weight: value })}
+                onChange={(value) => setTempStats({ ...tempStats, weight: value })}
               />
               <InputField
                 label="근육량 (kg)"
                 icon="💪"
                 value={tempStats.muscle}
-                onChange={(value: string) => setTempStats({ ...tempStats, muscle: value })}
+                onChange={(value) => setTempStats({ ...tempStats, muscle: value })}
               />
               <InputField
                 label="체지방 (%)"
                 icon="🔥"
                 value={tempStats.fat}
-                onChange={(value: string) => setTempStats({ ...tempStats, fat: value })}
+                onChange={(value) => setTempStats({ ...tempStats, fat: value })}
               />
             </div>
 
@@ -325,10 +337,10 @@ export default function BodyStatsPage() {
             lineHeight: 1.8
           }}>
             <div style={{ marginBottom: '10px' }}>
-              • 현재 BMI: <strong style={{ color: getBMIStatus().color }}>{getBMIStatus().text}</strong>
+              • 현재 BMI: <strong style={{ color: getBMIStatus.color }}>{getBMIStatus.text}</strong>
             </div>
             <div style={{ marginBottom: '10px' }}>
-              • 권장 체중 범위: {((bodyStats.height / 100) ** 2 * 18.5).toFixed(1)}kg ~ {((bodyStats.height / 100) ** 2 * 23).toFixed(1)}kg
+              • 권장 체중 범위: {recommendedWeightRange.min}kg ~ {recommendedWeightRange.max}kg
             </div>
             <div>
               • 근육량을 늘리고 체지방을 줄이는 것이 건강한 몸을 만드는 핵심입니다!

@@ -4,9 +4,11 @@ import { WebView } from 'react-native-webview';
 import { StatusBar } from 'expo-status-bar';
 
 // 🌐 실제 서버 URL (배포 후 업데이트)
+// 환경 변수 우선 사용, 없으면 기본값 사용
+const PRODUCTION_URL = process.env.EXPO_PUBLIC_WEB_URL || 'http://3.27.28.175/app'
 const WEB_URL = __DEV__ 
   ? 'http://localhost:3000/app'  // 개발 환경
-  : 'http://3.27.28.175/app';     // 프로덕션 환경
+  : PRODUCTION_URL;              // 프로덕션 환경
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -78,18 +80,31 @@ export default function App() {
         onLoadEnd={handleLoad}
         onError={handleError}
         onNavigationStateChange={handleNavigationStateChange}
+        // 기본 설정
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
         bounces={false}
         allowsBackForwardNavigationGestures={true}
+        // 캐시 최적화 (성능 향상)
         cacheEnabled={true}
-        cacheMode="LOAD_DEFAULT"
+        cacheMode="LOAD_CACHE_ELSE_NETWORK"
+        incognito={false}
+        // 보안 및 호환성
         mixedContentMode="always"
         thirdPartyCookiesEnabled={true}
         sharedCookiesEnabled={true}
+        // 사용자 에이전트 (앱 식별)
         userAgent={`PumpyApp/${Platform.OS}/${Platform.Version}`}
+        // 성능 최적화 (Android)
+        androidLayerType="hardware"
+        // 미디어 자동 재생
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+        // 줌 비활성화 (일관된 UX)
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
       />
     </View>
   );
