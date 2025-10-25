@@ -178,7 +178,15 @@ export default function SettingsPage() {
   )
 }
 
-function SettingItem({ icon, title, value, onChange, isLast = false }: any) {
+type SettingItemProps = {
+  icon: string
+  title: string
+  value: boolean
+  onChange: (value: boolean) => void
+  isLast?: boolean
+}
+
+function SettingItem({ icon, title, value, onChange, isLast = false }: SettingItemProps) {
   return (
     <div style={{
       padding: '16px 20px',
@@ -229,7 +237,14 @@ function SettingItem({ icon, title, value, onChange, isLast = false }: any) {
   )
 }
 
-function InfoItem({ icon, title, value, isLast = false }: any) {
+type InfoItemProps = {
+  icon: string
+  title: string
+  value: string
+  isLast?: boolean
+}
+
+function InfoItem({ icon, title, value, isLast = false }: InfoItemProps) {
   return (
     <div style={{
       padding: '16px 20px',
