@@ -1,0 +1,109 @@
+╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║       🔑 관리자 계정 자동 생성 - 실행 명령어              ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
+
+SSH 터미널에서 다음 명령어를 복사해서 실행하세요:
+
+
+【방법 1】 스크립트로 자동 생성 (추천)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cat > /home/ubuntu/pumpy/gym_api/create_admin.py << 'EOF'
+#!/usr/bin/env python
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from django.contrib.auth.models import User
+
+username = 'admin'
+email = 'admin@pumpy.com'
+password = 'Pumpy2025!@'
+
+if User.objects.filter(username=username).exists():
+    print(f'✅ 관리자 계정 "{username}"이 이미 존재합니다.')
+    user = User.objects.get(username=username)
+    user.set_password(password)
+    user.save()
+    print(f'✅ 비밀번호가 업데이트되었습니다.')
+else:
+    User.objects.create_superuser(
+        username=username,
+        email=email,
+        password=password
+    )
+    print(f'✅ 관리자 계정이 생성되었습니다!')
+
+print('')
+print('=' * 60)
+print('  🎉 Django 관리자 계정 정보')
+print('=' * 60)
+print(f'  Username: {username}')
+print(f'  Email:    {email}')
+print(f'  Password: {password}')
+print('')
+print('  관리자 페이지: http://3.27.28.175/admin/')
+print('=' * 60)
+EOF
+
+cd /home/ubuntu/pumpy/gym_api
+source venv/bin/activate
+python create_admin.py
+
+
+【방법 2】 Django shell로 직접 생성
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd /home/ubuntu/pumpy/gym_api
+source venv/bin/activate
+python manage.py shell << 'EOF'
+from django.contrib.auth.models import User
+username = 'admin'
+email = 'admin@pumpy.com'
+password = 'Pumpy2025!@'
+if User.objects.filter(username=username).exists():
+    user = User.objects.get(username=username)
+    user.set_password(password)
+    user.save()
+    print('비밀번호가 업데이트되었습니다.')
+else:
+    User.objects.create_superuser(username=username, email=email, password=password)
+    print('관리자 계정이 생성되었습니다!')
+print(f'Username: {username}')
+print(f'Password: {password}')
+EOF
+
+
+═══════════════════════════════════════════════════════════
+
+✅ 생성될 관리자 계정 정보
+
+Username: admin
+Email:    admin@pumpy.com
+Password: Pumpy2025!@
+
+관리자 페이지: http://3.27.28.175/admin/
+
+
+═══════════════════════════════════════════════════════════
+
+📝 사용 방법:
+
+위의 【방법 1】 전체 명령어를 복사해서
+SSH 터미널에 붙여넣고 Enter를 누르세요!
+
+자동으로 관리자 계정이 생성됩니다! 🎉
+
+
+═══════════════════════════════════════════════════════════
+
+
+
+
+
+
+

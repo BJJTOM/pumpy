@@ -64,3 +64,8 @@ Write-Host ""
 Write-Host "브라우저에서 http://${AWS_IP}:3000/app 를 열어 확인하세요!" -ForegroundColor Yellow
 Write-Host ""
 
+
+
+
+
+

@@ -238,3 +238,8 @@ echo "sudo journalctl -u gunicorn -n 50"
 echo "sudo tail -f /var/log/nginx/error.log"
 
 
+
+
+
+
+

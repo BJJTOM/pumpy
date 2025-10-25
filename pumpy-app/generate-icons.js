@@ -61,3 +61,4 @@ console.log('1. assets 폴더의 .svg 파일들을 온라인 변환기로 .png�
 console.log('2. 또는 아래 명령어 실행:');
 console.log('   npx sharp-cli -i assets/icon.png.svg -o assets/icon.png');
 
+

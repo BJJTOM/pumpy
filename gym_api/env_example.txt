@@ -1,0 +1,32 @@
+# Django 설정
+SECRET_KEY=your-secret-key-here-change-in-production
+DEBUG=False
+ALLOWED_HOSTS=your-domain.com,your-ip-address
+
+# 데이터베이스 설정
+DB_NAME=pumpy_db
+DB_USER=pumpy_user
+DB_PASSWORD=your-secure-password
+DB_HOST=localhost
+DB_PORT=5432
+
+# AWS 설정 (선택사항)
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_STORAGE_BUCKET_NAME=
+AWS_S3_REGION_NAME=ap-northeast-2
+
+# 이메일 설정 (선택사항)
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+
+
+
+
+
+
+

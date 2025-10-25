@@ -90,14 +90,14 @@ export default function ProfilePage() {
     }
 
     // Load saved data
-    const savedAiPhoto = localStorage.getItem(`ai_photo_${user.id}`)
-    if (savedAiPhoto) setAiPhoto(savedAiPhoto)
+      const savedAiPhoto = localStorage.getItem(`ai_photo_${user.id}`)
+      if (savedAiPhoto) setAiPhoto(savedAiPhoto)
 
     const savedRoomBg = localStorage.getItem(`room_background_${user.id}`)
     if (savedRoomBg) setRoomBackground(savedRoomBg)
 
     loadAttendanceData(user.id)
-    setLoading(false)
+      setLoading(false)
   }
 
   const loadAttendanceData = async (memberId: number) => {
@@ -182,7 +182,7 @@ export default function ProfilePage() {
   const currentTitle = availableTitles[0] || TITLES[0]
   
   useEffect(() => {
-    if (member) {
+      if (member) {
       const savedTitle = localStorage.getItem(`selected_title_${member.id}`)
       if (savedTitle) {
         setSelectedTitle(JSON.parse(savedTitle))
@@ -223,15 +223,15 @@ export default function ProfilePage() {
 
   const handleChangeRoom = (themeId: string) => {
     setRoomBackground(themeId)
-    if (member) {
+      if (member) {
       localStorage.setItem(`room_background_${member.id}`, themeId)
-    }
+      }
     setShowRoomModal(false)
   }
 
   const handleSelectTitle = (title: any) => {
     setSelectedTitle(title)
-    if (member) {
+      if (member) {
       localStorage.setItem(`selected_title_${member.id}`, JSON.stringify(title))
     }
     setShowTitleModal(false)
@@ -453,7 +453,7 @@ export default function ProfilePage() {
               <div style={{
                 width: '100px',
                 height: '70px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 position: 'absolute',
                 top: '88px',
                 left: '20px',
@@ -603,11 +603,11 @@ export default function ProfilePage() {
           padding: '10px 12px',
           boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
           zIndex: 10
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
             marginBottom: '8px'
           }}>
             <h3 style={{
@@ -618,22 +618,22 @@ export default function ProfilePage() {
             }}>
               🏅 획득 뱃지
             </h3>
-            <button
+          <button
               onClick={() => setShowBadgeModal(true)}
-              style={{
+            style={{
                 padding: '4px 10px',
                 borderRadius: '8px',
                 border: '2px solid #e5e7eb',
                 background: 'white',
                 fontSize: '10px',
-                fontWeight: 700,
+              fontWeight: 700,
                 color: '#667eea',
                 cursor: 'pointer'
-              }}
-            >
+            }}
+          >
               전체보기
-            </button>
-          </div>
+          </button>
+        </div>
           <div style={{
             display: 'flex',
             gap: '8px',
@@ -663,8 +663,8 @@ export default function ProfilePage() {
                   boxShadow: `0 3px 10px ${badge.color}40`
                 }}>
                   {badge.icon}
-                </div>
-                <div style={{
+      </div>
+        <div style={{
                   fontSize: '9px',
                   fontWeight: 700,
                   color: '#666'
@@ -690,22 +690,22 @@ export default function ProfilePage() {
       </div>
 
       {/* 프로필 카드들 */}
-      <div style={{
-        display: 'grid',
+          <div style={{
+            display: 'grid',
         gridTemplateColumns: '1fr',
-        gap: '15px',
-        marginBottom: '20px'
-      }}>
+            gap: '15px',
+            marginBottom: '20px'
+          }}>
         {/* 프리미엄 구독 */}
         <div
           onClick={() => router.push('/app/premium')}
-          style={{
+                style={{
             background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
             padding: '25px',
             borderRadius: '20px',
-            cursor: 'pointer',
+                  cursor: 'pointer',
             boxShadow: '0 8px 25px rgba(251, 191, 36, 0.35)',
-            position: 'relative',
+                  position: 'relative',
             overflow: 'hidden',
             transition: 'transform 0.2s'
           }}
@@ -716,19 +716,19 @@ export default function ProfilePage() {
             e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
-          <div style={{
-            position: 'absolute',
+                  <div style={{
+                    position: 'absolute',
             top: '10px',
-            right: '10px',
+                    right: '10px',
             background: '#dc2626',
-            color: 'white',
+                    color: 'white',
             padding: '4px 10px',
             borderRadius: '20px',
-            fontSize: '11px',
+                    fontSize: '11px',
             fontWeight: 800
-          }}>
+                  }}>
             30% OFF
-          </div>
+                  </div>
           <div style={{ fontSize: '32px', marginBottom: '10px' }}>👑</div>
           <h3 style={{
             margin: '0 0 8px 0',
@@ -745,8 +745,8 @@ export default function ProfilePage() {
           }}>
             AI 코칭, 맞춤 식단, 전문가 상담을 이용해보세요
           </p>
-        </div>
-      </div>
+              </div>
+            </div>
 
       {/* 승인 대기 중인 회원권 알림 - 승인 시스템 사용 시에만 표시 */}
       {/* 현재는 즉시 결제로 변경되어 표시되지 않음 */}
@@ -777,7 +777,7 @@ export default function ProfilePage() {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{
+              <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '12px'
@@ -787,9 +787,9 @@ export default function ProfilePage() {
               height: '48px',
               borderRadius: '12px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               fontSize: '24px'
             }}>
               🏋️
@@ -803,16 +803,16 @@ export default function ProfilePage() {
               }}>
                 내 체육관 등록 정보
               </h3>
-              <div style={{
+                  <div style={{
                 fontSize: '13px',
                 color: '#999',
                 marginTop: '3px'
-              }}>
+                  }}>
                 회원번호 #{member?.id || '0000'}
               </div>
             </div>
           </div>
-          <div style={{
+                    <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '10px'
@@ -826,10 +826,10 @@ export default function ProfilePage() {
               color: member?.status === 'active' ? '#10b981' : '#f59e0b'
             }}>
               {member?.status === 'active' ? '✓ 활성' : member?.status === 'paused' ? '⏸ 일시중지' : '❌ 만료'}
-            </div>
+                    </div>
             <span style={{ fontSize: '18px', color: '#d1d5db' }}>›</span>
-          </div>
-        </div>
+                  </div>
+              </div>
       </div>
 
       {/* 설정 섹션 */}
@@ -856,13 +856,13 @@ export default function ProfilePage() {
           onClick={() => router.push('/app/privacy')}
           isLast
         />
-      </div>
+                </div>
 
       {/* 고객지원 섹션 */}
-      <div style={{
+                <div style={{
         background: 'white',
         borderRadius: '20px',
-        overflow: 'hidden',
+                  overflow: 'hidden',
         boxShadow: '0 2px 15px rgba(0,0,0,0.08)',
         marginBottom: '15px'
       }}>
@@ -885,7 +885,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 정보 섹션 */}
-      <div style={{
+                  <div style={{
         background: 'white',
         borderRadius: '20px',
         overflow: 'hidden',
@@ -935,18 +935,18 @@ export default function ProfilePage() {
           }}
           isLast
         />
-      </div>
+          </div>
 
       {/* 로그아웃 버튼 */}
-      <button
+            <button
         onClick={handleLogout}
-        style={{
-          width: '100%',
-          padding: '18px',
-          borderRadius: '15px',
-          border: 'none',
+              style={{
+                width: '100%',
+                padding: '18px',
+                borderRadius: '15px',
+                border: 'none',
           background: '#ef4444',
-          color: 'white',
+                color: 'white',
           fontSize: '18px',
           fontWeight: 700,
           cursor: 'pointer',
@@ -954,7 +954,7 @@ export default function ProfilePage() {
         }}
       >
         로그아웃
-      </button>
+            </button>
 
       <BottomNav />
 
@@ -971,10 +971,10 @@ export default function ProfilePage() {
                 <div
                   key={theme.id}
                   onClick={() => handleChangeRoom(theme.id)}
-                  style={{
+                style={{
                     padding: '20px',
                     background: theme.gradient,
-                    borderRadius: '15px',
+                  borderRadius: '15px',
                     cursor: 'pointer',
                     textAlign: 'center',
                     border: roomBackground === theme.id ? '4px solid white' : '4px solid transparent',
@@ -988,7 +988,7 @@ export default function ProfilePage() {
                       position: 'absolute',
                       top: '8px',
                       right: '8px',
-                      background: 'white',
+                  background: 'white',
                       borderRadius: '50%',
                       width: '24px',
                       height: '24px',
@@ -1026,13 +1026,13 @@ export default function ProfilePage() {
                     background: selectedTitle?.id === title.id ? `${title.color}20` : '#f8f9fa',
                     border: `2px solid ${selectedTitle?.id === title.id ? title.color : '#e5e7eb'}`,
                     borderRadius: '12px',
-                    cursor: 'pointer',
+                  cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    transition: 'all 0.3s'
-                  }}
-                >
+                  transition: 'all 0.3s'
+                }}
+              >
                   <span style={{
                     fontSize: '16px',
                     fontWeight: 700,
@@ -1080,11 +1080,11 @@ export default function ProfilePage() {
                 return (
                   <div
                     key={badge.id}
-                    style={{
+                style={{
                       padding: '20px',
                       background: earned ? `${badge.color}15` : '#f8f9fa',
                       border: `2px solid ${earned ? badge.color : '#e5e7eb'}`,
-                      borderRadius: '15px',
+                  borderRadius: '15px',
                       textAlign: 'center',
                       opacity: earned ? 1 : 0.5
                     }}
@@ -1145,7 +1145,7 @@ export default function ProfilePage() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'white',
+                  background: 'white',
               borderRadius: '25px',
               maxWidth: '500px',
               width: '100%',
@@ -1181,18 +1181,18 @@ export default function ProfilePage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer',
+                  cursor: 'pointer',
                     fontSize: '20px',
                     color: '#666'
-                  }}
-                >
+                }}
+              >
                   ×
-                </div>
+            </div>
               </div>
             </div>
 
             <div style={{ padding: '25px' }}>
-              <div style={{
+            <div style={{
                 display: 'grid',
                 gap: '12px',
                 marginBottom: '20px'
@@ -1245,13 +1245,13 @@ export default function ProfilePage() {
                       padding: '10px',
                       background: 'rgba(255,255,255,0.2)',
                       borderRadius: '10px',
-                      textAlign: 'center'
-                    }}>
+              textAlign: 'center'
+            }}>
                       <div style={{ fontSize: '11px', marginBottom: '4px', opacity: 0.9 }}>시작일</div>
                       <div style={{ fontSize: '13px', fontWeight: 700 }}>
                         {new Date(member.membership.start_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                      </div>
-                    </div>
+              </div>
+              </div>
                     <div style={{
                       padding: '10px',
                       background: 'rgba(255,255,255,0.2)',
@@ -1261,10 +1261,10 @@ export default function ProfilePage() {
                       <div style={{ fontSize: '11px', marginBottom: '4px', opacity: 0.9 }}>만료일</div>
                       <div style={{ fontSize: '13px', fontWeight: 700 }}>
                         {new Date(member.membership.end_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                      </div>
-                    </div>
+            </div>
+        </div>
                   </div>
-                  <div style={{
+        <div style={{
                     fontSize: '13px',
                     fontWeight: 600,
                     textAlign: 'center',
@@ -1297,32 +1297,32 @@ export default function ProfilePage() {
                   }}>
                     회원권을 구매해주세요
                   </p>
-                  <button
+            <button
                     onClick={() => {
                       setShowGymInfoDetail(false)
                       router.push('/app/membership-payment')
                     }}
-                    style={{
+              style={{
                       padding: '12px 24px',
                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      border: 'none',
+                border: 'none',
                       borderRadius: '12px',
-                      color: 'white',
-                      fontSize: '14px',
+                color: 'white',
+                fontSize: '14px',
                       fontWeight: 800,
-                      cursor: 'pointer',
+                cursor: 'pointer',
                       boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
-                    }}
-                  >
+              }}
+            >
                     회원권 구매하기
-                  </button>
-                </div>
+            </button>
+          </div>
               )}
 
               <div style={{
                 padding: '15px',
                 background: '#f8f9fa',
-                borderRadius: '12px',
+                    borderRadius: '12px',
                 marginBottom: '20px'
               }}>
                 <div style={{
@@ -1355,14 +1355,14 @@ export default function ProfilePage() {
                     agreed={member?.marketing_agreed || false}
                     optional
                   />
-                </div>
+              </div>
               </div>
 
               {/* 체육관 정보 */}
               <div style={{
                 padding: '15px',
                 background: '#f0f9ff',
-                borderRadius: '12px',
+                    borderRadius: '12px',
                 border: '2px solid #3b82f6'
               }}>
                 <div style={{
@@ -1372,7 +1372,7 @@ export default function ProfilePage() {
                   marginBottom: '10px'
                 }}>
                   🏢 다니는 체육관 정보
-                </div>
+              </div>
                 <div style={{
                   display: 'grid',
                   gap: '8px'
@@ -1406,11 +1406,11 @@ export default function ProfilePage() {
         onClick={() => setShowMembershipDetail(false)}>
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
+                  style={{
               background: 'white',
               borderRadius: '25px',
               maxWidth: '500px',
-              width: '100%',
+                    width: '100%',
               maxHeight: '80vh',
               overflow: 'auto',
               boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
@@ -1450,17 +1450,17 @@ export default function ProfilePage() {
                   }}
                 >
                   ×
-                </div>
               </div>
+            </div>
             </div>
 
             <div style={{ padding: '25px' }}>
               {member?.membership ? (
-                <>
-                  <div style={{
-                    padding: '20px',
+            <>
+                <div style={{
+                  padding: '20px',
                     background: '#f8f9fa',
-                    borderRadius: '15px',
+                  borderRadius: '15px',
                     marginBottom: '20px'
                   }}>
                     <div style={{
@@ -1488,51 +1488,51 @@ export default function ProfilePage() {
                         padding: '12px',
                         background: 'white',
                         borderRadius: '12px',
-                        textAlign: 'center'
-                      }}>
+                  textAlign: 'center'
+                }}>
                         <div style={{ fontSize: '11px', color: '#999', marginBottom: '5px' }}>시작일</div>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>
                           {new Date(member.membership.start_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                        </div>
-                      </div>
-                      <div style={{
+                  </div>
+                </div>
+                <div style={{
                         padding: '12px',
                         background: 'white',
                         borderRadius: '12px',
-                        textAlign: 'center'
-                      }}>
+                  textAlign: 'center'
+                }}>
                         <div style={{ fontSize: '11px', color: '#999', marginBottom: '5px' }}>만료일</div>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>
                           {new Date(member.membership.end_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                        </div>
-                      </div>
-                      <div style={{
+                  </div>
+                </div>
+                <div style={{
                         padding: '12px',
                         background: 'white',
                         borderRadius: '12px',
-                        textAlign: 'center'
-                      }}>
+                  textAlign: 'center'
+                }}>
                         <div style={{ fontSize: '11px', color: '#999', marginBottom: '5px' }}>이용 기간</div>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>
                           {member.membership.duration || 0}개월
-                        </div>
-                      </div>
-                      <div style={{
+                  </div>
+                </div>
+                <div style={{
                         padding: '12px',
                         background: 'white',
                         borderRadius: '12px',
-                        textAlign: 'center'
-                      }}>
+                  textAlign: 'center'
+                }}>
                         <div style={{ fontSize: '11px', color: '#999', marginBottom: '5px' }}>남은 일수</div>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#667eea' }}>
                           {Math.max(0, Math.ceil((new Date(member.membership.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))}일
-                        </div>
-                      </div>
-                    </div>
                   </div>
+                      </div>
+                </div>
+              </div>
 
                   <div style={{ marginBottom: '20px' }}>
-                    <div style={{
+              <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
                       marginBottom: '8px'
@@ -1549,8 +1549,8 @@ export default function ProfilePage() {
                           return Math.round(progress)
                         })()}%
                       </span>
-                    </div>
-                    <div style={{
+                </div>
+                <div style={{
                       height: '12px',
                       background: '#e5e7eb',
                       borderRadius: '6px',
@@ -1568,7 +1568,7 @@ export default function ProfilePage() {
                         borderRadius: '6px',
                         transition: 'width 0.5s'
                       }} />
-                    </div>
+                </div>
                   </div>
 
                   <button
@@ -1594,7 +1594,7 @@ export default function ProfilePage() {
                 </>
               ) : (
                 <>
-                  <div style={{
+                <div style={{
                     textAlign: 'center',
                     padding: '40px 20px'
                   }}>
@@ -1626,7 +1626,7 @@ export default function ProfilePage() {
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         border: 'none',
                         borderRadius: '15px',
-                        color: 'white',
+                  color: 'white',
                         fontSize: '16px',
                         fontWeight: 800,
                         cursor: 'pointer',
@@ -1676,7 +1676,7 @@ function InfoRow({ label, value }: any) {
       borderRadius: '10px'
     }}>
       <span style={{
-        fontSize: '14px',
+                  fontSize: '14px',
         color: '#666',
         fontWeight: 600
       }}>
@@ -1685,11 +1685,11 @@ function InfoRow({ label, value }: any) {
       <span style={{
         fontSize: '14px',
         color: '#333',
-        fontWeight: 700
-      }}>
+                  fontWeight: 700
+                }}>
         {value}
       </span>
-    </div>
+                </div>
   )
 }
 
@@ -1731,7 +1731,7 @@ function TermsCheckItem({ label, agreed, optional, onClick }: any) {
           color: 'white'
         }}>
           {agreed && '✓'}
-        </div>
+              </div>
         <span style={{
           fontSize: '13px',
           color: '#333',
@@ -1747,8 +1747,8 @@ function TermsCheckItem({ label, agreed, optional, onClick }: any) {
           }}>
             (선택)
           </span>
-        )}
-      </div>
+          )}
+        </div>
       {onClick && (
         <span style={{
           fontSize: '14px',
@@ -1763,7 +1763,7 @@ function TermsCheckItem({ label, agreed, optional, onClick }: any) {
 
 function MembershipStatCard({ label, value }: any) {
   return (
-    <div style={{
+        <div style={{
       padding: '12px',
       background: 'rgba(255,255,255,0.25)',
       backdropFilter: 'blur(10px)',
@@ -1821,7 +1821,7 @@ function MenuItem({ icon, title, subtitle, onClick, isLast = false }: any) {
         flexShrink: 0
       }}>
         {icon}
-      </div>
+              </div>
       <div style={{
         flex: 1
       }}>
@@ -1831,7 +1831,7 @@ function MenuItem({ icon, title, subtitle, onClick, isLast = false }: any) {
           color: '#1f2937'
         }}>
           {title}
-        </div>
+            </div>
         {subtitle && (
           <div style={{
             fontSize: '13px',
@@ -1839,16 +1839,16 @@ function MenuItem({ icon, title, subtitle, onClick, isLast = false }: any) {
             marginTop: '2px'
           }}>
             {subtitle}
-          </div>
+              </div>
         )}
-      </div>
+            </div>
       <div style={{
         fontSize: '18px',
         color: '#d1d5db'
       }}>
         ›
-      </div>
-    </div>
+              </div>
+            </div>
   )
 }
 
@@ -1885,7 +1885,7 @@ function ProfileCard({ icon, title, onClick, children }: any) {
           fontSize: '22px'
         }}>
           {icon}
-        </div>
+          </div>
         <h3 style={{
           margin: 0,
           fontSize: '18px',
@@ -1894,9 +1894,9 @@ function ProfileCard({ icon, title, onClick, children }: any) {
         }}>
           {title}
         </h3>
-      </div>
+        </div>
       {children}
-    </div>
+      </div>
   )
 }
 

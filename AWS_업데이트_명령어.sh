@@ -65,3 +65,8 @@ echo "  sudo systemctl status gunicorn"
 echo "  pm2 status"
 echo ""
 
+
+
+
+
+

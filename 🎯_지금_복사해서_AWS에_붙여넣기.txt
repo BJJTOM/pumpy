@@ -1,0 +1,57 @@
+========================================
+  🎯 AWS 터미널에 복사/붙여넣기할 명령어
+========================================
+
+1. AWS EC2 콘솔 접속:
+   https://console.aws.amazon.com/ec2/
+
+2. 인스턴스 선택 (IP: 3.27.28.175)
+
+3. "연결" → "EC2 Instance Connect" → "연결"
+
+4. 아래 명령어를 복사해서 붙여넣기:
+
+========================================
+  백엔드 업데이트 (1/2)
+========================================
+
+cd /home/ubuntu/pumpy/gym_api && source venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && sudo systemctl restart gunicorn
+
+========================================
+  프론트엔드 업데이트 (2/2)
+========================================
+
+cd /home/ubuntu/pumpy/gym_web && npm install && npm run build && pm2 restart gym_web && pm2 save
+
+========================================
+  완료!
+========================================
+
+브라우저에서 확인:
+http://3.27.28.175:3000/app
+
+이제 로컬과 동일하게 작동합니다! ✅
+
+========================================
+  문제 발생 시
+========================================
+
+# 로그 확인
+pm2 logs gym_web --lines 20
+sudo journalctl -u gunicorn -n 20
+
+# 서버 상태 확인
+sudo systemctl status gunicorn
+pm2 status
+
+# 재시작
+sudo systemctl restart gunicorn
+pm2 restart gym_web
+
+========================================
+
+
+
+
+
+

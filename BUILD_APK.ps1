@@ -85,3 +85,8 @@ if (Test-Path $apkPath) {
 # 원래 디렉토리로 복귀
 Set-Location -Path $currentDir
 
+
+
+
+
+

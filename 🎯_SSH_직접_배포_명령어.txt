@@ -1,0 +1,65 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 SSH 직접 배포 (Session Manager 대신)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+문제: SSM 에이전트가 설치되지 않음
+해결: SSH 키로 직접 접속!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+방법 1: PowerShell에서 자동 배포 (추천!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PowerShell을 열고 다음 명령어를 복사 & 실행:
+
+ssh -i "C:\Users\guddn\Downloads\COCO\pumpy-key.pem" ubuntu@3.27.28.175 "cd ~/pumpy 2>/dev/null || (cd ~ && git clone https://github.com/BJJTOM/pumpy.git && cd pumpy); git pull origin main; cd gym_api && source venv/bin/activate 2>/dev/null || (python3 -m venv venv && source venv/bin/activate); pip install -q -r requirements.txt; python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput; sudo systemctl restart gunicorn; cd ../gym_web && npm install --prefer-offline --no-audit; export NODE_OPTIONS='--max-old-space-size=3072'; rm -rf .next && npm run build; pm2 delete gym-web 2>/dev/null || true && pm2 start npm --name 'gym-web' -- start && pm2 save; sudo systemctl restart nginx; echo '🎉 배포 완료! http://3.27.28.175'"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+방법 2: SSH 접속 후 수동 배포
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1단계: SSH 접속
+ssh -i "C:\Users\guddn\Downloads\COCO\pumpy-key.pem" ubuntu@3.27.28.175
+
+2단계: 배포 명령어 실행 (접속 후)
+cd ~/pumpy 2>/dev/null || (cd ~ && git clone https://github.com/BJJTOM/pumpy.git && cd pumpy)
+git pull origin main
+cd gym_api
+source venv/bin/activate 2>/dev/null || (python3 -m venv venv && source venv/bin/activate)
+pip install -q -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
+python manage.py collectstatic --noinput
+sudo systemctl restart gunicorn
+cd ../gym_web
+npm install --prefer-offline --no-audit
+export NODE_OPTIONS="--max-old-space-size=3072"
+rm -rf .next
+npm run build
+pm2 delete gym-web 2>/dev/null || true
+pm2 start npm --name "gym-web" -- start
+pm2 save
+sudo systemctl restart nginx
+echo "🎉 배포 완료! http://3.27.28.175"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏱️ 예상 시간: 10-15분
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+완료 후:
+✅ http://3.27.28.175 접속
+✅ 웹사이트 정상 작동
+✅ 인스턴스 연결성 검사 통과
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 문제 발생 시
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"Permission denied" 오류:
+icacls "C:\Users\guddn\Downloads\COCO\pumpy-key.pem" /inheritance:r /grant:r "$($env:USERNAME):R"
+
+"Connection refused" 오류:
+보안 그룹에서 SSH (22번 포트) 확인
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+

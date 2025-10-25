@@ -189,3 +189,8 @@ MYAPP_RELEASE_KEY_PASSWORD=yourpassword
 - 출석 체크 QR 코드
 
 
+
+
+
+
+

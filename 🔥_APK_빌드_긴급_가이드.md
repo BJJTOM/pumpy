@@ -386,3 +386,8 @@ Copy-Item app\build\outputs\apk\release\app-release.apk C:\Users\guddn\Downloads
 **모든 코드는 준비되었습니다. Java만 설치하면 끝!** ✅
 
 
+
+
+
+
+

@@ -56,3 +56,8 @@ echo "   API: http://${AWS_IP}:8000"
 echo "   관리자: http://${AWS_IP}:8000/admin"
 echo ""
 
+
+
+
+
+

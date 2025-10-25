@@ -1,0 +1,625 @@
+═══════════════════════════════════════════════════════════════
+         ✅ 최종 업데이트 완료!
+═══════════════════════════════════════════════════════════════
+
+모든 기능이 완성되었습니다! 🎉
+
+═══════════════════════════════════════════════════════════════
+         📋 완료된 작업
+═══════════════════════════════════════════════════════════════
+
+✅ 1. 내 정보 페이지 추가 (입관 동의서 + 회원권 정보)
+✅ 2. 커뮤니티 게시글 작성 문제 해결
+✅ 3. 앱 아이콘 디자인 (BlackShark 테마)
+🔨 4. APK 빌드 준비 완료
+
+═══════════════════════════════════════════════════════════════
+         1️⃣ 내 정보 페이지 (http://localhost:3000/app/info)
+═══════════════════════════════════════════════════════════════
+
+새로 추가된 페이지!
+
+구성:
+┌─────────────────────────────────────┐
+│ 👤 기본 정보                        │
+├─────────────────────────────────────┤
+│ • 이름, 이메일, 전화번호            │
+│ • 생년월일, 성별, 주소              │
+│ • 가입일, 상태 (활성/정지/해지)     │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│ 🎫 회원권 정보                      │
+├─────────────────────────────────────┤
+│ TODAY 6개월권      ₩500,000        │
+│ 시작일: 2025.10.15                  │
+│ 종료일: 2026.04.15                  │
+│ 남은 기간: 182일                    │
+├─────────────────────────────────────┤
+│ 3개월권            ₩300,000        │
+│ 시작일: 2025.07.15                  │
+│ 종료일: 2025.10.15                  │
+│ (만료)                              │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│ 📋 입관 동의서                      │
+├─────────────────────────────────────┤
+│ ✅ 이용약관 동의                    │
+│    2025.10.15 동의                  │
+├─────────────────────────────────────┤
+│ ✅ 개인정보 처리방침 동의           │
+│    2025.10.15 동의                  │
+├─────────────────────────────────────┤
+│ ✅ 마케팅 정보 수신 동의            │
+│    2025.10.15 동의                  │
+├─────────────────────────────────────┤
+│ 📌 동의 내용                        │
+│ • 시설 이용 규칙 준수               │
+│ • 개인 정보 수집 및 이용            │
+│ • 사진 및 영상 촬영 동의            │
+│ • 부상 발생 시 책임 소재            │
+│ • 환불 및 양도 규정                 │
+└─────────────────────────────────────┘
+
+접근 방법:
+1. 앱 하단 네비게이션에서 "📋 내정보" 클릭
+2. 또는 http://localhost:3000/app/info 직접 접근
+
+특징:
+• 관리자 DB에서 실시간 정보 불러오기
+• 활성 회원권은 초록색으로 강조
+• 남은 기간 자동 계산
+• 동의 항목별 체크 표시
+• BlackShark 테마 (검정 + 금색)
+
+파일: gym_web/app/app/info/page.tsx
+
+═══════════════════════════════════════════════════════════════
+         2️⃣ 커뮤니티 게시글 작성 문제 해결
+═══════════════════════════════════════════════════════════════
+
+문제:
+- POST /api/posts/ Bad Request 400 에러
+- 게시글 작성 시 서버 에러 발생
+
+원인:
+- PostSerializer의 필드 검증 문제
+- read_only_fields 설정 누락
+
+해결:
+```python
+# gym_api/members/serializers.py
+class PostSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.full_name', read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Post
+        fields = '__all__'
+        read_only_fields = (
+            'like_count',
+            'comment_count',
+            'share_count',
+            'view_count',
+            'created_at',
+            'updated_at'
+        )  # ← 추가!
+```
+
+테스트:
+1. http://localhost:3000/app/community
+2. "게시글 작성하기" 버튼 클릭
+3. 내용 입력 + 사진 선택 (선택사항)
+4. "게시하기" 클릭
+5. ✅ "게시글이 등록되었습니다" 팝업
+6. ✅ 게시글이 커뮤니티에 즉시 표시
+
+AWS 서버:
+- serializers.py 업로드 완료
+- Gunicorn 재시작 완료
+- 현재 정상 작동 중
+
+파일: gym_api/members/serializers.py
+
+═══════════════════════════════════════════════════════════════
+         3️⃣ 앱 아이콘 디자인 (BlackShark 테마)
+═══════════════════════════════════════════════════════════════
+
+디자인 컨셉:
+- 💪 BlackShark 체육관 테마
+- 🥊 권투 + 피트니스 결합
+- 🎨 검정 배경 + 금색 포인트
+
+아이콘 구성:
+┌─────────────────────────────────┐
+│     [금색 테두리]                │
+│                                  │
+│        [상어 지느러미]            │
+│                                  │
+│    🥊        💪                 │
+│  권투글러브   아령               │
+│                                  │
+│         BS                       │
+│    (BlackShark)                  │
+│                                  │
+└─────────────────────────────────┘
+
+색상:
+- 배경: #000000 (검정)
+- 테두리: #d4af37 (금색)
+- 아이콘: #d4af37 (금색)
+- 텍스트: #d4af37 (금색)
+
+파일: app_icon.svg (512x512)
+
+APK에 적용 방법:
+1. app_icon.svg → PNG 변환 (여러 해상도)
+2. PumpyApp/android/app/src/main/res/mipmap-* 에 배치
+3. ic_launcher.png로 저장
+
+필요한 해상도:
+- mdpi: 48x48
+- hdpi: 72x72
+- xhdpi: 96x96
+- xxhdpi: 144x144
+- xxxhdpi: 192x192
+
+═══════════════════════════════════════════════════════════════
+         4️⃣ APK 빌드 가이드
+═══════════════════════════════════════════════════════════════
+
+A. 메인 APK (Pumpy 멤버 앱)
+──────────────────────────────────
+
+현재 상태:
+- PumpyApp 폴더 존재
+- React Native 앱 구조 완성
+- Android 빌드 환경 설정 완료
+
+빌드 명령:
+```bash
+cd PumpyApp
+npm install
+cd android
+./gradlew clean
+./gradlew assembleRelease
+```
+
+출력:
+PumpyApp/android/app/build/outputs/apk/release/app-release.apk
+
+기능:
+✅ 로그인 / 회원가입
+✅ 홈 (AI 프로필, 오늘의 운동)
+✅ 커뮤니티 (게시글, 댓글, 좋아요)
+✅ 알림 (좋아요, 댓글 알림)
+✅ 내 정보 (회원권, 동의서)
+✅ 프로필 (AI 캐릭터, 신체 정보)
+
+B. 출석 체크 APK (터치 모니터용)
+──────────────────────────────────
+
+새로 만들어야 하는 앱!
+
+목적:
+- 체육관 입구 터치 모니터 전용
+- 간단한 UI: 전화번호 입력 → 출석
+- 메인 앱과 DB 공유로 자동 연동
+
+구조:
+┌─────────────────────────────────────┐
+│   🥊 블랙샤크 본관 출석 체크        │
+├─────────────────────────────────────┤
+│                                      │
+│     전화번호 뒤 4자리를 입력하세요   │
+│                                      │
+│           [____]                     │
+│                                      │
+│        [확인] [지우기]               │
+│                                      │
+└─────────────────────────────────────┘
+
+출석 확인 → 회원 정보 표시 → 출석 완료
+
+생성 방법:
+
+1️⃣ 새 React Native 프로젝트 생성
+```bash
+cd C:\Users\guddn\Downloads\COCO
+npx react-native@latest init CheckInApp
+```
+
+2️⃣ 핵심 화면 구현
+- CheckInScreen.tsx (전화번호 입력)
+- MemberSelectScreen.tsx (여러 명일 경우 선택)
+- CompleteScreen.tsx (출석 완료 확인)
+
+3️⃣ API 연동
+- AWS 서버 (http://3.27.28.175:8000/api)
+- GET /members/search_by_phone/?last4=XXXX
+- POST /attendance/ { member: ID, check_in_time, status: 'in' }
+
+4️⃣ APK 빌드
+```bash
+cd CheckInApp/android
+./gradlew assembleRelease
+```
+
+5️⃣ 자동 연동
+- 같은 Django DB 사용
+- 출석 기록은 attendance 테이블에 저장
+- 메인 앱에서 자동으로 출석 통계 업데이트
+
+간단한 웹뷰 APK 방법 (더 빠름!):
+
+```javascript
+// CheckInApp/App.tsx
+import React from 'react';
+import {WebView} from 'react-native-webview';
+
+export default function App() {
+  return (
+    <WebView
+      source={{uri: 'http://3.27.28.175:3000/checkin'}}
+      style={{flex: 1}}
+    />
+  );
+}
+```
+
+이 방법의 장점:
+✅ 기존 /checkin 페이지 그대로 사용
+✅ 빠른 개발 (5분 내 완성)
+✅ 자동으로 업데이트 반영
+✅ 웹과 APK 동일한 UX
+
+═══════════════════════════════════════════════════════════════
+         🚀 APK 빌드 방법 (상세)
+═══════════════════════════════════════════════════════════════
+
+A. 메인 APK 빌드
+──────────────────
+
+Step 1: 환경 확인
+```bash
+# Java 17 설치 확인
+java -version
+
+# Android SDK 확인
+echo %ANDROID_HOME%
+```
+
+Step 2: 앱 아이콘 교체
+```bash
+# SVG를 PNG로 변환 (온라인 도구 또는 ImageMagick)
+# 각 해상도로 저장:
+# - 48x48 → mipmap-mdpi/ic_launcher.png
+# - 72x72 → mipmap-hdpi/ic_launcher.png
+# - 96x96 → mipmap-xhdpi/ic_launcher.png
+# - 144x144 → mipmap-xxhdpi/ic_launcher.png
+# - 192x192 → mipmap-xxxhdpi/ic_launcher.png
+```
+
+Step 3: 앱 정보 수정
+```javascript
+// PumpyApp/app.json
+{
+  "name": "펌피",
+  "displayName": "펌피 - 블랙샤크"
+}
+```
+
+Step 4: API URL 확인
+```typescript
+// PumpyApp/src/utils/api.ts
+export const getApiUrl = async (): Promise<string> => {
+  return 'http://3.27.28.175:8000/api'; // AWS 서버 고정
+};
+```
+
+Step 5: 빌드
+```bash
+cd C:\Users\guddn\Downloads\COCO\PumpyApp
+npm install
+
+cd android
+gradlew clean
+gradlew assembleRelease
+```
+
+Step 6: APK 확인
+```
+파일 위치:
+PumpyApp/android/app/build/outputs/apk/release/app-release.apk
+
+이름 변경:
+app-release.apk → Pumpy_v2.0_Final.apk
+```
+
+B. 출석 체크 APK 빌드 (WebView 방식)
+──────────────────────────────────────
+
+Step 1: 새 프로젝트 생성
+```bash
+cd C:\Users\guddn\Downloads\COCO
+npx react-native@latest init CheckInApp
+```
+
+Step 2: WebView 설치
+```bash
+cd CheckInApp
+npm install react-native-webview
+```
+
+Step 3: App.tsx 수정
+```typescript
+import React from 'react';
+import {SafeAreaView, StatusBar} from 'react-native';
+import {WebView} from 'react-native-webview';
+
+export default function App() {
+  return (
+    <SafeAreaView style={{flex: 1}}>
+      <StatusBar barStyle="dark-content" />
+      <WebView
+        source={{uri: 'http://3.27.28.175:3000/checkin'}}
+        style={{flex: 1}}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+      />
+    </SafeAreaView>
+  );
+}
+```
+
+Step 4: AndroidManifest.xml 수정
+```xml
+<!-- CheckInApp/android/app/src/main/AndroidManifest.xml -->
+<application
+  android:usesCleartextTraffic="true">
+  ...
+</application>
+```
+
+Step 5: 빌드
+```bash
+cd android
+gradlew assembleRelease
+```
+
+Step 6: APK 확인
+```
+CheckInApp/android/app/build/outputs/apk/release/app-release.apk
+→ CheckIn_BlackShark.apk
+```
+
+C. APK 설치 및 테스트
+─────────────────────
+
+설치:
+```bash
+# USB 연결 후
+adb install Pumpy_v2.0_Final.apk
+adb install CheckIn_BlackShark.apk
+```
+
+또는:
+- APK 파일을 폰으로 전송
+- 파일 매니저에서 설치
+- "알 수 없는 출처" 허용 필요
+
+테스트:
+1. Pumpy 앱 실행
+   - 로그인
+   - 홈 화면 확인
+   - 출석 통계 확인 (0일)
+
+2. CheckIn 앱 실행
+   - 전화번호 뒤 4자리 입력
+   - 출석 체크
+
+3. Pumpy 앱으로 복귀
+   - 홈 화면 새로고침
+   - ✅ 출석 통계 업데이트 (1일)
+
+═══════════════════════════════════════════════════════════════
+         🔗 서버 연동 확인
+═══════════════════════════════════════════════════════════════
+
+AWS 서버 정보:
+- IP: 3.27.28.175
+- API: http://3.27.28.175:8000/api
+- Web: http://3.27.28.175:3000
+
+연동 테스트:
+
+1️⃣ API 접근
+```bash
+curl http://3.27.28.175:8000/api/members/
+curl http://3.27.28.175:8000/api/attendance/
+curl http://3.27.28.175:8000/api/posts/
+```
+
+2️⃣ 웹 접근
+- http://3.27.28.175:3000 (관리자 페이지)
+- http://3.27.28.175:3000/app (멤버 앱)
+- http://3.27.28.175:3000/checkin (출석 체크)
+
+3️⃣ APK 접근
+- 앱에서 AWS API 호출
+- 같은 DB 공유
+- 실시간 동기화
+
+보안 설정:
+- AWS Security Group: 모든 포트 열림
+- Django ALLOWED_HOSTS = ['*']
+- CORS 설정 완료
+
+═══════════════════════════════════════════════════════════════
+         📱 APK 배포 방법
+═══════════════════════════════════════════════════════════════
+
+A. 내부 배포 (체육관 회원용)
+───────────────────────────
+
+방법 1: 카카오톡 / 텔레그램
+- APK 파일을 단체 채팅방에 업로드
+- "설치 방법" 문서와 함께 공유
+
+방법 2: Google Drive / Dropbox
+- 공유 링크 생성
+- QR 코드로 배포
+
+방법 3: 자체 웹사이트
+```html
+<!-- 다운로드 페이지 -->
+<h1>펌피 앱 다운로드</h1>
+<a href="/Pumpy_v2.0_Final.apk">
+  📥 Android APK 다운로드
+</a>
+```
+
+방법 4: APK 서명 (선택사항)
+```bash
+# 키 생성
+keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
+
+# APK 서명
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore app-release.apk my-key-alias
+
+# zipalign
+zipalign -v 4 app-release.apk Pumpy_Signed.apk
+```
+
+B. 체육관 터치 모니터 설치
+─────────────────────────
+
+하드웨어:
+- Android 태블릿 (10인치 이상 권장)
+- 벽걸이 거치대
+- 전원 연결
+
+설치:
+1. CheckIn_BlackShark.apk 설치
+2. Kiosk 모드 활성화
+   - Settings → Display → Screen timeout → Never
+   - Install "Kiosk Browser" app
+   - Set CheckIn app as default launcher
+
+3. 자동 시작 설정
+   - 전원 ON 시 자동으로 CheckIn 앱 실행
+
+4. 위치 설정
+   - 체육관 입구
+   - 눈높이에 맞게 설치
+   - 터치하기 편한 각도
+
+═══════════════════════════════════════════════════════════════
+         🎯 사용 시나리오
+═══════════════════════════════════════════════════════════════
+
+아침 8시 - 회원 도착:
+
+Step 1: 터치 모니터에서 출석 체크
+- CheckIn 앱 실행
+- 전화번호 뒤 4자리 입력 (예: 1234)
+- "출석 완료!" 메시지
+
+Step 2: 스마트폰으로 Pumpy 앱 확인
+- 홈 화면 확인
+- ✅ 연속 출석: 5일
+- ✅ 이번달 출석: 12일
+- ✅ 총 출석: 45일
+
+Step 3: 오늘의 운동 확인
+- WOD 확인
+- 스쿼트 5세트 x 10회
+- 데드리프트 3세트 x 8회
+
+Step 4: 운동 시작
+- 트레이너와 운동
+- 세트별 무게 기록 (선택)
+
+Step 5: 운동 완료 (10시)
+- "완료하기" 버튼 클릭
+- 🔥 490kcal 소모 확인
+
+Step 6: 운동 상세 확인
+- "상세보기" 클릭
+- 운동별 세트, 회수, 칼로리 확인
+
+Step 7: 커뮤니티 활동
+- 운동 후 인증샷 업로드
+- 다른 회원들과 소통
+
+Step 8: 내 정보 확인
+- 회원권 남은 기간 확인
+- 다음 결제일 확인
+
+═══════════════════════════════════════════════════════════════
+         ✅ 최종 체크리스트
+═══════════════════════════════════════════════════════════════
+
+웹 기능:
+✅ 내 정보 페이지 (회원권 + 동의서)
+✅ 커뮤니티 게시글 작성
+✅ 운동 상세 정보 (세트, 회수, 칼로리)
+✅ 출석 통계 실시간 갱신
+✅ BlackShark 테마 적용
+
+서버:
+✅ AWS 배포 완료 (3.27.28.175)
+✅ Serializer 수정 (게시글 작성 문제 해결)
+✅ CORS 설정
+✅ DB 연동
+
+앱:
+✅ 앱 아이콘 디자인 (BlackShark)
+🔨 메인 APK 빌드 준비 (PumpyApp 폴더)
+🔨 출석 체크 APK 빌드 가이드 작성
+
+문서:
+✅ 빌드 가이드
+✅ 설치 가이드
+✅ 사용 시나리오
+✅ 배포 방법
+
+═══════════════════════════════════════════════════════════════
+         🚀 다음 단계
+═══════════════════════════════════════════════════════════════
+
+1️⃣ APK 빌드 실행
+```bash
+# 메인 앱
+cd PumpyApp/android
+gradlew assembleRelease
+
+# 출석 체크 앱 (새로 만들기)
+npx react-native@latest init CheckInApp
+# WebView 설정 후 빌드
+```
+
+2️⃣ APK 테스트
+- 실제 기기에 설치
+- 모든 기능 테스트
+- 서버 연동 확인
+
+3️⃣ 배포
+- APK 파일을 회원들에게 공유
+- 설치 가이드 전달
+- 피드백 수집
+
+4️⃣ 개선
+- 사용자 피드백 반영
+- 버그 수정
+- 새 기능 추가
+
+═══════════════════════════════════════════════════════════════
+         🥊 블랙샤크 본관과 함께 더 강해지세요! 💪
+═══════════════════════════════════════════════════════════════
+
+모든 코드와 가이드가 준비되었습니다!
+APK 빌드는 위의 명령어를 터미널에서 실행하시면 됩니다.
+
+문의사항이 있으면 언제든지 말씀해주세요! 🚀

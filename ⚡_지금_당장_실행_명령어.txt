@@ -1,0 +1,53 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 AWS 배포 - 지금 바로 복사해서 실행!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. AWS 콘솔에서:
+   - 인스턴스 선택
+   - [연결] 버튼 클릭
+   - [Session Manager] 탭
+   - [연결] 클릭
+
+2. 아래 명령어 복사 (전체 선택 Ctrl+A, 복사 Ctrl+C)
+
+3. Session Manager 화면에서 붙여넣기 (Ctrl+V)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 배포 명령어 (아래 전체 복사)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd ~/pumpy 2>/dev/null || (cd ~ && git clone https://github.com/BJJTOM/pumpy.git && cd pumpy)
+git pull origin main
+cd gym_api && source venv/bin/activate 2>/dev/null || (python3 -m venv venv && source venv/bin/activate)
+pip install -q -r requirements.txt
+python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput
+sudo systemctl restart gunicorn
+cd ../gym_web && npm install --prefer-offline --no-audit
+export NODE_OPTIONS="--max-old-space-size=3072"
+rm -rf .next && npm run build
+pm2 delete gym-web 2>/dev/null || true && pm2 start npm --name "gym-web" -- start && pm2 save
+sudo systemctl restart nginx
+echo "🎉 배포 완료! http://3.27.28.175"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏱️ 예상 시간: 10-15분
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+배포 완료 후:
+✅ http://3.27.28.175 접속
+✅ 웹사이트 확인
+✅ 관리자: http://3.27.28.175/admin
+✅ 회원 앱: http://3.27.28.175/app
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 보안 그룹 수정 (선택사항 - 나중에)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. EC2 > 보안 그룹 > 인바운드 규칙 편집
+2. SSH (22), HTTP (80), HTTPS (443) 추가
+3. 소스: 0.0.0.0/0
+4. 저장
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+

@@ -1,0 +1,294 @@
+═══════════════════════════════════════════════════════════════
+         💪 Pumpy Django Admin 디자인 업데이트
+         AWS 서버 실행 가이드
+═══════════════════════════════════════════════════════════════
+
+🎯 목표: http://3.27.28.175:8000/admin/ 디자인 변경
+
+═══════════════════════════════════════════════════════════════
+         방법 1: 자동 스크립트 실행 (권장 ⭐)
+═══════════════════════════════════════════════════════════════
+
+1️⃣ AWS에 SSH 접속:
+   ssh -i your-key.pem ubuntu@3.27.28.175
+
+2️⃣ 스크립트 다운로드:
+   wget https://raw.githubusercontent.com/YOUR_REPO/update_django_admin.sh
+   
+   또는 직접 생성:
+   nano update_django_admin.sh
+   (아래 스크립트 내용 복사/붙여넣기)
+
+3️⃣ 실행 권한 부여:
+   chmod +x update_django_admin.sh
+
+4️⃣ 스크립트 실행:
+   ./update_django_admin.sh
+
+5️⃣ 완료! 
+   브라우저에서 http://3.27.28.175:8000/admin/ 접속
+   Ctrl+Shift+R 로 강력 새로고침!
+
+═══════════════════════════════════════════════════════════════
+         방법 2: 수동으로 한 줄씩 실행
+═══════════════════════════════════════════════════════════════
+
+1️⃣ SSH 접속:
+   ssh -i your-key.pem ubuntu@3.27.28.175
+
+2️⃣ 프로젝트 디렉토리로 이동:
+   cd ~/gym_api
+   # 또는 find / -name "manage.py" 2>/dev/null | grep gym
+
+3️⃣ Static 디렉토리 생성:
+   mkdir -p members/static/admin/css
+
+4️⃣ CSS 파일 생성:
+   nano members/static/admin/css/custom_admin.css
+
+5️⃣ CSS 내용 붙여넣기:
+   (아래 CSS 코드 전체 복사/붙여넣기)
+   Ctrl+O (저장), Enter, Ctrl+X (종료)
+
+6️⃣ Static 파일 수집:
+   python3 manage.py collectstatic --noinput
+
+7️⃣ 서버 재시작:
+   sudo systemctl restart gunicorn
+   sudo systemctl restart nginx
+
+8️⃣ 완료!
+   브라우저에서 http://3.27.28.175:8000/admin/ 접속
+   Ctrl+Shift+R 로 강력 새로고침!
+
+═══════════════════════════════════════════════════════════════
+         방법 3: AWS Console (Session Manager)
+═══════════════════════════════════════════════════════════════
+
+1️⃣ AWS Console 접속:
+   https://console.aws.amazon.com/
+
+2️⃣ EC2 → 인스턴스 → 3.27.28.175 선택
+
+3️⃣ "연결" 버튼 → "Session Manager" 탭
+
+4️⃣ "연결" 클릭 (브라우저에서 터미널 열림)
+
+5️⃣ 위의 "방법 2" 명령어들 실행
+
+6️⃣ 완료!
+
+═══════════════════════════════════════════════════════════════
+         CSS 파일 내용 (복사해서 붙여넣기)
+═══════════════════════════════════════════════════════════════
+
+/* PUMPY ADMIN - CUSTOM STYLES */
+:root {
+    --primary-color: #667eea;
+    --primary-dark: #5568d3;
+    --primary-light: #7c94f5;
+    --secondary-color: #764ba2;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Navbar - Gradient */
+.main-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    border-bottom: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.main-header .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.main-header .navbar-nav .nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* Brand Logo */
+.brand-link {
+    background: rgba(0, 0, 0, 0.2) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar - Dark */
+.main-sidebar {
+    background: #1e293b !important;
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.4);
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Cards */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    color: #ffffff !important;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+    border: none;
+}
+
+/* Small Box */
+.small-box {
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.small-box:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+}
+
+/* Info Box */
+.info-box {
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.info-box:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.4);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
+    box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Tables */
+.table thead th {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    color: #ffffff !important;
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: #f9fafb;
+    transform: scale(1.005);
+}
+
+/* Login Page */
+.login-page {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.login-box {
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card, .info-box, .small-box {
+    animation: fadeIn 0.5s ease;
+}
+
+═══════════════════════════════════════════════════════════════
+         🔍 문제 해결
+═══════════════════════════════════════════════════════════════
+
+❓ 디자인이 변경되지 않는다면:
+
+1. 브라우저 캐시 강력 삭제:
+   Ctrl+Shift+Delete → 캐시 삭제 → 재접속
+
+2. Static 파일 경로 확인:
+   python3 manage.py findstatic admin/css/custom_admin.css
+
+3. 파일 권한 확인:
+   ls -la members/static/admin/css/custom_admin.css
+   chmod 644 members/static/admin/css/custom_admin.css
+
+4. 서버 로그 확인:
+   sudo journalctl -u gunicorn -n 50
+   sudo tail -f /var/log/nginx/error.log
+
+5. Gunicorn/Nginx 상태:
+   sudo systemctl status gunicorn
+   sudo systemctl status nginx
+
+═══════════════════════════════════════════════════════════════
+         ✅ 완료 후 확인사항
+═══════════════════════════════════════════════════════════════
+
+브라우저에서 http://3.27.28.175:8000/admin/ 접속 시:
+
+✅ Navbar: 보라-파랑 그라데이션
+✅ Sidebar: 다크 테마 (#1e293b)
+✅ 활성 메뉴: 그라데이션 배경
+✅ 카드: 둥근 모서리 + 그림자
+✅ 버튼: 그라데이션 + 호버 효과
+✅ 테이블: 그라데이션 헤더
+✅ 로그인 페이지: 그라데이션 배경
+
+이 모든 것이 보이면 성공! 🎉
+
+═══════════════════════════════════════════════════════════════
+         📞 도움이 필요하면
+═══════════════════════════════════════════════════════════════
+
+어떤 단계에서 막히시면 알려주세요!
+스크린샷이나 에러 메시지를 보여주시면 도와드리겠습니다.
+
+화이팅! 💪
+═══════════════════════════════════════════════════════════════
+
+
+
+
+
+
+

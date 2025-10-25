@@ -55,3 +55,8 @@ Write-Host "   API: http://${AWS_IP}:8000" -ForegroundColor White
 Write-Host "   관리자: http://${AWS_IP}:8000/admin" -ForegroundColor White
 Write-Host ""
 
+
+
+
+
+

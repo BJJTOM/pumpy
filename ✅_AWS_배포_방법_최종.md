@@ -192,3 +192,8 @@ copy pumpy-key.pem C:\Users\guddn\.ssh\
 
 AWS 콘솔: https://console.aws.amazon.com/ec2/
 
+
+
+
+
+

@@ -379,3 +379,8 @@ adb logcat | Select-String "PumpyApp"
 **배포 준비 완료!** 🎉
 
 
+
+
+
+
+

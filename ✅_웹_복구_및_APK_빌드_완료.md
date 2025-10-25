@@ -357,3 +357,8 @@ adb logcat | Select-String "PumpyApp"
 **다음 질문이나 추가 개발이 필요하면 언제든 말씀해주세요!** 🚀
 
 
+
+
+
+
+

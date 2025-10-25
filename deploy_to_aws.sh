@@ -295,3 +295,8 @@ echo -e "${GREEN}접속 정보가 저장되었습니다:${NC} /home/ubuntu/pumpy
 echo ""
 
 
+
+
+
+
+

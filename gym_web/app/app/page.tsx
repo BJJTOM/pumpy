@@ -30,7 +30,7 @@ export default function MemberAppHome() {
       return
     }
     loadData()
-    
+
     // 걸음 수 시뮬레이션 (실제로는 헬스 앱 API 연동)
     const savedSteps = localStorage.getItem('todaySteps')
     if (savedSteps) {
@@ -62,11 +62,11 @@ export default function MemberAppHome() {
 
       // WOD 로드
       try {
-        const wodsRes = await axios.get(`${apiBase}/wods/`)
-        const today = new Date().toISOString().split('T')[0]
-        const todayWODs = wodsRes.data.filter((w: any) => w.date === today)
-        if (todayWODs.length > 0) {
-          setTodayWOD(todayWODs[0])
+      const wodsRes = await axios.get(`${apiBase}/wods/`)
+      const today = new Date().toISOString().split('T')[0]
+      const todayWODs = wodsRes.data.filter((w: any) => w.date === today)
+      if (todayWODs.length > 0) {
+        setTodayWOD(todayWODs[0])
         }
       } catch (wodError) {
         console.log('WOD 로드 실패 (정상):', wodError)
@@ -154,7 +154,7 @@ export default function MemberAppHome() {
       
       // 페이지 새로고침하여 캐릭터 즉시 반영
       window.location.reload()
-    } catch (error) {
+      } catch (error) {
       console.error('❌ AI 캐릭터 생성 실패:', error)
       alert('❌ AI 캐릭터 생성에 실패했습니다.')
     } finally {
@@ -280,7 +280,7 @@ export default function MemberAppHome() {
         zIndex: 10
       }}>
         <div>
-          <h1 style={{
+        <h1 style={{
             margin: '0 0 5px 0',
             fontSize: '28px',
             fontWeight: 900,
@@ -288,7 +288,7 @@ export default function MemberAppHome() {
             textShadow: '0 2px 10px rgba(0,0,0,0.2)'
           }}>
             안녕하세요, {currentUser?.last_name}{currentUser?.first_name}님!
-          </h1>
+        </h1>
           <p style={{
             margin: 0,
             fontSize: '15px',
@@ -312,7 +312,7 @@ export default function MemberAppHome() {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div style={{
+        <div style={{
         padding: '0 20px',
         position: 'relative',
         zIndex: 10
@@ -350,9 +350,9 @@ export default function MemberAppHome() {
               animation: 'boxingPunch 2s ease-in-out infinite'
             }}>
               {aiPhoto ? (
-                <div style={{
-                  width: '100%',
-                  height: '100%',
+              <div style={{
+                width: '100%',
+                height: '100%',
                   borderRadius: '15px',
                   background: `url(${aiPhoto})`,
                   backgroundSize: 'cover',
@@ -403,7 +403,7 @@ export default function MemberAppHome() {
                       border: '2px solid #333',
                       borderTop: 'none'
                     }} />
-                  </div>
+                </div>
 
                   {/* 목 */}
                   <div style={{
@@ -436,26 +436,26 @@ export default function MemberAppHome() {
                       transform: 'translate(-50%, -50%)',
                       fontSize: '20px'
                     }}>🥊</div>
-                  </div>
+              </div>
 
                   {/* 왼쪽 팔 */}
-                  <div style={{
+                <div style={{
                     width: '35px',
                     height: '12px',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    position: 'absolute',
+                  position: 'absolute',
                     top: '80px',
                     left: '5px',
                     borderRadius: '6px',
                     border: '2px solid #333',
                     transform: 'rotate(-20deg)'
                   }} />
-                  <div style={{
+                <div style={{
                     width: '24px',
                     height: '24px',
                     borderRadius: '50%',
                     background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
-                    position: 'absolute',
+                  position: 'absolute',
                     top: '72px',
                     left: '-5px',
                     border: '2px solid #333',
@@ -495,7 +495,7 @@ export default function MemberAppHome() {
                       fontSize: '18px',
                       animation: 'punchEffect 2s ease-in-out infinite'
                     }}>💥</div>
-                  </div>
+                </div>
 
                   {/* 다리 */}
                   <div style={{
@@ -518,12 +518,12 @@ export default function MemberAppHome() {
                     borderRadius: '4px 4px 6px 6px',
                     border: '2px solid #222'
                   }} />
-                </>
-              )}
-            </div>
+              </>
+            )}
+        </div>
 
             {/* 이름 */}
-            <div style={{
+        <div style={{
               fontSize: '16px',
               fontWeight: 800,
               color: 'white',
@@ -548,10 +548,10 @@ export default function MemberAppHome() {
                 height: '36px',
                 borderRadius: '50%',
                 background: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+              fontSize: '16px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -567,11 +567,11 @@ export default function MemberAppHome() {
               }}
             >
               ✏️
-            </div>
           </div>
+        </div>
 
           {/* 오른쪽: 정보 카드들 */}
-          <div style={{
+        <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '12px'
@@ -609,13 +609,13 @@ export default function MemberAppHome() {
                     justifyContent: 'center',
                     fontSize: '18px'
                   }}>📊</div>
-                  <div>
+              <div>
                     <div style={{ fontSize: '13px', fontWeight: 800, color: '#333' }}>신체 정보</div>
                     <div style={{ fontSize: '11px', color: '#999' }}>BMI {calculateBMI()}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '16px', color: '#ccc' }}>›</div>
               </div>
+              </div>
+                <div style={{ fontSize: '16px', color: '#ccc' }}>›</div>
+            </div>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
@@ -625,13 +625,13 @@ export default function MemberAppHome() {
                 <StatMini label="체중" value={bodyStats.weight} unit="kg" />
                 <StatMini label="근육" value={bodyStats.muscle} unit="kg" color="#10b981" />
                 <StatMini label="체지방" value={bodyStats.fat} unit="%" color="#f59e0b" />
-              </div>
             </div>
+        </div>
 
             {/* 출석 통계 카드 */}
             <div
               onClick={() => router.push('/app/attendance-history')}
-              style={{
+                style={{
                 background: 'rgba(255,255,255,0.95)',
                 borderRadius: '20px',
                 padding: '15px',
@@ -651,7 +651,7 @@ export default function MemberAppHome() {
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <div style={{
+            <div style={{
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
@@ -664,10 +664,10 @@ export default function MemberAppHome() {
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 800, color: '#333' }}>출석 통계</div>
                     <div style={{ fontSize: '11px', color: '#999' }}>이번 달 {attendanceStats.thisMonth}회</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '16px', color: '#ccc' }}>›</div>
               </div>
+              </div>
+                <div style={{ fontSize: '16px', color: '#ccc' }}>›</div>
+            </div>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
@@ -677,18 +677,18 @@ export default function MemberAppHome() {
                 <StatMini label="이번 달" value={attendanceStats.thisMonth} unit="회" color="#667eea" />
                 <StatMini label="총" value={attendanceStats.total} unit="회" color="#f59e0b" />
               </div>
-            </div>
+        </div>
 
             {/* 레벨 & 달성률 카드 */}
-            <div style={{
+        <div style={{
               background: 'rgba(255,255,255,0.95)',
-              borderRadius: '20px',
+          borderRadius: '20px',
               padding: '15px',
               boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
               border: '2px solid rgba(255,255,255,0.5)'
             }}>
-              <div style={{
-                display: 'flex',
+            <div style={{
+              display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '12px'
@@ -696,22 +696,22 @@ export default function MemberAppHome() {
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
-                }}>
+              gap: '8px'
+            }}>
                   <div style={{
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
                     background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
-                    display: 'flex',
+                        display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '18px'
                   }}>👑</div>
-                  <div>
+                      <div>
                     <div style={{ fontSize: '13px', fontWeight: 800, color: '#333' }}>레벨 {level}</div>
                     <div style={{ fontSize: '11px', color: '#999' }}>다음 레벨까지 {Math.max(0, (level * 100) - experiencePoints)}XP</div>
-                  </div>
+                        </div>
                 </div>
                 <div style={{
                   fontSize: '20px',
@@ -719,9 +719,9 @@ export default function MemberAppHome() {
                   color: '#a855f7'
                 }}>
                   {Math.floor((experiencePoints / (level * 100)) * 100)}%
-                </div>
-              </div>
-              <div style={{
+                        </div>
+                      </div>
+                      <div style={{
                 height: '8px',
                 background: '#e5e7eb',
                 borderRadius: '4px',
@@ -734,13 +734,13 @@ export default function MemberAppHome() {
                   borderRadius: '4px',
                   transition: 'width 0.5s'
                 }} />
-              </div>
+                      </div>
+                    </div>
             </div>
-          </div>
         </div>
 
         {/* 걸음 수 카드 (커뮤니티 대체) */}
-        <div style={{
+          <div style={{
           background: 'rgba(255,255,255,0.95)',
           borderRadius: '25px',
           padding: '25px',
@@ -762,7 +762,7 @@ export default function MemberAppHome() {
               <div style={{
                 width: '48px',
                 height: '48px',
-                borderRadius: '12px',
+                  borderRadius: '12px',
                 background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                 display: 'flex',
                 alignItems: 'center',
@@ -786,7 +786,7 @@ export default function MemberAppHome() {
                 }}>
                   목표: {stepGoal.toLocaleString()}걸음
                 </p>
-              </div>
+            </div>
             </div>
             <div style={{
               fontSize: '28px',
@@ -813,12 +813,12 @@ export default function MemberAppHome() {
               boxShadow: '0 0 10px rgba(79, 172, 254, 0.5)'
             }} />
           </div>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div style={{
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                          <div style={{
               fontSize: '13px',
               color: '#666',
               fontWeight: 600
@@ -828,15 +828,15 @@ export default function MemberAppHome() {
             <div style={{
               fontSize: '13px',
               color: '#4facfe',
-              fontWeight: 700
-            }}>
+                                fontWeight: 700
+                              }}>
               {Math.max(0, stepGoal - todaySteps).toLocaleString()}걸음 남음
-            </div>
-          </div>
-        </div>
+                          </div>
+                          </div>
+                        </div>
 
         {/* 퀵 액션 버튼들 */}
-        <div style={{
+                        <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '12px',
@@ -885,8 +885,8 @@ export default function MemberAppHome() {
             fontSize: '18px',
             fontWeight: 800,
             color: '#333',
-            display: 'flex',
-            alignItems: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
             gap: '8px'
           }}>
             <span>🎯</span> 오늘의 목표
@@ -899,11 +899,11 @@ export default function MemberAppHome() {
           }}>
             <span style={{ fontSize: '14px', color: '#666', fontWeight: 600 }}>
               운동 완료하기
-            </span>
+                          </span>
             <span style={{ fontSize: '14px', fontWeight: 800, color: '#667eea' }}>
               {attendanceStats.thisMonth > 0 ? '완료' : '진행중'}
             </span>
-          </div>
+                        </div>
           <div style={{
             height: '12px',
             background: '#e5e7eb',
@@ -918,16 +918,16 @@ export default function MemberAppHome() {
               borderRadius: '6px',
               transition: 'width 0.5s'
             }} />
-          </div>
-          <div style={{
+                      </div>
+                  <div style={{
             marginTop: '10px',
             fontSize: '12px',
-            color: '#999',
+                    color: '#999',
             textAlign: 'center'
-          }}>
+                  }}>
             이번 달 {attendanceStats.thisMonth}/20회 달성
-          </div>
-        </div>
+                  </div>
+              </div>
       </div>
 
       {/* 애니메이션 */}
@@ -971,7 +971,7 @@ export default function MemberAppHome() {
               setPhotoPreview(null)
             }
           }}
-          style={{
+                      style={{
             position: 'fixed',
             top: 0,
             left: 0,
@@ -1001,18 +1001,18 @@ export default function MemberAppHome() {
             }}
           >
             {/* 헤더 */}
-            <div style={{
+                      <div style={{
               padding: '24px',
               borderBottom: '1px solid #f0f0f0',
-              display: 'flex',
-              justifyContent: 'space-between',
+                        display: 'flex',
+                        justifyContent: 'space-between',
               alignItems: 'center'
-            }}>
-              <div>
+                      }}>
+                        <div>
                 <h3 style={{
                   margin: '0 0 8px 0',
                   fontSize: '24px',
-                  fontWeight: 800,
+                            fontWeight: 800,
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
@@ -1026,7 +1026,7 @@ export default function MemberAppHome() {
                 }}>
                   사진을 업로드하면 AI가 복싱 캐릭터로 변환합니다
                 </p>
-              </div>
+                          </div>
               <button
                 onClick={() => {
                   setShowPhotoEditModal(false)
@@ -1041,8 +1041,8 @@ export default function MemberAppHome() {
                   background: '#f5f5f5',
                   cursor: 'pointer',
                   fontSize: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'all 0.2s'
                 }}
@@ -1070,11 +1070,11 @@ export default function MemberAppHome() {
                     marginBottom: '12px'
                   }}>
                     현재 AI 캐릭터
-                  </div>
+                        </div>
                   <img
                     src={aiPhoto}
                     alt="현재 캐릭터"
-                    style={{
+                              style={{
                       width: '100%',
                       borderRadius: '12px',
                       marginBottom: '12px'
@@ -1084,9 +1084,9 @@ export default function MemberAppHome() {
                     onClick={deleteCharacter}
                     style={{
                       width: '100%',
-                      padding: '12px',
+                                padding: '12px',
                       border: '2px solid #ef4444',
-                      background: 'white',
+                                background: 'white',
                       borderRadius: '12px',
                       color: '#ef4444',
                       fontSize: '15px',
@@ -1111,7 +1111,7 @@ export default function MemberAppHome() {
                   transition: 'all 0.2s',
                   background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)'
                 }}>
-                  <div style={{
+                                <div style={{
                     fontSize: '64px',
                     marginBottom: '16px'
                   }}>
@@ -1119,18 +1119,18 @@ export default function MemberAppHome() {
                   </div>
                   <div style={{
                     fontSize: '18px',
-                    fontWeight: 700,
-                    color: '#333',
+                                  fontWeight: 700,
+                                  color: '#333',
                     marginBottom: '8px'
-                  }}>
+                                }}>
                     사진을 선택하세요
-                  </div>
-                  <div style={{
+                                </div>
+                                <div style={{
                     fontSize: '14px',
                     color: '#999'
-                  }}>
+                                }}>
                     클릭하거나 드래그 & 드롭
-                  </div>
+                                </div>
                   <input
                     type="file"
                     accept="image/*"
@@ -1141,7 +1141,7 @@ export default function MemberAppHome() {
               ) : (
                 <div>
                   {/* 미리보기 */}
-                  <div style={{
+                              <div style={{
                     marginBottom: '20px',
                     padding: '20px',
                     background: 'linear-gradient(135deg, #f6f8fb 0%, #e9eef5 100%)',
@@ -1149,12 +1149,12 @@ export default function MemberAppHome() {
                   }}>
                     <div style={{
                       fontSize: '13px',
-                      fontWeight: 700,
+                                fontWeight: 700,
                       color: '#666',
                       marginBottom: '12px'
-                    }}>
+                              }}>
                       업로드한 사진
-                    </div>
+                              </div>
                     <img
                       src={photoPreview}
                       alt="미리보기"
@@ -1163,10 +1163,10 @@ export default function MemberAppHome() {
                         borderRadius: '12px'
                       }}
                     />
-                  </div>
+                            </div>
 
                   {/* 버튼들 */}
-                  <div style={{
+                        <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
                     gap: '12px'
@@ -1179,9 +1179,9 @@ export default function MemberAppHome() {
                       style={{
                         padding: '16px',
                         border: '2px solid #ddd',
-                        background: 'white',
+                          background: 'white',
                         borderRadius: '12px',
-                        color: '#666',
+                          color: '#666',
                         fontSize: '15px',
                         fontWeight: 700,
                         cursor: 'pointer'
@@ -1220,8 +1220,8 @@ export default function MemberAppHome() {
                 borderRadius: '12px',
                 fontSize: '13px',
                 color: '#856404',
-                lineHeight: 1.6
-              }}>
+                          lineHeight: 1.6
+                        }}>
                 <div style={{
                   fontWeight: 700,
                   marginBottom: '8px',
@@ -1230,16 +1230,16 @@ export default function MemberAppHome() {
                   gap: '6px'
                 }}>
                   💡 AI 캐릭터 생성 정보
-                </div>
+                        </div>
                 <div>
                   • 실제 서비스에서는 OpenAI DALL-E 또는 Midjourney API를 사용합니다<br />
                   • 업로드한 사진을 복싱 스타일 캐릭터로 자동 변환합니다<br />
                   • 생성된 캐릭터는 프로필과 홈 화면에 표시됩니다<br />
                   • 현재는 시뮬레이션 버전입니다
-                </div>
+                    </div>
               </div>
-            </div>
           </div>
+      </div>
         </div>
       )}
 
@@ -1290,7 +1290,7 @@ function QuickAction({ icon, label, onClick, gradient = false, badge = null }: a
       }}
     >
       {badge && (
-        <div style={{
+    <div style={{
           position: 'absolute',
           top: '-5px',
           right: '-5px',
@@ -1303,7 +1303,7 @@ function QuickAction({ icon, label, onClick, gradient = false, badge = null }: a
           boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
         }}>
           {badge}
-        </div>
+      </div>
       )}
       <div style={{ fontSize: '32px', marginBottom: '6px' }}>{icon}</div>
       <div style={{
