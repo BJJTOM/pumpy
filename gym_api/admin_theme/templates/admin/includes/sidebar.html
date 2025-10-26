@@ -1,0 +1,43 @@
+{% load admin_theme_tags %}
+{% admin_app_list as apps %}
+
+<nav class="sidebar-nav">
+  <!-- 대시보드 홈 -->
+  <div class="sidebar-section">
+    <a class="sidebar-home" href="{% url 'admin:index' %}">
+      <span class="sidebar-icon">🏠</span>
+      <span class="sidebar-text">대시보드</span>
+    </a>
+  </div>
+
+  <!-- 앱 및 모델 목록 -->
+  {% for app in apps %}
+    <div class="sidebar-section">
+      <div class="sidebar-heading">
+        <span class="sidebar-heading-icon">📦</span>
+        {{ app.name }}
+      </div>
+      <ul class="sidebar-list">
+        {% for model in app.models %}
+          <li>
+            <a href="{{ model.admin_url }}" class="sidebar-link">
+              <span class="sidebar-bullet">•</span>
+              {{ model.name }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+
+  <!-- 푸터 정보 -->
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-text">
+      💪 Pumpy Gym v3.3
+    </div>
+    <div class="sidebar-footer-subtext">
+      Admin Dashboard
+    </div>
+  </div>
+</nav>
+

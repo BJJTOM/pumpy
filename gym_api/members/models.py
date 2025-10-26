@@ -1,6 +1,25 @@
 from django.db import models
 
 
+class Gym(models.Model):
+    """체육관/센터 정보"""
+    name = models.CharField(max_length=200, verbose_name='체육관명')
+    address = models.CharField(max_length=300, verbose_name='주소')
+    phone = models.CharField(max_length=20, blank=True, verbose_name='전화번호')
+    description = models.TextField(blank=True, verbose_name='소개')
+    logo = models.TextField(blank=True, verbose_name='로고 URL')
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
+    
+    class Meta:
+        verbose_name = '체육관'
+        verbose_name_plural = '체육관들'
+    
+    def __str__(self):
+        return self.name
+
+
 class MembershipPlan(models.Model):
     CATEGORY_CHOICES = [
         ('일반', '일반 회원권'),
@@ -113,6 +132,7 @@ class Member(models.Model):
     ]
     
     # 기본 정보
+    gym = models.ForeignKey(Gym, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='소속 체육관')
     first_name = models.CharField(max_length=50, verbose_name='이름')
     last_name = models.CharField(max_length=50, verbose_name='성')
     phone = models.CharField(max_length=20, blank=True, verbose_name='전화번호')
@@ -162,6 +182,8 @@ class Member(models.Model):
     # 상태 및 회원권
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', verbose_name='상태')
     is_approved = models.BooleanField(default=False, verbose_name='승인 여부')
+    is_staff = models.BooleanField(default=False, verbose_name='관리자 여부')
+    is_superuser = models.BooleanField(default=False, verbose_name='최고관리자 여부')
     join_date = models.DateField(auto_now_add=True, verbose_name='가입일')
     current_plan = models.ForeignKey(MembershipPlan, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='현재 회원권')
     expire_date = models.DateField(null=True, blank=True, verbose_name='만료일')
@@ -529,17 +551,20 @@ class Post(models.Model):
     CATEGORY_CHOICES = [
         ('general', '자유게시판'),
         ('workout', '운동정보'),
-        ('nutrition', '식단'),
-        ('question', '질문'),
-        ('success', '성공사례'),
+        ('diet', '식단'),
+        ('qna', 'Q&A'),
+        ('notice', '공지사항'),
         ('review', '리뷰'),
     ]
     
     author = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='posts', verbose_name='작성자')
+    gym = models.ForeignKey('Gym', on_delete=models.SET_NULL, null=True, blank=True, related_name='posts', verbose_name='체육관')
     title = models.CharField(max_length=200, verbose_name='제목', default='')
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='general', verbose_name='카테고리')
     content = models.TextField(verbose_name='내용')
     images = models.TextField(blank=True, verbose_name='이미지 URLs (JSON)')
+    video_url = models.TextField(blank=True, verbose_name='영상 URL')
+    video_duration = models.IntegerField(default=0, verbose_name='영상 길이(초)')
     
     # 태그
     tags = models.TextField(blank=True, verbose_name='태그')
@@ -553,6 +578,7 @@ class Post(models.Model):
     # 설정
     is_pinned = models.BooleanField(default=False, verbose_name='고정됨')
     is_public = models.BooleanField(default=True, verbose_name='공개')
+    is_gym_only = models.BooleanField(default=False, verbose_name='내 체육관 전용')
     
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='작성일')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
@@ -604,6 +630,53 @@ class Like(models.Model):
         if self.post:
             return f"{self.member.full_name} - 게시글 {self.post.id}"
         return f"{self.member.full_name} - 댓글 {self.comment.id}"
+
+
+class Notice(models.Model):
+    """공지사항"""
+    gym = models.ForeignKey(Gym, on_delete=models.CASCADE, null=True, blank=True, related_name='notices', verbose_name='체육관')
+    title = models.CharField(max_length=200, verbose_name='제목')
+    content = models.TextField(verbose_name='내용')
+    image = models.TextField(blank=True, verbose_name='이미지 URL')
+    
+    is_active = models.BooleanField(default=True, verbose_name='활성화')
+    is_pinned = models.BooleanField(default=False, verbose_name='상단 고정')
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='작성일')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
+    
+    class Meta:
+        verbose_name = '공지사항'
+        verbose_name_plural = '공지사항들'
+        ordering = ['-is_pinned', '-created_at']
+    
+    def __str__(self):
+        return self.title
+
+
+class Banner(models.Model):
+    """배너"""
+    gym = models.ForeignKey(Gym, on_delete=models.CASCADE, null=True, blank=True, related_name='banners', verbose_name='체육관')
+    title = models.CharField(max_length=200, verbose_name='제목')
+    image = models.TextField(verbose_name='이미지 URL')
+    link = models.TextField(blank=True, verbose_name='링크 URL')
+    
+    order = models.IntegerField(default=0, verbose_name='정렬 순서')
+    is_active = models.BooleanField(default=True, verbose_name='활성화')
+    
+    start_date = models.DateTimeField(null=True, blank=True, verbose_name='시작일')
+    end_date = models.DateTimeField(null=True, blank=True, verbose_name='종료일')
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
+    
+    class Meta:
+        verbose_name = '배너'
+        verbose_name_plural = '배너들'
+        ordering = ['order', '-created_at']
+    
+    def __str__(self):
+        return self.title
 
 
 class Story(models.Model):

@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load admin_theme_tags %}
+
+{% block title %}💪 Pumpy Admin | {{ title }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin_theme/admin.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin_theme/admin.js' %}" defer></script>
+{% endblock %}
+
+{% block branding %}
+  <div id="branding" class="pumpy-brand">
+    <img src="{% static 'admin_theme/logo.svg' %}" alt="Pumpy Logo" class="brand-logo" />
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">💪 Pumpy Admin</a></h1>
+  </div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+  <div class="pumpy-admin-layout">
+    <aside class="pumpy-sidebar">
+      {% include "admin/includes/sidebar.html" %}
+    </aside>
+    <main class="pumpy-main-content">
+      {{ block.super }}
+    </main>
+  </div>
+{% endblock %}
+
