@@ -1,0 +1,90 @@
+AWS 서버에 테스트 계정 생성하기
+================================
+
+문제: test@pumpy.com 계정이 AWS 서버에 없어서 로그인이 실패합니다.
+
+해결 방법 1: SSH로 직접 접속
+---------------------------
+1. AWS EC2 인스턴스에 SSH로 접속:
+   ssh -i "your-key.pem" ubuntu@3.27.28.175
+
+2. gym_api 디렉토리로 이동:
+   cd /home/ubuntu/gym_api
+
+3. Django shell 실행:
+   python3 manage.py shell
+
+4. 아래 코드 붙여넣기:
+---
+from members.models import Member, MembershipPlan
+from django.contrib.auth.hashers import make_password
+from datetime import date, timedelta
+
+email = 'test@pumpy.com'
+password = 'test1234'
+
+# 기본 플랜 생성
+plan, _ = MembershipPlan.objects.get_or_create(
+    name='기본 멤버십',
+    defaults={
+        'category': '일반',
+        'price': 30000,
+        'original_price': 50000,
+        'duration_days': 30,
+        'description': '기본 멤버십 플랜'
+    }
+)
+
+# 계정이 있으면 업데이트, 없으면 생성
+try:
+    member = Member.objects.get(email=email)
+    member.password = make_password(password)
+    member.status = 'active'
+    member.current_plan = plan
+    member.expire_date = date.today() + timedelta(days=365)
+    member.save()
+    print(f"✅ 계정 업데이트 완료: {email}")
+except Member.DoesNotExist:
+    member = Member.objects.create(
+        email=email,
+        password=make_password(password),
+        first_name='테스터',
+        last_name='펌피',
+        phone='010-1234-5678',
+        phone_verified=True,
+        email_verified=True,
+        status='active',
+        gender='남',
+        birth_date=date(1990, 1, 1),
+        current_plan=plan,
+        expire_date=date.today() + timedelta(days=365)
+    )
+    print(f"✅ 계정 생성 완료: {email}")
+
+print(f"테스트 계정 준비 완료!")
+print(f"이메일: {email}")
+print(f"비밀번호: {password}")
+---
+
+5. Ctrl+D 또는 exit()로 shell 종료
+
+
+해결 방법 2: 빠른 해결 (임시)
+---------------------------
+일단 앱에서 실제 이메일/비밀번호를 입력해서 로그인하세요.
+기존 활성화된 회원 계정이 있다면 그 계정으로 로그인할 수 있습니다.
+
+
+현재 상황
+---------
+- 로컬 DB에는 test@pumpy.com 계정이 있습니다 ✅
+- AWS 서버 DB에는 test@pumpy.com 계정이 없습니다 ❌
+- 앱은 AWS 서버(3.27.28.175)에 연결됩니다
+- 따라서 로그인이 실패합니다
+
+
+다음 단계
+---------
+위의 "해결 방법 1"을 실행하면 문제가 해결됩니다.
+또는 AWS 서버에 접속할 수 없다면, 다른 활성 계정의 이메일/비밀번호를 사용하세요.
+

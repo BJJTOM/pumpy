@@ -1,65 +1,124 @@
-# AWS 배포 자동화 스크립트
-# PowerShell에서 실행
+# AWS 직접 배포 스크립트
+$AWS_HOST = "ubuntu@3.27.28.175"
+$AWS_KEY = "C:\Users\guddn\Downloads\COCO\pumpy-key.pem"
 
-$AWS_IP = "3.27.28.175"
-$AWS_USER = "ubuntu"
+Write-Host "🚀 AWS 서버로 직접 배포 시작..." -ForegroundColor Green
+Write-Host "🔑 SSH 키: $AWS_KEY" -ForegroundColor Cyan
 
-Write-Host "========================================"  -ForegroundColor Cyan
-Write-Host "🚀 AWS 자동 배포 시작" -ForegroundColor Green
-Write-Host "========================================"  -ForegroundColor Cyan
+# 1. SSH 키 권한 확인
+if (-not (Test-Path $AWS_KEY)) {
+    Write-Host "❌ SSH 키를 찾을 수 없습니다: $AWS_KEY" -ForegroundColor Red
+    exit 1
+}
 
-# SSH 접속 명령어 생성
-$deployCommands = @'
-cd ~/pumpy 2>/dev/null || (cd ~ && git clone https://github.com/BJJTOM/pumpy.git && cd pumpy)
-git pull origin main
-cd gym_api
-source venv/bin/activate 2>/dev/null || (python3 -m venv venv && source venv/bin/activate)
-pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manage.py collectstatic --noinput
+Write-Host "✅ SSH 키 찾음" -ForegroundColor Green
+
+# 2. 파일 압축
+Write-Host "`n📦 백엔드 파일 압축 중..." -ForegroundColor Cyan
+Push-Location C:\Users\guddn\Downloads\COCO
+
+tar -czf gym_api_update.tar.gz `
+  -C gym_api `
+  config `
+  members `
+  manage.py `
+  requirements.txt `
+  db.sqlite3 `
+  --exclude='__pycache__' `
+  --exclude='*.pyc' `
+  --exclude='venv' `
+  --exclude='.venv' `
+  --exclude='node_modules'
+
+if (-not (Test-Path "gym_api_update.tar.gz")) {
+    Write-Host "❌ 압축 실패!" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "✅ 압축 완료: $(Get-Item gym_api_update.tar.gz | Select-Object -ExpandProperty Length) bytes" -ForegroundColor Green
+
+# 3. 서버로 전송
+Write-Host "`n📤 서버로 파일 전송 중..." -ForegroundColor Cyan
+scp -i $AWS_KEY -o StrictHostKeyChecking=no gym_api_update.tar.gz "${AWS_HOST}:~/"
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ 파일 전송 실패!" -ForegroundColor Red
+    Remove-Item gym_api_update.tar.gz -ErrorAction SilentlyContinue
+    exit 1
+}
+
+Write-Host "✅ 파일 전송 완료" -ForegroundColor Green
+
+# 4. 서버에서 업데이트 실행
+Write-Host "`n🔄 서버 업데이트 및 재시작..." -ForegroundColor Cyan
+
+$commands = @"
+echo '=== 1. 파일 압축 해제 ==='
+cd ~
+tar -xzf gym_api_update.tar.gz -C gym/
+
+echo ''
+echo '=== 2. 가상환경 활성화 및 마이그레이션 ==='
+cd ~/gym
+source venv/bin/activate
+
+python manage.py makemigrations 2>&1 || echo 'Migration 없음'
+python manage.py migrate 2>&1 || echo 'Migration 완료'
+python manage.py collectstatic --noinput 2>&1 || echo 'Static files 수집 완료'
+
+echo ''
+echo '=== 3. Gunicorn 재시작 ==='
 sudo systemctl restart gunicorn
-cd ../gym_web
-npm install
-export NODE_OPTIONS="--max-old-space-size=4096"
-npm run build
-pm2 delete gym-web 2>/dev/null || true
-pm2 start npm --name "gym-web" -- start
-pm2 save
+sleep 2
+
+echo ''
+echo '=== 4. Nginx 재시작 ==='
 sudo systemctl restart nginx
-echo "✅ 배포 완료!"
-'@
+sleep 2
 
-# 임시 파일에 명령어 저장
-$tempScript = "C:\Users\guddn\Downloads\COCO\temp_deploy.sh"
-$deployCommands | Out-File -FilePath $tempScript -Encoding UTF8
+echo ''
+echo '=== 5. 서비스 상태 확인 ==='
+echo '--- Gunicorn 상태 ---'
+sudo systemctl status gunicorn --no-pager -l 0 | head -20
 
-Write-Host "📝 배포 스크립트 생성 완료" -ForegroundColor Green
-Write-Host ""
-Write-Host "다음 방법 중 하나를 선택하세요:" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "방법 1: SSH로 직접 접속 (권장)" -ForegroundColor Cyan
-Write-Host "  ssh $AWS_USER@$AWS_IP" -ForegroundColor White
-Write-Host ""
-Write-Host "방법 2: AWS 콘솔 사용" -ForegroundColor Cyan
-Write-Host "  https://console.aws.amazon.com/ec2/" -ForegroundColor White
-Write-Host "  > 인스턴스 선택 > 연결 > Session Manager" -ForegroundColor White
-Write-Host ""
-Write-Host "방법 3: PuTTY 사용 (Windows)" -ForegroundColor Cyan
-Write-Host "  Host: $AWS_IP" -ForegroundColor White
-Write-Host "  User: $AWS_USER" -ForegroundColor White
-Write-Host ""
-Write-Host "========================================"  -ForegroundColor Cyan
-Write-Host "접속 후, 다음 명령어를 복사해서 실행하세요:" -ForegroundColor Yellow
-Write-Host "========================================"  -ForegroundColor Cyan
-Write-Host ""
-Write-Host $deployCommands -ForegroundColor Green
-Write-Host ""
-Write-Host "========================================"  -ForegroundColor Cyan
+echo ''
+echo '--- Nginx 상태 ---'
+sudo systemctl status nginx --no-pager -l 0 | head -10
 
-# 배포 명령어를 클립보드에 복사
-$deployCommands | Set-Clipboard
-Write-Host "✅ 배포 명령어가 클립보드에 복사되었습니다!" -ForegroundColor Green
-Write-Host "AWS 서버에 접속한 후 Ctrl+V로 붙여넣으세요!" -ForegroundColor Yellow
+echo ''
+echo '=== 6. 최근 로그 확인 ==='
+echo '--- Gunicorn 로그 (최근 15줄) ---'
+sudo journalctl -u gunicorn -n 15 --no-pager
 
+echo ''
+echo '=== 7. 에러 확인 ==='
+sudo journalctl -u gunicorn --no-pager -n 20 | grep -i error || echo '에러 없음'
 
+echo ''
+echo '=== 8. 정리 ==='
+rm ~/gym_api_update.tar.gz
+
+echo ''
+echo '✅ 배포 완료!'
+echo '🌐 서버 주소: http://3.27.28.175'
+"@
+
+ssh -i $AWS_KEY -o StrictHostKeyChecking=no $AWS_HOST $commands
+
+# 5. 로컬 정리
+Write-Host "`n🧹 로컬 임시 파일 정리..." -ForegroundColor Cyan
+Remove-Item gym_api_update.tar.gz -ErrorAction SilentlyContinue
+Pop-Location
+
+Write-Host "`n✅ 배포 완료!" -ForegroundColor Green
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+Write-Host "🌐 서버 주소: http://3.27.28.175" -ForegroundColor Cyan
+Write-Host "🔍 API 확인: http://3.27.28.175/api/" -ForegroundColor Cyan
+Write-Host "📱 앱 확인: http://3.27.28.175/app" -ForegroundColor Cyan
+Write-Host "👨‍💼 관리자: http://3.27.28.175/admin/" -ForegroundColor Cyan
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "🧪 테스트 계정:" -ForegroundColor Green
+Write-Host "   이메일: test@example.com" -ForegroundColor White
+Write-Host "   비밀번호: test1234" -ForegroundColor White
+Write-Host ""

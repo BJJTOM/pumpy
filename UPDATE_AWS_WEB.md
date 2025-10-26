@@ -135,3 +135,6 @@ ssh -i C:\Users\guddn\Downloads\pumpy-key.pem ubuntu@3.27.28.175 "pm2 restart al
 
 
 
+
+
+

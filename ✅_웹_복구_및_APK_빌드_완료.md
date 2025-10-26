@@ -362,3 +362,6 @@ adb logcat | Select-String "PumpyApp"
 
 
 
+
+
+

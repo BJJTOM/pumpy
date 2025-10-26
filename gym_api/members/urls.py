@@ -3,6 +3,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from . import auth_views
 from . import community_views
+from . import notice_views
+from . import payment_views
 
 router = DefaultRouter()
 # 관리자용 API
@@ -23,6 +25,14 @@ router.register(r'posts', community_views.PostViewSet, basename='posts')
 router.register(r'comments', community_views.CommentViewSet, basename='comments')
 router.register(r'stories', community_views.StoryViewSet, basename='stories')
 router.register(r'likes', community_views.LikeViewSet, basename='likes')
+
+# 공지사항 & 배너 API
+router.register(r'notices', notice_views.NoticeViewSet, basename='notices')
+router.register(r'banners', notice_views.BannerViewSet, basename='banners')
+
+# 결제 API
+router.register(r'payments', payment_views.PaymentViewSet, basename='payments')
+router.register(r'membership-plans', payment_views.MembershipPlanViewSet, basename='membership-plans')
 
 # 회원용 앱 API (기존)
 router.register(r'app/profiles', views.UserProfileViewSet, basename='app-profiles')

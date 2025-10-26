@@ -1,0 +1,129 @@
+╔═══════════════════════════════════════════════════════╗
+║   🎉 Pumpy 앱 설치 및 실행 완료!                    ║
+╚═══════════════════════════════════════════════════════╝
+
+✅ 완료된 작업
+═══════════════════════════════════════════════════════
+
+1. ✅ APK 설치 완료 (Pumpy_NATIVE_2025-10-26_1222.apk)
+2. ✅ 포트 포워딩 설정 (tcp:8081)
+3. ✅ Metro Bundler 시작
+4. ✅ 앱 실행 (com.pumpy.gym)
+
+═══════════════════════════════════════════════════════
+  📱 지금 에뮬레이터를 확인하세요!
+═══════════════════════════════════════════════════════
+
+앱이 실행되고 있습니다!
+
+✅ 정상 작동: 로그인 화면 또는 메인 화면이 보입니다
+❌ 에러 발생: Metro Bundler 연결 문제
+
+═══════════════════════════════════════════════════════
+  🚀 앱 실행 방법
+═══════════════════════════════════════════════════════
+
+[방법 1] 에뮬레이터 앱 목록에서:
+  1. 에뮬레이터 하단의 앱 목록 버튼 클릭
+  2. "Pumpy" 앱 아이콘 찾기
+  3. 클릭하여 실행
+
+[방법 2] 명령어로 실행:
+  adb shell monkey -p com.pumpy.gym -c android.intent.category.LAUNCHER 1
+
+[방법 3] Metro Bundler와 함께 실행:
+  1. Metro Bundler PowerShell 창 확인 (실행 중이어야 함)
+  2. 에뮬레이터에서 앱 실행
+  3. 앱이 Metro에 자동 연결됨
+
+═══════════════════════════════════════════════════════
+  ⚠️ 중요 정보
+═══════════════════════════════════════════════════════
+
+앱 패키지 이름: com.pumpy.gym
+설치된 APK: Pumpy_NATIVE_2025-10-26_1222.apk
+Metro Bundler 포트: 8081
+
+💡 Metro Bundler PowerShell 창을 닫지 마세요!
+   이 창이 열려있어야 앱이 정상 작동합니다.
+
+═══════════════════════════════════════════════════════
+  🔄 앱 다시 시작하기
+═══════════════════════════════════════════════════════
+
+PowerShell에서 다음 명령어 실행:
+
+# 포트 설정
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+
+# Metro Bundler 시작 (새 창)
+cd C:\Users\guddn\Downloads\COCO\PumpyApp
+npx react-native start --reset-cache
+
+# 앱 실행
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" shell monkey -p com.pumpy.gym -c android.intent.category.LAUNCHER 1
+
+═══════════════════════════════════════════════════════
+  📦 빠른 실행 배치 파일
+═══════════════════════════════════════════════════════
+
+다음 파일을 더블클릭하세요:
+
+🚀_빠른_재시작.bat
+  → Metro Bundler 재시작 및 앱 실행
+
+🔥_완전_삭제_후_재설치.bat
+  → 문제 발생 시 완전 재설치
+
+═══════════════════════════════════════════════════════
+  🛠️ 문제 해결
+═══════════════════════════════════════════════════════
+
+문제: "Unable to load script" 에러
+해결:
+  1. Metro Bundler가 실행 중인지 확인
+  2. 포트 설정: adb reverse tcp:8081 tcp:8081
+  3. 에뮬레이터에서 R을 두 번 누르기
+
+─────────────────────────────────────────────────────
+
+문제: 앱이 실행되지 않음
+해결:
+  1. 에뮬레이터가 실행 중인지 확인
+  2. 다음 명령어 실행:
+     adb devices (에뮬레이터 연결 확인)
+     adb shell monkey -p com.pumpy.gym -c android.intent.category.LAUNCHER 1
+
+─────────────────────────────────────────────────────
+
+문제: Metro Bundler 에러
+해결:
+  1. Metro 창 닫기 (Ctrl+C)
+  2. cd C:\Users\guddn\Downloads\COCO\PumpyApp
+  3. npx react-native start --reset-cache
+
+═══════════════════════════════════════════════════════
+  🎯 개발 중 유용한 명령어
+═══════════════════════════════════════════════════════
+
+# 앱 다시 로드
+adb shell input text "RR"
+
+# 개발자 메뉴 열기
+adb shell input keyevent 82
+
+# 앱 강제 종료
+adb shell am force-stop com.pumpy.gym
+
+# 앱 다시 시작
+adb shell monkey -p com.pumpy.gym -c android.intent.category.LAUNCHER 1
+
+# 로그 확인
+adb logcat | Select-String "ReactNative"
+
+═══════════════════════════════════════════════════════
+
+작성 시간: 2025-10-26
+상태: ✅ 설치 및 실행 완료
+패키지: com.pumpy.gym
+

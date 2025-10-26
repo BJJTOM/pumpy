@@ -146,7 +146,26 @@ class MealLogSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.full_name', read_only=True)
+    author = serializers.SerializerMethodField()
+    replies = serializers.SerializerMethodField()
+    
+    def get_author(self, obj):
+        """작성자 정보 반환"""
+        if obj.author:
+            return {
+                'id': obj.author.id,
+                'first_name': obj.author.first_name,
+                'last_name': obj.author.last_name,
+                'full_name': obj.author.full_name,
+                'photo': obj.author.photo if obj.author.photo else None
+            }
+        return None
+    
+    def get_replies(self, obj):
+        """답글 목록 반환 (재귀적)"""
+        if obj.replies.exists():
+            return CommentSerializer(obj.replies.all(), many=True, context=self.context).data
+        return []
     
     class Meta:
         model = Comment

@@ -163,7 +163,7 @@ class MemberViewSet(viewsets.ModelViewSet):
         # 장기 미출석 회원 (최대 10명만, 쿼리 최적화)
         recent_attendance_member_ids = set(Attendance.objects.filter(
             date__gte=month_ago,
-            status='present'
+            status='출석'
         ).values_list('member_id', flat=True).distinct())
         
         inactive_members = list(Member.objects.filter(
@@ -177,7 +177,7 @@ class MemberViewSet(viewsets.ModelViewSet):
         # 출석률
         week_attendance = Attendance.objects.filter(
             date__gte=week_ago,
-            status='present'
+            status='출석'
         ).values('member_id').distinct().count()
         
         attendance_rate = 0

@@ -1,0 +1,69 @@
+========================================
+  🚀 AWS 배포 명령어 (복사해서 실행)
+========================================
+
+1단계: PowerShell에서 SSH 접속
+================================
+ssh ubuntu@3.27.28.175
+
+
+2단계: AWS 서버에서 아래 명령어 복사 & 붙여넣기
+================================
+cd /home/ubuntu/pumpy
+git pull origin main
+
+# 백엔드 업데이트
+cd gym_api
+source venv/bin/activate
+pip install -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
+python manage.py collectstatic --noinput
+sudo systemctl restart gunicorn
+
+# 프론트엔드 업데이트
+cd ../gym_web
+npm install
+npm run build
+pm2 restart gym_web || pm2 start npm --name "gym_web" -- start
+pm2 save
+
+# 상태 확인
+pm2 status
+sudo systemctl status gunicorn
+
+
+3단계: 배포 완료 확인
+================================
+접속 주소:
+- 웹:      http://3.27.28.175/
+- API:     http://3.27.28.175/api/
+- 관리자:  http://3.27.28.175/admin/
+
+
+========================================
+  💡 한 줄로 실행 (빠른 배포)
+========================================
+cd /home/ubuntu/pumpy && git pull && cd gym_web && npm run build && pm2 restart gym_web
+
+
+========================================
+  🔧 문제 발생 시
+========================================
+
+Gunicorn 오류:
+sudo systemctl restart gunicorn
+sudo journalctl -u gunicorn -n 50
+
+PM2 오류:
+pm2 restart gym_web
+pm2 logs gym_web
+
+빌드 오류:
+cd /home/ubuntu/pumpy/gym_web
+rm -rf .next node_modules
+npm install
+npm run build
+
+
+

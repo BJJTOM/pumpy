@@ -31,3 +31,6 @@ cd /home/ubuntu/pumpy/gym_api && source venv/bin/activate && python manage.py mi
 
 
 
+
+
+

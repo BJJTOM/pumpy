@@ -70,3 +70,6 @@ def can_checkin(member_id: int, last_checkin_time: Optional[datetime]) -> tuple[
 
 
 
+
+
+

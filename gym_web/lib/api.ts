@@ -2,7 +2,7 @@
 // 개발/프로덕션 환경에 따라 자동 전환
 
 const LOCAL_API_URL = 'http://localhost:8000/api'
-const AWS_API_URL = '/api'  // 상대 경로 - Nginx 프록시 사용
+const AWS_API_URL = 'http://3.27.28.175/api'  // 절대 경로 - WebView 호환성
 
 // 환경 변수에서 API URL 가져오기 (빌드 시 최적화)
 const PRODUCTION_API_URL = process.env.NEXT_PUBLIC_API_URL || AWS_API_URL

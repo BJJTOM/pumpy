@@ -1,0 +1,53 @@
+# 🚨 502 Bad Gateway 에러 해결 명령어
+
+## 문제:
+Django migration 충돌로 인해 Gunicorn이 시작되지 않음
+
+## 해결 방법:
+
+### 1단계: AWS 서버 접속
+AWS 콘솔 → EC2 → 인스턴스 선택 → 연결 → Session Manager
+
+### 2단계: 다음 명령어를 순서대로 실행:
+
+```bash
+# 1. 프로젝트 디렉토리로 이동
+cd ~/pumpy/gym_api
+
+# 2. 가상환경 활성화
+source venv/bin/activate
+
+# 3. Migration 병합 (충돌 해결)
+python manage.py makemigrations --merge
+
+# 4. 병합된 migration 적용
+python manage.py migrate
+
+# 5. Static 파일 수집
+python manage.py collectstatic --noinput
+
+# 6. Gunicorn 재시작
+sudo systemctl restart gunicorn
+
+# 7. Gunicorn 상태 확인
+sudo systemctl status gunicorn
+
+# 8. Nginx 재시작
+sudo systemctl restart nginx
+
+# 9. 완료! 웹 접속 테스트
+echo "✅ 완료! http://3.27.28.175/app 에 접속해 보세요!"
+```
+
+## 또는 한 줄 명령어:
+
+```bash
+cd ~/pumpy/gym_api && source venv/bin/activate && python manage.py makemigrations --merge && python manage.py migrate && python manage.py collectstatic --noinput && sudo systemctl restart gunicorn && sudo systemctl restart nginx && echo "✅ 완료!"
+```
+
+## 예상 시간:
+1-2분
+
+## 완료 후:
+http://3.27.28.175/app 접속!
+
